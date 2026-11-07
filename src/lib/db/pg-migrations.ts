@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {postgresDeviceCatalogGuardStatement,postgresDeviceCatalogGuardChecksum,verifyPostgresDeviceCatalogGuard} from './pg-device-catalog-guards';
 import type {PostgresDatabase} from './postgres';
 import {installPostgresLedgerGuards,verifyPostgresLedgerGuards} from './postgres-ledger';
 import {installPostgresOperationGuards,verifyPostgresOperationGuards} from './postgres-operations';
@@ -37,7 +38,9 @@ checksums.push(sha(JSON.stringify({appointments:postgresAppointmentChecksum(),co
 checksums.push(sha(JSON.stringify({workflow:postgresRepairWorkflowChecksum(),notes:postgresRepairNotesChecksum()})));
 names.push('operational_repair_technical_work_and_time');
 checksums.push(postgresRepairWorkChecksum());
-export const POSTGRES_SCHEMA_VERSION=9;
+names.push('configurable_device_type_registry');
+checksums.push(postgresDeviceCatalogGuardChecksum());
+export const POSTGRES_SCHEMA_VERSION=10;
 type Applied={version:number;name:string;checksum:string;schema_sha256:string};
 
 export async function postgresSchemaEvidence(db:PostgresDatabase,schema:string){
@@ -140,6 +143,7 @@ export async function applyPostgresMigrations(db:PostgresDatabase,schema:string,
    if(version===7)for(const statement of [...postgresRepairIntakeStatements(schema),...postgresAppointmentStatements(schema),...postgresComplaintStatements(schema),...postgresInvoiceSourceIdentityStatements(schema)])await db.query(statement);
    if(version===8)for(const statement of [...postgresRepairWorkflowStatements(schema),...postgresRepairNotesStatements(schema)])await db.query(statement);
    if(version===9)for(const statement of postgresRepairWorkStatements(schema))await db.query(statement);
+   if(version===10)await db.query(postgresDeviceCatalogGuardStatement(schema));
    const digest=await schemaFingerprint(db,schema);
    await db.query(`INSERT INTO ${q}._repaid_migrations(version,name,checksum,schema_sha256,execution_ms) VALUES($1,$2,$3,$4,$5)`,[version,names[version-1],checksums[version-1],digest,Date.now()-started]);applied.push(version);
   }
@@ -150,6 +154,7 @@ export async function applyPostgresMigrations(db:PostgresDatabase,schema:string,
   if(target>=7){await verifyPostgresComplaintGuards(db,schema);await verifyPostgresRepairIntakeGuards(db,schema);await verifyPostgresAppointmentGuards(db,schema);await verifyPostgresInvoiceSourceIdentityGuards(db,schema);}
   if(target>=8){await verifyPostgresRepairWorkflowGuards(db,schema);await verifyPostgresRepairNotesGuards(db,schema);}
   if(target>=9)await verifyPostgresRepairWorkGuards(db,schema);
+  if(target>=10)await verifyPostgresDeviceCatalogGuard(db,schema);
   return {schema,version:target,applied,replayed:applied.length===0,application_wide_ready:false,coverage:await postgresCurrentSchemaCoverage(db,schema)};
  });
 }
@@ -168,5 +173,6 @@ export async function verifyPostgresMigrations(db:PostgresDatabase,schema:string
  await verifyPostgresComplaintGuards(db,schema);await verifyPostgresRepairIntakeGuards(db,schema);await verifyPostgresAppointmentGuards(db,schema);await verifyPostgresInvoiceSourceIdentityGuards(db,schema);
  await verifyPostgresRepairWorkflowGuards(db,schema);await verifyPostgresRepairNotesGuards(db,schema);
  await verifyPostgresRepairWorkGuards(db,schema);
+ await verifyPostgresDeviceCatalogGuard(db,schema);
  return {verified:true,schema,version:POSTGRES_SCHEMA_VERSION,application_wide_ready:false};
 }

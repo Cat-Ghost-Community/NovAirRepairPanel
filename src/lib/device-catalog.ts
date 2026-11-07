@@ -10,7 +10,8 @@ export function defaultDeviceCatalog():DeviceCatalog{return {revision:0,types:or
 export function deviceTypeLabel(catalog:DeviceCatalog,type:string){return catalog.types.find(t=>t.id===type)?.label??originals.find(t=>t[0]===type)?.[1]??type;}
 export function deviceTypeIcon(catalog:DeviceCatalog,type:string){return catalog.types.find(t=>t.id===type)?.icon??originals.find(t=>t[0]===type)?.[2]??'plug';}
 export function parseDeviceCatalog(value:string|undefined|null):DeviceCatalog{
- if(value==null)return defaultDeviceCatalog();
+ if(value===undefined)return defaultDeviceCatalog();
+ if(typeof value!=='string')throw new HttpError(503,'پیکربندی انواع دستگاه نیازمند بررسی مدیر است؛ داده‌ای تغییر نکرد.');
  try{return validateDeviceCatalog(JSON.parse(value));}catch{throw new HttpError(503,'پیکربندی انواع دستگاه نیازمند بررسی مدیر است؛ داده‌ای تغییر نکرد.');}
 }
 export function validateDeviceCatalog(value:unknown):DeviceCatalog{

@@ -7,6 +7,7 @@ import {postgresSessionDigest} from '../../src/lib/db/pg-app-auth';
 import {readPostgresDeviceCatalog,savePostgresDeviceCatalog} from '../../src/lib/db/pg-device-catalog';
 import {PostgresDevicesRepository} from '../../src/lib/db/pg-operational-profiles';
 import {customDeviceSpecs} from '../../src/lib/device-catalog';
+import {verifyPostgresDeviceCatalogGuard} from '../../src/lib/db/pg-device-catalog-guards';
 const url=process.env.REPAID_PG_TEST_URL??'',name=process.env.REPAID_PG_TEST_DATABASE??'';
 if(!/^repaid_test_[a-f0-9]{24}$/.test(name)||new URL(url).pathname!=='/'+name)throw Error('Disposable PostgreSQL catalog fixture required');
 const db=createPostgresDatabase({connectionString:url,allowLocalPlaintext:true}),peer=createPostgresDatabase({connectionString:url,allowLocalPlaintext:true}),schema='repaid_integration_'+randomBytes(12).toString('hex'),t=(n:string)=>'"'+schema+'"."'+n+'"';
@@ -20,7 +21,8 @@ before(async()=>{
  for(const [token,id] of [[owner,1],[one,2],[two,3],[admin,4]] as const)await db.query(`INSERT INTO ${t('sessions')}(token,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '1 hour')`,[postgresSessionDigest(token),id]);
  await db.query(`INSERT INTO ${t('customers')}(id,first_name,last_name,branch_id) VALUES(1,'First','Customer',1),(2,'Second','Customer',2)`);
  await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,brand,model,branch_id,is_archived) VALUES(10,1,'mobile','A','B',1,0),(11,2,'console','C','D',2,0),(12,1,'printer','E','F',1,1)`);
- await applyPostgresMigrations(db,schema);
+ await applyPostgresMigrations(db,schema,{targetVersion:9});const original=(await db.query(`SELECT * FROM ${t('devices')} ORDER BY id`)).rows;
+ await applyPostgresMigrations(db,schema);assert.deepEqual((await db.query(`SELECT * FROM ${t('devices')} ORDER BY id`)).rows,original);assert.equal((await verifyPostgresDeviceCatalogGuard(db,schema)).verified,true);
 });
 after(async()=>{try{await db.query('DROP SCHEMA "'+schema+'" CASCADE');}finally{await peer.close();await db.close();}});
 it('only the company owner can persist global versioned type/field definitions',async()=>{
@@ -50,4 +52,10 @@ it('independent connections cannot overwrite the same catalog version and audit 
  const current=await readPostgresDeviceCatalog(db,schema);
  await db.query(`CREATE FUNCTION ${t('reject_catalog_audit')}() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity='device_catalog' THEN RAISE EXCEPTION 'injected catalog audit failure';END IF;RETURN NEW;END $$`);await db.query(`CREATE TRIGGER reject_catalog_audit BEFORE INSERT ON ${t('audit_logs')} FOR EACH ROW EXECUTE FUNCTION ${t('reject_catalog_audit')}()`);
  const changed=structuredClone(current);changed.types[0].label='Must roll back';try{await assert.rejects(()=>savePostgresDeviceCatalog(db,schema,owner,changed),/injected catalog/);assert.deepEqual(await readPostgresDeviceCatalog(db,schema),current);}finally{await db.query(`DROP TRIGGER reject_catalog_audit ON ${t('audit_logs')}`);}
+});
+it('native registry guards reject raw unknown/retired types and detect tampering without weakening identity checks',async()=>{
+ for(const type of ['unknown','industrial'])await assert.rejects(()=>db.query(`INSERT INTO ${t('devices')}(customer_id,type,branch_id) VALUES(1,$1,1)`,[type]),/device type/);
+ await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET customer_id=2 WHERE id=$1`,[deviceId]),/ownership is immutable/);
+ await assert.rejects(()=>db.transaction(async()=>{await db.query(`CREATE OR REPLACE FUNCTION ${t('pg_operational_profile_guard')}() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $$ BEGIN RETURN NEW;END $$`);await assert.rejects(()=>verifyPostgresDeviceCatalogGuard(db,schema),/function missing or altered/);throw Error('intentional catalog guard rollback');}),/intentional catalog guard rollback/);
+ assert.equal((await verifyPostgresDeviceCatalogGuard(db,schema)).verified,true);
 });

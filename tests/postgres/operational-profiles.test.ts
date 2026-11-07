@@ -50,7 +50,7 @@ it('creates a real scoped device with audit and customer event, never a financia
  assert.equal((await devices.detail(owner,null,saved.id)).device.id,saved.id);
 });
 it('serializes independent-pool replay and binds changed payload without duplicate devices or evidence',async()=>{
- const body={customer_id:500,type:'laptop',serial:'OPS-CONCURRENT'},peer=new PostgresDevicesRepository(other,schema);
+ const body={customer_id:500,type:'laptop',brand:'Fixture',model:'Device',serial:'OPS-CONCURRENT'},peer=new PostgresDevicesRepository(other,schema);
  const rows=await Promise.all([devices.create(one,1,body,'device-concurrent'),peer.create(one,1,body,'device-concurrent')]);assert.deepEqual(rows[0],rows[1]);
  assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('devices')} WHERE serial='OPS-CONCURRENT'`)).rows[0].n,'1');
  await assert.rejects(()=>peer.create(one,1,{...body,serial:'OTHER'},'device-concurrent'),status(409));
@@ -59,7 +59,7 @@ it('serializes independent-pool replay and binds changed payload without duplica
 it('rolls device, customer event and operation back on an actual audit failure and safely retries',async()=>{
  await db.query(`CREATE FUNCTION "${schema}".ops_fail_audit() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN IF NEW.entity='device' THEN RAISE EXCEPTION 'injected device audit failure' USING ERRCODE='23514'; END IF; RETURN NEW; END$$`);
  await db.query(`CREATE TRIGGER ops_fail_audit BEFORE INSERT ON ${t('audit_logs')} FOR EACH ROW EXECUTE FUNCTION "${schema}".ops_fail_audit()`);
- const body={customer_id:500,type:'tablet',serial:'OPS-ROLLBACK'},before=(await db.query(`SELECT COUNT(*) n FROM ${t('customer_events')}`)).rows[0].n;
+ const body={customer_id:500,type:'tablet',brand:'Fixture',model:'Device',serial:'OPS-ROLLBACK'},before=(await db.query(`SELECT COUNT(*) n FROM ${t('customer_events')}`)).rows[0].n;
  try{await assert.rejects(()=>devices.create(one,1,body,'device-audit-failure'));assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('devices')} WHERE serial='OPS-ROLLBACK'`)).rows[0].n,'0');assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('customer_events')}`)).rows[0].n,before);assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('operation_receipts')} WHERE operation_key='device-audit-failure'`)).rows[0].n,'0');}
  finally{await db.query(`DROP TRIGGER ops_fail_audit ON ${t('audit_logs')}`);await db.query(`DROP FUNCTION "${schema}".ops_fail_audit()`);}
  const result=await devices.create(one,1,body,'device-audit-failure');assert.equal((await devices.detail(one,1,result.id)).device.serial,'OPS-ROLLBACK');
@@ -72,7 +72,7 @@ it('preserves legacy repair history and applies the existing assignment restrict
  await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET customer_id=501 WHERE id=500`));await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET branch_id=2 WHERE id=500`));await assert.rejects(()=>db.query(`DELETE FROM ${t('devices')} WHERE id=500`));
 });
 it('pages a larger collection through the real service without missing or duplicating records',async()=>{
- await db.transaction(async()=>{for(let i=0;i<125;i++)await devices.create(one,1,{customer_id:500,type:'other',model:'PagingOnly',serial:'PAGING-'+i},'device-paging-'+i);});
+ await db.transaction(async()=>{for(let i=0;i<125;i++)await devices.create(one,1,{customer_id:500,type:'other',brand:'Fixture',model:'PagingOnly',serial:'PAGING-'+i},'device-paging-'+i);});
  const seen=new Set<number>();for(let page=1;page<=3;page++){const data=await devices.list(one,1,{q:'PagingOnly',page,perPage:50});assert.equal(data.total,125);assert.equal(data.devices.length,page===3?25:50);for(const row of data.devices){assert.equal(seen.has(Number(row.id)),false);seen.add(Number(row.id));}}
  assert.equal(seen.size,125);await assert.rejects(()=>devices.list(one,1,{perPage:201}),status(400));
 });
@@ -140,7 +140,7 @@ it('revokes supervisor grants on employment changes and never resurrects them on
  await assert.rejects(()=>db.query(`INSERT INTO ${t('repair_workflow_supervisors')}(branch_id,user_id,granted_by) VALUES(1,5,1)`));
 });
 it('keeps archived identifier warnings and rejects forged device branch attribution',async()=>{
- const body={customer_id:500,type:'mobile',serial:'ARCHIVED-PHYSICAL-IDENTITY'},saved=await devices.create(one,1,body,'ops-original-archived-device');
+ const body={customer_id:500,type:'mobile',brand:'Fixture',model:'Device',serial:'ARCHIVED-PHYSICAL-IDENTITY'},saved=await devices.create(one,1,body,'ops-original-archived-device');
  await db.query(`UPDATE ${t('devices')} SET is_archived=1 WHERE id=$1`,[saved.id]);
  await assert.rejects(()=>devices.create(one,1,body,'ops-archived-warning'),error=>error instanceof DuplicatePostgresDevice&&error.duplicates[0].id===saved.id);
  await assert.rejects(()=>devices.create(one,1,{...body,serial:'FORGED-BRANCH',branch_id:2},'ops-device-forged-branch'),status(403));

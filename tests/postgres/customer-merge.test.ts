@@ -13,7 +13,7 @@ if(!/^repaid_test_[a-f0-9]{24}$/.test(database)||new URL(url).pathname!=='/'+dat
 const db=createPostgresDatabase({connectionString:url,allowLocalPlaintext:true}),other=createPostgresDatabase({connectionString:url,allowLocalPlaintext:true}),schema='repaid_integration_'+randomBytes(12).toString('hex'),t=(name:string)=>'"'+schema+'"."'+name+'"',owner=randomBytes(24).toString('hex'),staff=randomBytes(24).toString('hex'),peer=randomBytes(24).toString('hex');
 const customers=new PostgresCustomersRepository(db,schema),devices=new PostgresDevicesRepository(db,schema),status=(n:number)=>(error:unknown)=>(error as {status?:number}).status===n;
 let seq=0;async function customer(branch=1){const key='merge-customer-'+(++seq);return (await customers.create(owner,branch,{first_name:key},key)).id;}
-async function device(id:number){return devices.create(owner,1,{customer_id:id,type:'mobile',serial:'MERGE-'+(++seq)},'merge-device-'+seq);}
+async function device(id:number){return devices.create(owner,1,{customer_id:id,type:'mobile',brand:'Fixture',model:'Device',serial:'MERGE-'+(++seq)},'merge-device-'+seq);}
 before(async()=>{
  await applyPostgresMigrations(db,schema);
  if(!(await db.query('SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname=$1 AND p.proname=$2',[schema,'pg_customer_merge_guard'])).rowCount)await db.transaction(async()=>{for(const sql of postgresCustomerMergeStatements(schema))await db.query(sql);});
@@ -63,7 +63,7 @@ it('serializes independent-pool financial creation against merge and prevents me
 });
 it('concurrent device registration is either retained in merge evidence or rejected with no orphan',async()=>{
  const source=await customer(),target=await customer();
- const results=await Promise.allSettled([mergePostgresCustomer(db,schema,owner,1,source,target,'merge-device-race'),new PostgresDevicesRepository(other,schema).create(peer,1,{customer_id:source,type:'mobile',serial:'MERGE-RACING-DEVICE'},'merge-device-racing-create')]);
+ const results=await Promise.allSettled([mergePostgresCustomer(db,schema,owner,1,source,target,'merge-device-race'),new PostgresDevicesRepository(other,schema).create(peer,1,{customer_id:source,type:'mobile',brand:'Fixture',model:'Device',serial:'MERGE-RACING-DEVICE'},'merge-device-racing-create')]);
  assert.equal(results[0].status,'fulfilled');assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('devices')} WHERE customer_id=$1`,[source])).rows[0].n,'0');
  if(results[1].status==='fulfilled'){const id=results[1].value.id;assert.equal((await db.query(`SELECT customer_id FROM ${t('devices')} WHERE id=$1`,[id])).rows[0].customer_id,String(target));const history=await postgresCustomerMergeHistory(db,schema,owner,1,target);assert.ok((history.merges[0].evidence.device_ids as number[]).includes(id));}
 });
