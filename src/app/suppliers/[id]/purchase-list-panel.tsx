@@ -398,4 +398,3 @@ export function SupplierPurchaseList({
     </section>
   );
 }
-

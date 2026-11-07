@@ -392,7 +392,7 @@
     }
   },
   "source_hashes": {
-    "docs/postgres-migration-coverage.json": "b6cbf556b6716c6af5f9144809682ce50f41f14fd4f168da2e181deaf18be81e",
+    "docs/postgres-migration-coverage.json": "8a2e7ed8634d675ac82f118311f0ca7d625a9093378894c731170aa53008d9d2",
     "scripts/postgres-appointments-http-scenarios.ts": "f96acbbe32fe2f94dfbe3af7c5a6d01083396743e5e6e2493a89c659f8f3c084",
     "scripts/postgres-chat-http-scenarios.ts": "8398a12efd148aac02b510d8b8c5f2ca5be638354b99748e493f63d2556e1260",
     "scripts/postgres-complaints-http-scenarios.ts": "a4b3c386f53b07a8192cfe6b59b25520f83b3ad09a1b0750de88223b1909c5a3",
