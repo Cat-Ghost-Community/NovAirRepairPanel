@@ -3,7 +3,7 @@
 import { SearchableSelect } from "@/components/searchable-select";
 
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui";
 import { CameraCapture } from "@/components/camera-capture";
@@ -12,7 +12,8 @@ import { Check } from "lucide-react";
 import { Icon } from "@/components/icon";
 import { PatternLock } from "@/components/pattern-lock";
 import { toFaDigits } from "@/lib/format";
-import { DEVICE_TYPE_FA } from "@/lib/status-fa";
+import {DeviceRegistrationFields,useDeviceCatalog} from '@/components/device-registration-fields';
+import {deviceFormComplete,deviceFormPayload,deviceTypeLabel} from '@/lib/device-catalog';
 import { customerTypeFa, customerTypeBadge } from "@/lib/customer-type";
 import { CustomerForm, EMPTY_CUSTOMER_FORM } from "@/components/customer-form";
 
@@ -42,18 +43,6 @@ type CustomQuestion = { id: number; label: string; type: string; options: string
 
 const STEPS = ["مشتری", "دستگاه", "ایراد", "چک‌این", "بررسی"];
 
-const DEVICE_TYPES = [
-  { id: "mobile", label: "موبایل", icon: "phone" },
-  { id: "laptop", label: "لپ‌تاپ", icon: "laptop" },
-  { id: "desktop", label: "دسکتاپ", icon: "monitor" },
-  { id: "tablet", label: "تبلت", icon: "tablet" },
-  { id: "console", label: "کنسول بازی", icon: "gamepad" },
-  { id: "smartwatch", label: "ساعت هوشمند", icon: "watch" },
-  { id: "printer", label: "پرینتر", icon: "printer" },
-  { id: "network", label: "تجهیزات شبکه", icon: "router" },
-  { id: "other", label: "سایر", icon: "plug" },
-];
-
 const PRIORITY_FA: Record<string, string> = { low: "کم", normal: "معمولی", high: "زیاد", urgent: "فوری" };
 
 const SECURITY_TYPE_FA: Record<string, string> = {
@@ -63,6 +52,7 @@ const SECURITY_TYPE_FA: Record<string, string> = {
 export default function NewRepairPage() {
   const router = useRouter();
   const toast = useToast();
+  const {catalog,error:catalogError,retry:retryCatalog}=useDeviceCatalog();
   const [step, setStep] = useState(0);
 
   // customer
@@ -75,7 +65,8 @@ export default function NewRepairPage() {
   // device
   const [devices, setDevices] = useState<Device[]>([]);
   const [device, setDevice] = useState<Device | null>(null);
-  const [newDev, setNewDev] = useState<Record<string, any>>({ type: "mobile", brand: "", model: "", condition: "خوب" });
+  const [deviceDraft, setNewDev] = useState<Record<string, any>>({ type: "mobile", brand: "", model: "", condition: "خوب" });
+  const newDev:Record<string,any>={...deviceDraft,type:catalog?.types.some(t=>t.id===deviceDraft.type&&t.active)?deviceDraft.type:catalog?.types.find(t=>t.active)?.id??deviceDraft.type};
   const [devDupes, setDevDupes] = useState<any[] | null>(null);
   const [devBlacklisted, setDevBlacklisted] = useState<{ serial: string; imei: string; reason: string } | null>(null);
   const [serialWarn, setSerialWarn] = useState<string | null>(null);
@@ -147,16 +138,6 @@ export default function NewRepairPage() {
     return () => clearTimeout(t);
   }, [newDev.serial, newDev.imei]);
 
-  const deviceFields = useMemo(() => {
-    const t = newDev.type;
-    if (t === "mobile") return [["imei", "IMEI/سریال"], ["storage", "حافظه"], ["carrier", "اپراتور"], ["battery_health", "سلامت باتری (٪)"]];
-    if (t === "laptop") return [["serial", "شماره سریال"], ["cpu", "پردازنده (CPU)"], ["ram", "حافظه رم (RAM)"], ["storage", "حافظه"], ["gpu", "گرافیک (GPU)"], ["os", "سیستم‌عامل"]];
-    if (t === "desktop") return [["serial", "شماره سریال"], ["cpu", "پردازنده (CPU)"], ["ram", "حافظه رم (RAM)"], ["gpu", "گرافیک (GPU)"], ["storage", "حافظه"]];
-    if (t === "console") return [["serial", "شماره سریال"], ["storage", "حافظه"]];
-    if (t === "tablet") return [["imei", "IMEI"], ["serial", "شماره سریال"], ["storage", "حافظه"]];
-    return [["serial", "شماره سریال"]];
-  }, [newDev.type]);
-
   const INSPECTION_AREAS = ["صفحه‌نمایش", "درب پشت", "فریم", "دوربین", "سوکت شارژ", "دکمه‌ها", "اسپیکر", "کیبورد", "تاچ‌پد", "لولاها", "پورت‌ها", "بدنه"];
   const toggleArea = (a: string) => setInspection((s) => ({ ...s, [a]: !s[a] }));
 
@@ -194,7 +175,7 @@ export default function NewRepairPage() {
         const res = await fetch("/api/devices", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...newDev, customer_id: customerId, force: devDupes ? true : false }),
+          body: JSON.stringify({ ...deviceFormPayload(catalog!,String(newDev.type),newDev), customer_id: customerId, force: devDupes ? true : false }),
         });
         const data = await res.json();
         if (res.status === 409 && data.duplicate) {
@@ -249,7 +230,7 @@ export default function NewRepairPage() {
 
   const canNext = () => {
     if (step === 0) return customer ? !!customer.first_name?.trim() && !!customer.last_name?.trim() : !!(newCust.first_name?.trim() && newCust.last_name?.trim() && newCust.mobile);
-    if (step === 1) return !!device || (newDev.brand && newDev.model);
+    if (step === 1) return !!device || (catalog && deviceFormComplete(catalog,String(newDev.type),newDev));
     if (step === 2) return problem.trim().length > 3;
     if (step === 3) return customQuestions.filter((q) => q.is_required).every((q) => (customAnswers[q.id] ?? "").trim() !== "");
     return true;
@@ -392,7 +373,7 @@ export default function NewRepairPage() {
                     <button key={d.id} onClick={() => { setDevice(d); setNewDev({ ...newDev, type: d.type }); }}
                       className={`card p-3 text-right hover:border-brand-400 ${device?.id === d.id ? "ring-2 ring-brand-500" : ""}`}>
                       <div className="text-sm font-medium">{d.brand} {d.model}</div>
-                      <div className="text-xs text-zinc-400">{DEVICE_TYPE_FA[d.type] ?? d.type}{d.imei ? ` · IMEI ${d.imei}` : d.serial ? ` · سریال ${d.serial}` : ""}</div>
+                      <div className="text-xs text-zinc-400">{catalog?deviceTypeLabel(catalog,d.type):d.type}{d.imei ? ` · IMEI ${d.imei}` : d.serial ? ` · سریال ${d.serial}` : ""}</div>
                     </button>
                   ))}
                 </div>
@@ -402,26 +383,18 @@ export default function NewRepairPage() {
               <div className="absolute inset-0 flex items-center" aria-hidden><div className="w-full border-t border-zinc-200 dark:border-zinc-800" /></div>
               <div className="relative flex justify-center"><span className="bg-white dark:bg-zinc-900 px-2 text-xs text-zinc-400">یا دستگاه جدید</span></div>
             </div>
+            {catalogError&&<p role="alert" className="text-sm text-red-600">{catalogError} <button type="button" className="btn-ghost" onClick={retryCatalog}>تلاش دوباره</button></p>}
+            {!catalog&&!catalogError&&<p role="status">در حال دریافت انواع دستگاه…</p>}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {DEVICE_TYPES.map((t) => (
-                <button key={t.id} onClick={() => { setNewDev({ ...newDev, type: t.id }); setDevice(null); }}
+              {(catalog?.types.filter(t=>t.active)??[]).map((t) => (
+                <button key={t.id} onClick={() => { setNewDev({ type:t.id,brand:newDev.brand,model:newDev.model }); setDevice(null); }}
                   className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition ${newDev.type === t.id && !device ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300" : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-800"}`}>
                   <Icon name={t.icon ?? "device"} size={14} className="opacity-70" />
                   {t.label}
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className="label" htmlFor="brand">برند *</label><input id="brand" className="input" value={newDev.brand} onChange={(e) => { setNewDev({ ...newDev, brand: e.target.value }); setDevice(null); }} /></div>
-              <div><label className="label" htmlFor="model">مدل *</label><input id="model" className="input" value={newDev.model} onChange={(e) => { setNewDev({ ...newDev, model: e.target.value }); setDevice(null); }} /></div>
-              {deviceFields.map(([key, label]) => (
-                <div key={key}>
-                  <label className="label" htmlFor={`dv-${key}`}>{label}</label>
-                  <input id={`dv-${key}`} type={key === "battery_health" ? "number" : "text"} dir={key === "imei" || key === "serial" ? "ltr" : undefined} className="input"
-                    value={newDev[key] ?? ""} onChange={(e) => setNewDev({ ...newDev, [key]: e.target.value })} />
-                </div>
-              ))}
-            </div>
+            {catalog&&<DeviceRegistrationFields catalog={catalog} type={String(newDev.type)} values={newDev} onChange={value=>{setNewDev(value);setDevice(null);}} prefix="dv"/>}
             {serialWarn && !devBlacklisted && (
               <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
                 {serialWarn}

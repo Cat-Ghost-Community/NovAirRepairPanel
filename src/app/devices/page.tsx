@@ -1,3 +1,5 @@
+import {readDeviceCatalog,deviceTypeFacets} from '@/lib/device-catalog-store';
+import {deviceTypeLabel,deviceTypeIcon} from '@/lib/device-catalog';
 import { requirePageAccess } from "@/lib/page-access";
 import Link from "next/link";
 import { getDb } from "@/lib/db/schema";
@@ -17,20 +19,10 @@ import { activeBranch, BRANCH_COOKIE } from "@/lib/branch";
 
 export const dynamic = "force-dynamic";
 
-const TYPE_ICONS: Record<string, string> = {
-  mobile: "phone", laptop: "laptop", desktop: "monitor", tablet: "tablet", console: "gamepad", smartwatch: "watch", printer: "printer", network: "router", other: "plug",
-};
-
-const TYPE_FA: Record<string, string> = {
-  mobile: "موبایل", laptop: "لپ‌تاپ", desktop: "دسکتاپ", tablet: "تبلت",
-  console: "کنسول بازی", smartwatch: "ساعت هوشمند", printer: "پرینتر",
-  network: "تجهیزات شبکه", other: "سایر",
-};
-
 export default async function DevicesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const session=await requirePageAccess("/devices");
   const cookieStore=await cookies(),sp=await searchParams;
-  const {devices,total,page,perPage,totalPages,canCreate}=await(async()=>{
+  const {devices,total,page,perPage,totalPages,canCreate,catalog,facets}=await(async()=>{
    if(postgresIntegration()){
     const state=await postgresShellState(cookieStore.get('repaid_session')?.value,cookieStore.get(BRANCH_COOKIE)?.value),{database,schema}=await readyApplicationPostgres();
     const data=await new PostgresDevicesRepository(database,schema).list(cookieStore.get('repaid_session')?.value,state.scope?.branchId??null,{q:sp.q,type:sp.type,page:Number(sp.page??1),perPage:Number(sp.perPage??50)});
@@ -57,11 +49,12 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
   const devices = JSON.parse(JSON.stringify(db.prepare(sql).all(...params) as any[])) as any[];
 
 
-   return {devices,total,page,perPage,totalPages,canCreate:canUser(session,'devices.create')};
+   const facets=deviceTypeFacets(db,branch);
+   return {devices,total,page,perPage,totalPages,facets,catalog:readDeviceCatalog(db),canCreate:canUser(session,'devices.create')};
   })();
   const q=sp.q?.trim();
 
-  const types = ["mobile", "laptop", "desktop", "tablet", "console", "smartwatch", "printer", "network", "other"];
+  const types = [...catalog.types.filter(type=>facets.some(facet=>facet.id===type.id)).map(type=>type.id),...facets.filter(facet=>!catalog.types.some(type=>type.id===facet.id)).map(facet=>facet.id)];
 
   const typeHref = (type: string) => {
     const params = new URLSearchParams();
@@ -79,6 +72,7 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
             <p className="page-sub">سابقه کامل تعمیرات هر دستگاه همیشه نگه‌داری می‌شود · {toFaDigits(total)} دستگاه</p>
           </div>
           <div className="flex min-w-0 flex-wrap gap-2">
+            {session.user.role==='owner'&&<Link href="/settings/device-types" className="btn-secondary">مدیریت انواع و فیلدها</Link>}
             {canCreate && <Link href="/devices/new" className="btn-primary">+ افزودن دستگاه</Link>}
           </div>
         </div>
@@ -90,14 +84,14 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
           {(q || sp.type) && <Link href="/devices" className="btn-ghost">پاک‌کردن فیلترها</Link>}
         </form>
 
-        <nav className="mt-3 flex flex-wrap gap-1.5" aria-label="نوع دستگاه">
+        {types.length>0&&<nav className="mt-3 flex flex-wrap gap-1.5" aria-label="نوع دستگاه">
           <Link href={typeHref("")} aria-current={!sp.type ? "page" : undefined} className={`filter-chip ${!sp.type ? "filter-chip-active" : "filter-chip-idle"}`}>همه</Link>
           {types.map((t) => (
             <Link key={t} href={typeHref(t)} aria-current={sp.type === t ? "page" : undefined} className={`filter-chip capitalize ${sp.type === t ? "filter-chip-active" : "filter-chip-idle"}`}>
-              <Icon name={TYPE_ICONS[t]} size={13} className="inline align-[-2px] opacity-70" /> {TYPE_FA[t] ?? t}
+              <Icon name={deviceTypeIcon(catalog,t)} size={13} className="inline align-[-2px] opacity-70" /> {deviceTypeLabel(catalog,t)}
             </Link>
           ))}
-        </nav>
+        </nav>}
       </div>
 
       {devices.length === 0 ? (
@@ -109,13 +103,13 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
           {devices.map((d) => (
             <Link key={d.id} href={`/devices/${d.id}`} className="card min-w-0 p-4 sm:p-5 flex flex-col hover:border-brand-400 focus-visible:outline-2 focus-visible:outline-brand-500 focus-visible:outline-offset-2 transition-colors">
               <div className="flex items-start justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800/80 dark:text-zinc-400" aria-hidden><Icon name={TYPE_ICONS[d.type] ?? "plug"} size={22} strokeWidth={1.7} /></span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800/80 dark:text-zinc-400" aria-hidden><Icon name={deviceTypeIcon(catalog,d.type)} size={22} strokeWidth={1.7} /></span>
                 <span className="badge-gray">{toFaDigits(d.repair_count)} تعمیر</span>
               </div>
-              <div className="mt-4 break-words text-sm font-semibold">{d.brand} {d.model}</div>
+              <div className="mt-4 break-words text-sm font-semibold">{[d.brand,d.model].filter(Boolean).join(' ')||deviceTypeLabel(catalog,d.type)}</div>
               <div className="mt-1 flex items-center gap-1.5 text-xs text-zinc-500"><Icon name="user" size={13} /><span className="truncate">{d.first_name} {d.last_name}</span></div>
               <div className="my-3 rounded-lg bg-zinc-50 p-2.5 text-xs dark:bg-zinc-800/40"><span className="block text-zinc-400">{d.imei ? "IMEI" : d.serial ? "شماره سریال" : "شناسه دستگاه"}</span><bdi className="mt-1 block break-all font-mono text-zinc-600 dark:text-zinc-300">{d.imei || d.serial || "ثبت نشده"}</bdi></div>
-              <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 pt-3 text-xs dark:border-zinc-800"><span className="text-zinc-500">{TYPE_FA[d.type] ?? "سایر"}</span><span className="inline-flex items-center gap-1 font-medium text-brand-600">پرونده و سوابق <Icon name="chevron-left" size={14} /></span></div>
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 pt-3 text-xs dark:border-zinc-800"><span className="text-zinc-500">{deviceTypeLabel(catalog,d.type)}</span><span className="inline-flex items-center gap-1 font-medium text-brand-600">پرونده و سوابق <Icon name="chevron-left" size={14} /></span></div>
             </Link>
           ))}
         </div>

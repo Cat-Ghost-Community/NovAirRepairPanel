@@ -9,6 +9,8 @@ export function postgresIntegration(environment:Readonly<Record<string,string|un
  return {connectionString:url.toString(),schema};
 }
 export function postgresIntegrationRoute(path:string,method='GET'){
+ if(path==='/api/device-types')return ['GET','HEAD','PUT'].includes(method);
+ if(path==='/settings/device-types')return ['GET','HEAD'].includes(method);
  if(/^\/fonts\/vazirmatn\/33\.003\/(Vazirmatn-(Regular|Bold)\.woff2|OFL\.txt)$/.test(path))return ['GET','HEAD'].includes(method);
  if(path.startsWith('/_next/')||/^\/(favicon|icon)/.test(path))return ['GET','HEAD'].includes(method);
  if(path==='/login'||path==='/api/auth/login'||path==='/api/auth/logout'||path==='/api/auth/change-password'||path==='/api/customers')return ['GET','HEAD','POST'].includes(method);

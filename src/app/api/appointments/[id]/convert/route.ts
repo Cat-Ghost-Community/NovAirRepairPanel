@@ -18,12 +18,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (a.status === "converted") return Response.json({ error: "این نوبت قبلاً به پذیرش تبدیل شده است." }, { status: 400 });
     if (!a.customer_id) return Response.json({ error: "این نوبت مشتری ندارد." }, { status: 400 });
 
-    let deviceId = a.device_id;
+    const deviceId = a.device_id;
     if (!deviceId) {
-      // create a placeholder device record
-      deviceId = db
-        .prepare("INSERT INTO devices(customer_id, type, brand, model, notes) VALUES(?,?,?,?,?)")
-        .run(a.customer_id, "other", "نامشخص", "در پذیرش شناسایی می‌شود", "ایجادشده از نوبت").lastInsertRowid as number;
+      return Response.json({error:'ابتدا دستگاه واقعی مشتری را در نوبت انتخاب کنید؛ دستگاه فرضی ایجاد نمی‌شود.'},{status:409});
     }
 
     const statusNew = getStatusByName("New")!;

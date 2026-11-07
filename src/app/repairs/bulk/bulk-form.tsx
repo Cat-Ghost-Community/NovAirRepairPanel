@@ -8,18 +8,16 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui";
 import {parseMoneyInput} from '@/lib/format';
 import {postFinancial} from '@/lib/financial-client';
+import {DeviceRegistrationFields,useDeviceCatalog} from '@/components/device-registration-fields';
+import {deviceFormComplete,deviceFormPayload} from '@/lib/device-catalog';
 import {Checkbox} from '@/components/checkbox';
 
-type DeviceRow = { type: string; brand: string; model: string; serial: string; problem: string };
-
-const DEVICE_TYPES: Array<[string, string]> = [
-  ["phone", "موبایل"], ["laptop", "لپ‌تاپ"], ["desktop", "رایانه رومیزی"],
-  ["tablet", "تبلت"], ["console", "کنسول بازی"], ["smartwatch", "ساعت هوشمند"],
-  ["network", "تجهیزات شبکه"], ["printer", "پرینتر"], ["other", "سایر"],
-];
+type DeviceRow = Record<string,unknown> & { type: string; brand: string; model: string; serial: string; problem: string };
 
 export function BulkIntakeForm({ defaultStatusId, technicians,canAssign=false,canReceive=false }: { defaultStatusId: number; technicians: any[];canAssign?:boolean;canReceive?:boolean }) {
   const toast = useToast();
+  const {catalog,error:catalogError,retry:retryCatalog}=useDeviceCatalog();
+  const rowType=(d:DeviceRow)=>catalog?.types.some(t=>t.id===d.type&&t.active)?d.type:catalog?.types.find(t=>t.active)?.id??d.type;
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [customerId, setCustomerId] = useState<number | null>(null);
@@ -33,8 +31,8 @@ export function BulkIntakeForm({ defaultStatusId, technicians,canAssign=false,ca
   const [deposit, setDeposit] = useState("");
   const [cashConfirmed,setCashConfirmed]=useState(false),[cashReference,setCashReference]=useState('');
   const [devices, setDevices] = useState<DeviceRow[]>([
-    { type: "phone", brand: "", model: "", serial: "", problem: "" },
-    { type: "phone", brand: "", model: "", serial: "", problem: "" },
+    { type: "mobile", brand: "", model: "", serial: "", problem: "" },
+    { type: "mobile", brand: "", model: "", serial: "", problem: "" },
   ]);
 
   const setRow = (i: number, patch: Partial<DeviceRow>) =>
@@ -52,25 +50,21 @@ export function BulkIntakeForm({ defaultStatusId, technicians,canAssign=false,ca
       .finally(()=>{if(!controller.signal.aborted)setCustomerLoading(false);});
   };
 
-  const addRow = () => setDevices((p) => [...p, { type: "phone", brand: "", model: "", serial: "", problem: "" }]);
+  const addRow = () => setDevices((p) => [...p, { type: "mobile", brand: "", model: "", serial: "", problem: "" }]);
   const removeRow = (i: number) => setDevices((p) => p.filter((_, idx) => idx !== i));
 
   const submit = async () => {
     if(busy)return;
     if (!customerId) { toast("ابتدا مشتری را انتخاب کنید", "error"); return; }
     const valid = devices;
-    if (valid.length < 2||valid.some(d=>!d.brand.trim()||!d.model.trim()||!d.problem.trim())) { toast("برند، مدل و ایراد همهٔ دستگاه‌ها را کامل کنید؛ هیچ ردیفی خودکار حذف نمی‌شود.", "error"); return; }
+    if (valid.length < 2||valid.some(d=>!d.problem.trim()||!catalog||!deviceFormComplete(catalog,rowType(d),d))) { toast("برند، مدل و ایراد همهٔ دستگاه‌ها را کامل کنید؛ هیچ ردیفی خودکار حذف نمی‌شود.", "error"); return; }
     setBusy(true);
     try {
       const amount=deposit.trim()?parseMoneyInput(deposit,'toman',true):0;
       if(amount>0&&(!canReceive||!cashConfirmed||cashReference.trim().length<5))throw new Error('تحویل واقعی وجه نقد و مرجع مستند دریافت را تأیید کنید.');
       const d=await postFinancial<{group_id:string;receipt?:{number:string;accounting_state:string}}>("/api/repairs/bulk", {
           customer_id: customerId,
-          devices: valid.map((d) => ({
-            type: d.type, brand: d.brand.trim(), model: d.model.trim(),
-            serial: d.serial.trim() || undefined, problem: d.problem.trim(),
-            priority, source: "حضوری",
-          })),
+          devices: valid.map(d=>({...deviceFormPayload(catalog!,rowType(d),d),problem:d.problem.trim(),priority,source:"walk-in"})),
           technician_id: canAssign&&technicianId ? Number(technicianId) : undefined,
           priority,cash_receipt:amount>0?{amount,method:'cash',confirmed:cashConfirmed,reference:cashReference.trim()}:undefined,
         });
@@ -115,6 +109,7 @@ export function BulkIntakeForm({ defaultStatusId, technicians,canAssign=false,ca
 
       {/* دستگاه‌ها */}
       <section className="space-y-3">
+        {catalogError&&<p role="alert" className="text-sm text-red-600">{catalogError} <button type="button" className="btn-ghost" onClick={retryCatalog}>تلاش دوباره</button></p>}
         {devices.map((d, i) => (
           <div key={i} className="card card-pad space-y-2">
             <div className="flex items-center justify-between">
@@ -123,14 +118,10 @@ export function BulkIntakeForm({ defaultStatusId, technicians,canAssign=false,ca
                 <button className="text-xs text-red-500 hover:underline" onClick={() => removeRow(i)}>حذف</button>
               )}
             </div>
-            <div className="grid sm:grid-cols-4 gap-2">
-              <SearchableSelect className="input" value={d.type} onChange={(e) => setRow(i, { type: e.target.value })} aria-label="نوع دستگاه">
-                {DEVICE_TYPES.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </SearchableSelect>
-              <input className="input" placeholder="برند *" value={d.brand} onChange={(e) => setRow(i, { brand: e.target.value })} />
-              <input className="input" placeholder="مدل *" value={d.model} onChange={(e) => setRow(i, { model: e.target.value })} />
-              <input className="input" dir="ltr" placeholder="سریال / IMEI" value={d.serial} onChange={(e) => setRow(i, { serial: e.target.value })} />
-            </div>
+            <SearchableSelect className="input" value={rowType(d)} onChange={e=>setRow(i,{type:e.target.value,custom_fields:{}})} aria-label="نوع دستگاه">
+              {(catalog?.types.filter(t=>t.active)??[]).map(type=><option key={type.id} value={type.id}>{type.label}</option>)}
+            </SearchableSelect>
+            {catalog&&<DeviceRegistrationFields catalog={catalog} type={rowType(d)} values={d} onChange={value=>setRow(i,value)} prefix={'bulk-'+i}/>}
             <input className="input" placeholder="ایراد اعلام‌شده *" value={d.problem} onChange={(e) => setRow(i, { problem: e.target.value })} />
           </div>
         ))}

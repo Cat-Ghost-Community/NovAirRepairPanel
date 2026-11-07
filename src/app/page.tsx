@@ -1,4 +1,5 @@
 import { requirePageAccess } from "@/lib/page-access";
+import {TehranGreeting} from '@/components/tehran-greeting';
 import { getDb } from "@/lib/db/schema";
 import { getSessionByToken, canUser, ROLE_LABELS } from "@/lib/auth";
 import { BRANCH_COOKIE, activeBranch, branchWhere } from "@/lib/branch";
@@ -473,7 +474,7 @@ export default async function Dashboard() {
       <div className="page-head">
         <div className="min-w-0">
           <h1 className="text-lg font-bold tracking-tight sm:text-xl">
-            {greeting()}، {user.name.split(" ")[0]}
+            <TehranGreeting serverNow={Date.now()}/>، {user.name.split(" ")[0]}
           </h1>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-zinc-500 dark:text-zinc-400">
             <span>{jalaliToday}</span>
@@ -534,10 +535,3 @@ const DASHBOARD_LAYOUT: Record<string, WidgetId[]> = {
 
 const METHOD_FA: Record<string, string> = { cash: "نقدی", pos: "کارتخوان", card: "کارت", transfer: "حواله", check: "چک", credit: "نسیه" };
 function methodFa(m: string) { return METHOD_FA[m] ?? m; }
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "صبح بخیر";
-  if (h < 17) return "بعدازظهر بخیر";
-  return "عصر بخیر";
-}

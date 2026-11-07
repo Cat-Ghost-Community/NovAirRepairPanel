@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui";
 import { postFinancial } from "@/lib/financial-client";
+import {DeviceRegistrationFields,useDeviceCatalog} from '@/components/device-registration-fields';
+import {deviceFormComplete,deviceFormPayload} from '@/lib/device-catalog';
 import { parseMoneyInput } from "@/lib/format";
 
 type Service = { id: number; name: string; price: number };
@@ -22,15 +24,6 @@ const QUICK_TYPES = [
   { id: "other", label: "سایر" },
 ];
 
-const DEVICE_TYPES = [
-  { id: "mobile", label: "موبایل" },
-  { id: "laptop", label: "لپ‌تاپ" },
-  { id: "tablet", label: "تبلت" },
-  { id: "console", label: "کنسول" },
-  { id: "smartwatch", label: "ساعت" },
-  { id: "other", label: "سایر" },
-];
-
 /**
  * پذیرش سریع حضوری: پذیرش + تعمیر + تحویل در یک فرم
  * برای دستگاه‌هایی که تعمیرشان سریع انجام می‌شود (مثلاً تعویض شیشه، فلش، اسکرین).
@@ -38,18 +31,19 @@ const DEVICE_TYPES = [
 export default function QuickRepairPage() {
   const router = useRouter();
   const toast = useToast();
+  const {catalog,error:catalogError,retry:retryCatalog}=useDeviceCatalog();
   const [busy, setBusy] = useState(false);
   const [createdTicket, setCreatedTicket] = useState<number | null>(null);
 
   const [mobile, setMobile] = useState("");
   const [custName, setCustName] = useState("");
+  const [custSurname,setCustSurname]=useState("");
   const [custFound, setCustFound] = useState<{ id: number; label: string } | null>(null);
   const [searching, setSearching] = useState(false);
 
-  const [devType, setDevType] = useState("mobile");
-  const [devBrand, setDevBrand] = useState("");
-  const [devModel, setDevModel] = useState("");
-  const [devSerial, setDevSerial] = useState("");
+  const [preferredType,setDevType]=useState("mobile");
+  const [deviceValues,setDeviceValues]=useState<Record<string,unknown>>({brand:"",model:""});
+  const devType=catalog?.types.some(t=>t.id===preferredType&&t.active)?preferredType:catalog?.types.find(t=>t.active)?.id??preferredType;
 
   const [repType, setRepType] = useState("");
   const [problem, setProblem] = useState("");
@@ -109,11 +103,11 @@ export default function QuickRepairPage() {
       // ۱) مشتری
       let customerId = custFound?.id;
       if (!customerId) {
-        const [fn, ...rest] = (custName || "").split(" ");
+        const fn=custName.trim(),surname=custSurname.trim();
         const res = await fetch("/api/customers", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ first_name: fn || "مشتری", last_name: rest.join(" "), mobile }),
+          body: JSON.stringify({ first_name: fn, last_name: surname, mobile }),
         });
         const d = await res.json();
         if (!res.ok) throw new Error(d.error);
@@ -124,7 +118,7 @@ export default function QuickRepairPage() {
       const devRes = await fetch("/api/devices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer_id: customerId, type: devType, brand: devBrand || "-", model: devModel || "-", serial: devSerial || null }),
+        body: JSON.stringify({...deviceFormPayload(catalog!,devType,deviceValues),customer_id:customerId}),
       });
       const devD = await devRes.json();
       if (!devRes.ok) throw new Error(devD.error);
@@ -173,7 +167,7 @@ export default function QuickRepairPage() {
   if(workflowError)return <div className="card m-4 p-5" role="alert"><p>{workflowError}</p><button className="btn-secondary mt-3" onClick={()=>setWorkflowRetry(v=>v+1)}>تلاش دوباره</button></div>;
   if(workflowMode==null)return <div className="p-6 text-sm text-zinc-500" role="status">در حال بررسی مسیر پذیرش…</div>;
   if(workflowMode!=='legacy')return <div className="mx-auto max-w-3xl p-4 sm:p-6"><div className="card card-pad space-y-4"><h1 className="page-title">پذیرش با ارجاع مشخص</h1><p className="text-sm leading-8 text-zinc-500">در مسیر فعلی شعبه، ابتدا پذیرش را ثبت کنید. پس از ارجاع مدیر یا انتخاب از صف آزاد، اقلام و مراحل تعمیر را از پروندهٔ همان دستگاه ادامه دهید.</p><Link href="/repairs/new" className="btn-primary">ثبت پذیرش</Link><Link href="/repairs/queue" className="btn-secondary mr-2">کارتابل تعمیر</Link></div></div>;
-  const canFinish = (mobile.trim().length >= 10) && devBrand && devModel;
+  const canFinish = (mobile.trim().length >= 10) && (custFound || (custName.trim()&&custSurname.trim())) && catalog && deviceFormComplete(catalog,devType,deviceValues);
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -198,28 +192,18 @@ export default function QuickRepairPage() {
             </div>
             {custFound && <p className="text-xs text-emerald-600 mt-1"> مشتری موجود: {custFound.label}</p>}
             {!custFound && mobile.length >= 10 && (
-              <input className="input mt-1.5" placeholder="نام مشتری جدید" value={custName} onChange={(e) => setCustName(e.target.value)} />
+              <div className="grid sm:grid-cols-2 gap-2 mt-2"><div><label className="label" htmlFor="quick-first-name">نام *</label><input id="quick-first-name" required className="input" value={custName} onChange={event=>setCustName(event.target.value)}/></div><div><label className="label" htmlFor="quick-last-name">نام خانوادگی *</label><input id="quick-last-name" required className="input" value={custSurname} onChange={event=>setCustSurname(event.target.value)}/></div></div>
             )}
           </div>
+          {catalogError&&<p role="alert" className="text-sm text-red-600">{catalogError} <button type="button" className="btn-ghost" onClick={retryCatalog}>تلاش دوباره</button></p>}
           <div className="grid grid-cols-2 gap-2">
-            <div>
+            <div className="col-span-2">
               <label className="label" htmlFor="q-type">نوع دستگاه</label>
-              <SearchableSelect id="q-type" className="input" value={devType} onChange={(e) => setDevType(e.target.value)}>
-                {DEVICE_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+              <SearchableSelect id="q-type" className="input" value={devType} onChange={(e) => {setDevType(e.target.value);setDeviceValues({brand:deviceValues.brand,model:deviceValues.model});}}>
+                {(catalog?.types.filter(t=>t.active)??[]).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
               </SearchableSelect>
             </div>
-            <div>
-              <label className="label" htmlFor="q-brand">برند *</label>
-              <input id="q-brand" className="input" value={devBrand} onChange={(e) => setDevBrand(e.target.value)} />
-            </div>
-            <div>
-              <label className="label" htmlFor="q-model">مدل *</label>
-              <input id="q-model" className="input" value={devModel} onChange={(e) => setDevModel(e.target.value)} />
-            </div>
-            <div>
-              <label className="label" htmlFor="q-serial">سریال / IMEI</label>
-              <input id="q-serial" className="input" dir="ltr" value={devSerial} onChange={(e) => setDevSerial(e.target.value)} />
-            </div>
+            <div className="col-span-2">{catalog&&<DeviceRegistrationFields catalog={catalog} type={devType} values={deviceValues} onChange={setDeviceValues} prefix="quick"/>}</div>
           </div>
         </div>
 

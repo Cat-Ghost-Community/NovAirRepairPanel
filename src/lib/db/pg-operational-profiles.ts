@@ -7,6 +7,8 @@ import {pgDay,pgId,pgMoney,pgRecord,pgText,postgresFinancialAudit,scopeFor} from
 import {safePostgresInteger,type PostgresDatabase} from './postgres';
 import {CUSTOMER_TYPES,customerTypeValue} from '../customer-type';
 import {toEnDigits} from '../format';
+import {deviceRegistrationSpecs} from '../device-catalog';
+import {readPostgresDeviceCatalog} from './pg-device-catalog';
 
 export const DEVICE_TYPES=['mobile','laptop','desktop','tablet','console','smartwatch','printer','network','other'] as const;
 const legacyTypes:Record<string,string>={'موبایل':'mobile','لپ‌تاپ':'laptop','دسکتاپ':'desktop','تبلت':'tablet','کنسول بازی':'console','ساعت هوشمند':'smartwatch','پرینتر':'printer','تجهیزات شبکه':'network','سایر':'other'};
@@ -24,14 +26,15 @@ export class PostgresDevicesRepository{
  constructor(private db:PostgresDatabase,private schema:string){this.table=name=>postgresRelation(schema,name);}
  async list(token:string|undefined,branch:number|null,query:{page?:number;perPage?:number;q?:string;type?:string;customer_id?:number}={}){
   const {page,perPage,q}=paging(query),t=this.table;
-  if(query.type&&!DEVICE_TYPES.includes(query.type as typeof DEVICE_TYPES[number]))throw new HttpError(400,'نوع دستگاه معتبر نیست.');
+  if(query.type&&(typeof query.type!=='string'||query.type.length>80||query.type.includes('\0')))throw new HttpError(400,'نوع دستگاه معتبر نیست.');
   return this.db.transaction(async()=>{
    const scope=await requirePostgresIdentity(this.db,this.schema,token,'devices.view',branch),values:unknown[]=[scope.branchId,q],where=[`d.is_archived=0`,`($1::bigint IS NULL OR EXISTS(SELECT 1 FROM ${t('device_branch_access')} access WHERE access.device_id=d.id AND access.branch_id=$1))`,`($2='' OR d.model ILIKE '%'||$2||'%' OR d.brand ILIKE '%'||$2||'%' OR d.serial ILIKE '%'||$2||'%' OR d.imei ILIKE '%'||$2||'%' OR (COALESCE(c.first_name,'')||' '||COALESCE(c.last_name,'')) ILIKE '%'||$2||'%')`];
    if(query.type){values.push(query.type);where.push(`d.type=$${values.length}`);}
    if(query.customer_id!=null){values.push(pgId(query.customer_id));where.push(`d.customer_id=$${values.length}`);}
    const from=`${t('devices')} d JOIN ${t('customers')} c ON c.id=d.customer_id`,predicate=where.join(' AND '),total=safePostgresInteger((await this.db.query(`SELECT COUNT(*) n FROM ${from} WHERE ${predicate}`,values)).rows[0].n);
    const rows=(await this.db.query(`SELECT d.*,c.first_name,c.last_name,c.id cid,COALESCE(history.repair_count,0) repair_count FROM ${from} LEFT JOIN (SELECT device_id,COUNT(*) repair_count FROM ${t('repair_tickets')} WHERE ($1::bigint IS NULL OR branch_id=$1) GROUP BY device_id) history ON history.device_id=d.id WHERE ${predicate} ORDER BY d.created_at DESC,d.id DESC LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,perPage,(page-1)*perPage])).rows;
-   return {devices:rows.map(operationalRow),total,page,perPage,totalPages:Math.max(1,Math.ceil(total/perPage)),hasMore:page*perPage<total};
+   const facets=(await this.db.query(`SELECT d.type,COUNT(*) n FROM ${t('devices')} d WHERE d.is_archived=0 AND ($1::bigint IS NULL OR EXISTS(SELECT 1 FROM ${t('device_branch_access')} access WHERE access.device_id=d.id AND access.branch_id=$1)) GROUP BY d.type ORDER BY d.type`,[scope.branchId])).rows.map(row=>({id:String(row.type),count:safePostgresInteger(row.n)}));
+   return {devices:rows.map(operationalRow),catalog:await readPostgresDeviceCatalog(this.db,this.schema),facets,total,page,perPage,totalPages:Math.max(1,Math.ceil(total/perPage)),hasMore:page*perPage<total};
   },{isolation:'repeatable read'});
  }
  async detail(token:string|undefined,branch:number|null,id:number,page=1){
@@ -51,24 +54,27 @@ export class PostgresDevicesRepository{
    const total=safePostgresInteger((await this.db.query(`SELECT COUNT(*) n FROM ${t('repair_tickets')} t WHERE ${predicate}`,parameters)).rows[0].n);
    const repairs=(await this.db.query(`SELECT t.*,s.name status_name,s.color status_color FROM ${t('repair_tickets')} t JOIN ${t('repair_statuses')} s ON s.id=t.status_id WHERE ${predicate} ORDER BY t.created_at DESC,t.id DESC LIMIT 50 OFFSET $5`,[...parameters,(page-1)*50])).rows;
    const warranties=(await this.db.query(`SELECT w.* FROM ${t('warranties')} w JOIN ${t('repair_tickets')} t ON t.id=w.ticket_id WHERE ${predicate} AND w.status='active' ORDER BY w.id DESC LIMIT 200`,parameters)).rows;
-   return {device:operationalRow(row),repairs:repairs.map(operationalRow),warranties:warranties.map(operationalRow),page,total,totalPages:Math.max(1,Math.ceil(total/50))};
+   return {device:operationalRow(row),catalog:await readPostgresDeviceCatalog(this.db,this.schema),repairs:repairs.map(operationalRow),warranties:warranties.map(operationalRow),page,total,totalPages:Math.max(1,Math.ceil(total/50))};
   },{isolation:'repeatable read'});
  }
  async create(token:string|undefined,branch:number|null,payload:unknown,key:string|null){
   const body=pgRecord(payload),customer=pgId(body.customer_id),target=await scopeFor(this.db,this.schema,token,'devices.create',branch),t=this.table;
   if(body.branch_id!=null&&pgId(body.branch_id)!==target)throw new HttpError(403,'شعبهٔ دستگاه با محدودهٔ انتخاب‌شده تطبیق ندارد.');
   const type=typeof body.type==='string'?(legacyTypes[body.type.trim()]??body.type.trim()):'';
-  if(!DEVICE_TYPES.includes(type as typeof DEVICE_TYPES[number]))throw new HttpError(400,'نوع دستگاه معتبر انتخاب کنید.');
   if(body.force!=null&&typeof body.force!=='boolean')throw new HttpError(400,'گزینهٔ ثبت تکراری معتبر نیست.');
   const fields:Record<string,unknown>={customer_id:customer,type,branch_id:target};
   for(const field of ['brand','model','model_number','sku','serial','imei','imei2','mac','asset_tag','color','ram','storage','cpu','gpu','os','os_version','carrier','condition'])fields[field]=pgText(body[field],160);
   fields.notes=pgText(body.notes,4000);
   for(const field of ['purchase_date','warranty_until'])fields[field]=body[field]==null||body[field]===''?null:pgDay(body[field]);
+  if(body.battery_health==='')body.battery_health=null;
+  if(typeof body.battery_health==='string'&&/^\d+$/.test(body.battery_health))body.battery_health=Number(body.battery_health);
   if(body.battery_health!=null&&(!Number.isSafeInteger(body.battery_health)||Number(body.battery_health)<0||Number(body.battery_health)>100))throw new HttpError(400,'سلامت باتری باید بین صفر و صد باشد.');
   fields.battery_health=body.battery_health??null;
   const specs=body.specs==null?{}:pgRecord(body.specs);if(Object.keys(specs).length>50||Object.entries(specs).some(([k,v])=>k.length>100||typeof v!=='string'||v.length>1000||v.includes('\0')))throw new HttpError(400,'مشخصات تکمیلی معتبر نیست.');fields.specs=JSON.stringify(specs);
   return postgresDurableOperation(this.db,this.schema,token??'',{permission:'devices.create',branchId:target,operation:'device.create',key,payload},async scope=>{
    await this.db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[this.schema,'device.create']);
+   await this.db.query('SELECT pg_advisory_xact_lock_shared(hashtext($1),hashtext($2))',[this.schema,'device.catalog']);
+   fields.specs=JSON.stringify(deviceRegistrationSpecs(await readPostgresDeviceCatalog(this.db,this.schema),type,body));
    const party=(await this.db.query(`SELECT c.id FROM ${t('customers')} c WHERE c.id=$1 AND c.is_archived=0 AND EXISTS(SELECT 1 FROM ${t('customer_branch_access')} access WHERE access.customer_id=c.id AND access.branch_id=$2) FOR UPDATE`,[customer,target])).rows[0];
    if(!party)throw new HttpError(404,'مشتری در شعبهٔ مجاز یافت نشد.');
    const duplicates=(await this.db.query(`SELECT d.id,d.brand,d.model FROM ${t('devices')} d WHERE EXISTS(SELECT 1 FROM ${t('device_branch_access')} access WHERE access.device_id=d.id AND access.branch_id=$1) AND (($2::text IS NOT NULL AND d.imei=$2) OR ($3::text IS NOT NULL AND d.serial=$3)) ORDER BY d.id LIMIT 20`,[target,fields.imei,fields.serial])).rows;

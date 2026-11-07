@@ -6,6 +6,7 @@ import { requireSession, requirePerm, fail, ok, readJson, audit,validate,HttpErr
 import { addCustomerEvent } from "@/lib/repair";
 import { activeBranch, BRANCH_COOKIE, recordBranchId } from "@/lib/branch";
 import {atomic} from "@/lib/db/transaction";
+import {insertRegisteredDevice} from '@/lib/device-registration';
 
 export async function GET(req: NextRequest) {
   if(postgresIntegration())return postgresOperationalHttp(req,'devices');
@@ -54,7 +55,6 @@ export async function POST(req: NextRequest) {
     validate.id(b.customer_id);
     const legacyTypes:Record<string,string>={"موبایل":"mobile","لپ‌تاپ":"laptop","دسکتاپ":"desktop","تبلت":"tablet","کنسول بازی":"console","ساعت هوشمند":"smartwatch","پرینتر":"printer","تجهیزات شبکه":"network","سایر":"other"};
     const type=typeof b.type==='string'?(legacyTypes[b.type.trim()]??b.type.trim()):'';
-    if(!["mobile","laptop","desktop","tablet","console","smartwatch","printer","network","other"].includes(type))throw new HttpError(400,"نوع دستگاه معتبر انتخاب کنید.");
     for(const field of ["brand","model","serial","imei","imei2"])validate.maxLength(b[field],160,"مشخصات دستگاه");
     validate.maxLength(b.notes,4000,"توضیحات دستگاه");
     return atomic(db,()=>{
@@ -68,18 +68,7 @@ export async function POST(req: NextRequest) {
       return Response.json({ duplicate: true, error: "دستگاهی با این IMEI/سریال قبلاً ثبت شده است.", duplicates: dupes }, { status: 409 });
     }
 
-    const id = db
-      .prepare(
-        `INSERT INTO devices(customer_id, type, brand, model, model_number, serial, imei, imei2, mac, asset_tag, color, ram, storage, cpu, gpu, os, os_version, carrier, battery_health, condition, purchase_date, warranty_until, notes, specs,branch_id)
-         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
-      )
-      .run(
-        b.customer_id, type, b.brand ?? null, b.model ?? null, b.model_number ?? null, b.serial ?? null,
-        b.imei ?? null, b.imei2 ?? null, b.mac ?? null, b.asset_tag ?? null, b.color ?? null,
-        b.ram ?? null, b.storage ?? null, b.cpu ?? null, b.gpu ?? null, b.os ?? null, b.os_version ?? null,
-        b.carrier ?? null, b.battery_health ?? null, b.condition ?? null, b.purchase_date ?? null, b.warranty_until ?? null,
-        b.notes ?? null, JSON.stringify(b.specs ?? {}),branch??db.prepare("SELECT branch_id FROM customers WHERE id=?").get(Number(b.customer_id))?.branch_id??recordBranchId(session,req.cookies.get(BRANCH_COOKIE)?.value)
-      ).lastInsertRowid as number;
+    const id=insertRegisteredDevice(db,Number(b.customer_id),type,b,branch??Number(db.prepare("SELECT branch_id FROM customers WHERE id=?").get(Number(b.customer_id))?.branch_id??recordBranchId(session,req.cookies.get(BRANCH_COOKIE)?.value)));
     audit(session, "create", "device", id, null, { brand: b.brand, model: b.model, imei: b.imei });
     addCustomerEvent(b.customer_id, "device", `Device added: ${b.brand} ${b.model}`, type, session.user.id);
     return ok({ id });

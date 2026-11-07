@@ -1,36 +1,19 @@
 "use client";
 
-import { SearchableSelect } from "@/components/searchable-select";
 
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui";
+import {DeviceRegistrationFields,useDeviceCatalog} from '@/components/device-registration-fields';
+import {deviceFormComplete,deviceFormPayload} from '@/lib/device-catalog';
 import { Icon } from "@/components/icon";
-
-const DEVICE_TYPES = [
-  { id: "mobile", label: "موبایل", icon: "phone" }, { id: "laptop", label: "لپ‌تاپ", icon: "laptop" },
-  { id: "desktop", label: "دسکتاپ", icon: "monitor" }, { id: "tablet", label: "تبلت", icon: "tablet" },
-  { id: "console", label: "کنسول بازی", icon: "gamepad" }, { id: "smartwatch", label: "ساعت هوشمند", icon: "watch" },
-  { id: "printer", label: "پرینتر", icon: "printer" }, { id: "network", label: "تجهیزات شبکه", icon: "router" }, { id: "other", label: "سایر", icon: "plug" },
-];
-
-const FIELDS: Record<string, Array<[string, string]>> = {
-  mobile: [["imei", "IMEI/سریال"], ["storage", "حافظه"], ["carrier", "اپراتور"], ["color", "رنگ"]],
-  laptop: [["serial", "شماره سریال"], ["cpu", "پردازنده (CPU)"], ["ram", "حافظه رم (RAM)"], ["storage", "حافظه"], ["gpu", "گرافیک (GPU)"]],
-  desktop: [["cpu", "پردازنده (CPU)"], ["ram", "حافظه رم (RAM)"], ["gpu", "گرافیک (GPU)"], ["storage", "حافظه"]],
-  tablet: [["imei", "IMEI/سریال"], ["storage", "حافظه"]],
-  console: [["serial", "شماره سریال"], ["storage", "حافظه"]],
-  smartwatch: [["serial", "شماره سریال"]],
-  printer: [["serial", "شماره سریال"]],
-  network: [["mac", "آدرس MAC"], ["serial", "شماره سریال"]],
-  other: [["serial", "شماره سریال"]],
-};
 
 export default function NewDevicePage() {
   const router = useRouter();
   const sp = useSearchParams();
   const toast = useToast();
+  const {catalog,error:catalogError,retry:retryCatalog}=useDeviceCatalog();
   const [customerId, setCustomerId] = useState(sp.get("customer_id") ?? "");
   const [custQuery, setCustQuery] = useState("");
   const [lookup,setLookup]=useState<{key:string;results:Array<{id:number;first_name:string|null;last_name:string|null;mobile:string|null}>;label:string;error:string|null}>({key:'',results:[],label:'',error:null});
@@ -39,7 +22,8 @@ export default function NewDevicePage() {
   const custError=lookup.key===lookupKey?lookup.error:null;
   const custResults=lookup.key===lookupKey?lookup.results:[];
   const custLabel=lookup.key===lookupKey?lookup.label:'';
-  const [type, setType] = useState("mobile");
+  const [preferredType, setType] = useState("mobile");
+  const type=catalog?.types.some(t=>t.id===preferredType&&t.active)?preferredType:catalog?.types.find(t=>t.active)?.id??preferredType;
   const [form, setForm] = useState<any>({ brand: "", model: "" });
   const [busy, setBusy] = useState(false);
   const operation=useRef<{body:string;key:string}|null>(null);
@@ -61,7 +45,7 @@ export default function NewDevicePage() {
   const submit = async () => {
     setBusy(true);
     try {
-      const body=JSON.stringify({ ...form, type, customer_id: Number(customerId), force: false });
+      const body=JSON.stringify({ ...deviceFormPayload(catalog!,type,form), customer_id: Number(customerId), force: false });
       if(operation.current?.body!==body)operation.current={body,key:crypto.randomUUID()};
       const res = await fetch("/api/devices", {
         method: "POST", headers: { "Content-Type": "application/json",'Idempotency-Key':operation.current.key },
@@ -110,8 +94,8 @@ export default function NewDevicePage() {
         <div>
           <div className="label">نوع دستگاه</div>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            {DEVICE_TYPES.map((t) => (
-              <button key={t.id} onClick={() => setType(t.id)}
+            {(catalog?.types.filter(t=>t.active)??[]).map((t) => (
+              <button key={t.id} onClick={() => {setType(t.id);setForm({brand:form.brand,model:form.model});}}
                 className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs ${type === t.id ? "border-brand-500 bg-brand-50 dark:bg-brand-500/15" : "border-zinc-200 dark:border-zinc-800"}`}>
                 <Icon name={t.icon} size={14} className="opacity-70" />
                 {t.label}
@@ -119,25 +103,12 @@ export default function NewDevicePage() {
             ))}
           </div>
         </div>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div><label className="label" htmlFor="brand">برند *</label><input id="brand" className="input" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} /></div>
-          <div><label className="label" htmlFor="model">مدل *</label><input id="model" className="input" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} /></div>
-          {FIELDS[type].map(([key, label]) => (
-            <div key={key}>
-              <label className="label" htmlFor={`f-${key}`}>{label}</label>
-              <input id={`f-${key}`} className="input" value={form[key] ?? ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
-            </div>
-          ))}
-          <div>
-            <label className="label" htmlFor="cond">وضعیت</label>
-            <SearchableSelect id="cond" className="input" value={form.condition ?? "good"} onChange={(e) => setForm({ ...form, condition: e.target.value })}>
-              <option value="new">جدید</option><option value="good">خوب</option><option value="fair">متوسط</option><option value="poor">ضعیف</option>
-            </SearchableSelect>
-          </div>
-        </div>
+        {catalogError&&<p role="alert" className="text-sm text-red-600">{catalogError} <button type="button" className="btn-ghost" onClick={retryCatalog}>تلاش دوباره</button></p>}
+        {!catalog&&!catalogError&&<p role="status">در حال دریافت انواع دستگاه…</p>}
+        {catalog&&<DeviceRegistrationFields catalog={catalog} type={type} values={form} onChange={setForm}/>}
         <div className="flex justify-end gap-2 pt-2">
           <button className="btn-secondary" onClick={() => router.back()}>انصراف</button>
-          <button className="btn-primary" disabled={busy || custLoading || !!custError || !customerId || !form.brand || !form.model} onClick={submit}>{busy ? "در حال ذخیره…" : "ذخیره دستگاه"}</button>
+          <button className="btn-primary" disabled={busy || custLoading || !!custError || !customerId || !catalog || !deviceFormComplete(catalog,type,form)} onClick={submit}>{busy ? "در حال ذخیره…" : "ذخیره دستگاه"}</button>
         </div>
       </div>
     </div>

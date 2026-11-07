@@ -1,5 +1,7 @@
+import {readDeviceCatalog} from '@/lib/device-catalog-store';
 import {RepairWorkflowSettings} from './repair-workflow-settings';
 import { requirePageAccess } from "@/lib/page-access";
+import {DeviceTypesManager} from './device-types/device-types-manager';
 import { getDb } from "@/lib/db/schema";
 import { getSetting } from "@/lib/repair";
 import { toFaDigits } from "@/lib/format";
@@ -19,12 +21,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { activeBranch, BRANCH_COOKIE, canSwitchBranch } from "@/lib/branch";
 export const dynamic = "force-dynamic";
-
-const DEVICE_TYPE_FA: Record<string, string> = {
-  mobile: "موبایل", laptop: "لپ‌تاپ", desktop: "دسکتاپ", tablet: "تبلت",
-  console: "کنسول بازی", smartwatch: "ساعت هوشمند", printer: "پرینتر",
-  network: "تجهیزات شبکه", other: "سایر",
-};
 
 /** فهرست بخش‌های تنظیمات — همین ترتیب در ناوبری و صفحه رندر می‌شود */
 const SECTIONS: ShellItem[] = [
@@ -62,7 +58,7 @@ export default async function SettingsPage() {
         .all(branch,branch) as any[]
     ).map((r) => [String(r.name), Number(r.c)])
   );
-  const deviceTypes = Object.keys(DEVICE_TYPE_FA);
+  const deviceTypes = readDeviceCatalog(db).types.filter(type=>type.active);
   const canEdit = canSwitchBranch(session.user.role) && canUser(session, "settings.edit");
   const canAccessFlags = canEdit && canUser(session, "team.manage");
 
@@ -160,9 +156,9 @@ export default async function SettingsPage() {
             title="انواع دستگاه"
             desc="هر نوع دستگاه هنگام پذیرش فقط فیلدهای مرتبط خودش را نشان می‌دهد (مثلاً IMEI برای موبایل، CPU/RAM برای کامپیوتر)."
           >
-            <div className="flex flex-wrap gap-1.5 px-4 py-4 sm:px-5">
-              {deviceTypes.map((t) => <span key={t} className="chip">{DEVICE_TYPE_FA[t]}</span>)}
-            </div>
+            {session.user.role==='owner'?<DeviceTypesManager/>:<div className="flex flex-wrap gap-1.5 px-4 py-4 sm:px-5">
+              {deviceTypes.map((t) => <span key={t.id} className="chip">{t.label}</span>)}
+            </div>}
           </SettingsSection>,
 
           <SettingsSection

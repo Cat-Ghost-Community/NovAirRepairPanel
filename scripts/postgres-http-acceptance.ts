@@ -1,3 +1,4 @@
+import {createRequire} from 'node:module';
 import {postgresRepairWorkHttpAcceptance,postgresRepairWorkBrowserAcceptance} from './postgres-repair-work-http-scenarios';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -88,6 +89,7 @@ async function main(){
     await postgresComplaintsBrowserAcceptance({page,db,schema,origin,customerId:saved.id,check});
     await postgresRepairAssignmentBrowserAcceptance({page,db,schema,origin,fixture:assignment,techOne,check});
     await postgresRepairWorkBrowserAcceptance({page,db,schema,origin,techOne,ticket:workTicket,check});
+    const {deviceCatalogBrowserAcceptance}=createRequire(import.meta.url)('./device-catalog-browser.cjs') as {deviceCatalogBrowserAcceptance:(options:{page:typeof page;origin:string;customerId:number;check:typeof check;includeReception:boolean})=>Promise<void>};await deviceCatalogBrowserAcceptance({page,origin,customerId:saved.id,check,includeReception:false});
     assert.equal(errors.length,0,'Browser runtime errors');const real=(await db.query(`SELECT id FROM ${table('customers')} WHERE mobile='09120010005'`)).rows[0];assert.ok(real);check('real server-action login, browser form/create/profile, RTL, 320/375/768/1440 and both themes');await context.close();
    }finally{await browser.close();}
   }

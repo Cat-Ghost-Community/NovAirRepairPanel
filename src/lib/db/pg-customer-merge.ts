@@ -1,3 +1,4 @@
+import {readPostgresDeviceCatalog} from './pg-device-catalog';
 import {createHash} from 'node:crypto';
 import model from './pg-production-schema.json';
 import {HttpError} from '../http-error';
@@ -99,7 +100,7 @@ export async function mergePostgresCustomer(db:PostgresDatabase,schema:string,to
   if(Number(original.is_blacklisted)===1&&Number(destination.is_blacklisted)!==1)throw new HttpError(409,'هشدار فهرست سیاه نباید با ادغام حذف شود؛ وضعیت مشتری مقصد را ابتدا بررسی کنید.');
   if((await db.query(`SELECT 1 WHERE ${conflictQuery(schema,'$1')}`,[source])).rowCount)throw new HttpError(409,'سوابق مالی، پیش‌نویس، تعمیر یا ارتباط عملیاتی نیازمند اصلاح مستقل هستند؛ هیچ سابقه‌ای جابه‌جا نشد.');
   if((await db.query(`SELECT 1 FROM ${t('devices')} WHERE customer_id=$1 AND branch_id IS DISTINCT FROM $2 LIMIT 1`,[source,ownedBranch])).rowCount)throw new HttpError(409,'مالکیت دستگاه قدیمی یا بین‌شعبه‌ای نیازمند بررسی است.');
-  if((await db.query(`SELECT 1 FROM ${t('devices')} WHERE customer_id=$1 AND (type NOT IN ('mobile','laptop','desktop','tablet','console','smartwatch','printer','network','other') OR (battery_health IS NOT NULL AND battery_health NOT BETWEEN 0 AND 100)) LIMIT 1`,[source])).rowCount)throw new HttpError(409,'مشخصات قدیمی دستگاه نیازمند اصلاح معتبر و مستقل است؛ ادغام انجام نشد.');
+  if((await db.query(`SELECT 1 FROM ${t('devices')} WHERE customer_id=$1 AND (NOT(type=ANY($2::text[])) OR (battery_health IS NOT NULL AND battery_health NOT BETWEEN 0 AND 100)) LIMIT 1`,[source,(await readPostgresDeviceCatalog(db,schema)).types.map(type=>type.id)])).rowCount)throw new HttpError(409,'مشخصات قدیمی دستگاه نیازمند اصلاح معتبر و مستقل است؛ ادغام انجام نشد.');
   if((await db.query(`SELECT 1 FROM ${t('merge_log')} WHERE merged_id IN ($1,$2) OR master_id=$1 LIMIT 1`,[source,target])).rowCount)throw new HttpError(409,'زنجیرهٔ ادغام یا تکرار ادغام مجاز نیست.');
   const deviceIds=(await db.query(`SELECT id FROM ${t('devices')} WHERE customer_id=$1 ORDER BY id FOR UPDATE`,[source])).rows.map(row=>safePostgresInteger(row.id));
   const id=safePostgresInteger((await db.query(`INSERT INTO ${t('merge_log')}(master_id,merged_id,moved_counts,user_id) SELECT $1,$2,jsonb_build_object('version',1,'source',to_jsonb(s),'target',to_jsonb(d),'device_ids',(SELECT COALESCE(jsonb_agg(id ORDER BY id),'[]'::jsonb) FROM ${t('devices')} WHERE customer_id=$2))::text,$3 FROM ${t('customers')} s JOIN ${t('customers')} d ON d.id=$1 WHERE s.id=$2 RETURNING id`,[target,source,scope.session.user.id])).rows[0].id);

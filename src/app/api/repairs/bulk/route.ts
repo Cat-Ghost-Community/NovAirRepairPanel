@@ -1,3 +1,4 @@
+import {insertRegisteredDevice} from '@/lib/device-registration';
 import {requireAssignmentAuthority,changeRepairAssignment,repairWorkflow} from '@/lib/repair-workflow';
 import {assertBranchResource} from '@/lib/branch-access';
 import { NextRequest } from "next/server";
@@ -50,9 +51,7 @@ export async function POST(req: NextRequest) {
       if(deviceId)assertBranchResource(db,session,req.cookies.get(BRANCH_COOKIE)?.value,'device',deviceId);
       if (deviceId && !db.prepare("SELECT id FROM devices WHERE id=? AND customer_id=?").get(deviceId,b.customer_id)) throw new HttpError(400, "دستگاه متعلق به مشتری انتخاب‌شده نیست.");
       if (!deviceId) {
-        deviceId = db
-          .prepare(`INSERT INTO devices(customer_id, type, brand, model, serial, imei, condition,branch_id) VALUES(?,?,?,?,?,?,?,?)`)
-          .run(b.customer_id, item.type==='phone'?'mobile':item.type ?? "other", item.brand ?? null, item.model ?? null, item.serial ?? null, item.imei ?? null, item.condition ?? null,branch).lastInsertRowid as number;
+        deviceId=insertRegisteredDevice(db,Number(b.customer_id),item.type==='phone'?'mobile':item.type??'other',item,branch);
       }
       let number = nextSeq("ticket", "R");
       while (db.prepare("SELECT 1 FROM repair_tickets WHERE number = ?").get(number)) {
