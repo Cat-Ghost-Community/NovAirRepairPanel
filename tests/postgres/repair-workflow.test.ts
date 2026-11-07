@@ -20,7 +20,7 @@ before(async()=>{
  await applyPostgresMigrations(db,schema,{targetVersion:1});
  await db.query(`INSERT INTO ${t('branches')}(id,name,code) VALUES(1,'One','WF1'),(2,'Two','WF2')`);
  await db.query(`INSERT INTO ${t('users')}(id,name,email,password_hash,role,branch_id) VALUES(1,'Owner','owner@workflow.invalid','unused','owner',1),(2,'Admin','admin@workflow.invalid','unused','admin',1),(3,'Manager','manager@workflow.invalid','unused','manager',1),(4,'Reception','reception@workflow.invalid','unused','reception',1),(5,'Tech One','techone@workflow.invalid','unused','technician',1),(6,'Tech Two','techtwo@workflow.invalid','unused','technician',1),(7,'Foreign','foreign@workflow.invalid','unused','technician',2)`);
- await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,branch_id) VALUES(1,'WF1','One',1),(2,'WF2','Two',2)`);await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,branch_id) VALUES(1,1,'mobile',1),(2,2,'mobile',2)`);
+ await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,last_name,branch_id) VALUES(1,'WF1','One','Fixture',1),(2,'WF2','Two','Fixture',2)`);await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,branch_id) VALUES(1,1,'mobile',1),(2,2,'mobile',2)`);
  await db.query(`INSERT INTO ${t('repair_statuses')}(id,name,category,color,is_open) VALUES(1,'New','waiting','blue',1),(2,'Delivered','closed','green',0)`);
  await db.query(`INSERT INTO ${t('repair_tickets')}(id,number,branch_id,customer_id,device_id,status_id,technician_id,created_by) VALUES(100,'WF-LEGACY-TIMER',1,1,1,1,5,1),(101,'WF-CLOSED',1,1,1,2,5,1)`);
  await db.query(`INSERT INTO ${t('time_entries')}(id,ticket_id,user_id,started_at) VALUES(100,100,5,$1)`,[new Date(Date.now()-97000).toISOString()]);

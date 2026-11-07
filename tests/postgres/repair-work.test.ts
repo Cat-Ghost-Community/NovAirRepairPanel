@@ -19,7 +19,7 @@ before(async()=>{
  await applyPostgresMigrations(db,schema,{targetVersion:1});
  await db.query(`INSERT INTO ${t('branches')}(id,name,code) VALUES(1,'One','WORK1'),(2,'Two','WORK2')`);
  await db.query(`INSERT INTO ${t('users')}(id,name,email,password_hash,role,branch_id) VALUES(1,'Owner','owner@work.invalid','unused','owner',1),(2,'Tech','tech@work.invalid','unused','technician',1),(3,'Foreign','foreign@work.invalid','unused','technician',2),(4,'Other','other@work.invalid','unused','technician',1)`);
- await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,branch_id) VALUES(1,'WORK1','Customer',1)`);
+ await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,last_name,branch_id) VALUES(1,'WORK1','Customer','Fixture',1)`);
  await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,branch_id) VALUES(1,1,'mobile',1)`);
  const states=[['New','["Received"]'],['Received','["Diagnosing"]'],['Diagnosing','["In Repair","Quality Control"]'],['In Repair','["Quality Control"]'],['Quality Control','["Ready for Pickup","In Repair"]'],['Ready for Pickup','["Delivered"]'],['Delivered','[]'],['Cancelled','[]']];
  for(let i=0;i<states.length;i++)await db.query(`INSERT INTO ${t('repair_statuses')}(id,name,allowed_next,category,color,is_open,notify_customer) VALUES($1,$2,$3,$4,'blue',$5,1)`,[i+1,...states[i],i<6?'progress':'closed',i<6?1:0]);
