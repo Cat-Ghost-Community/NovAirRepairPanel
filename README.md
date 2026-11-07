@@ -53,7 +53,7 @@ Remain in that root shell. Use a reviewed release from this repository; the curr
 
 ```bash
 BRANCH=main
-RELEASE=main  # pin a reviewed new-repository commit after verification
+RELEASE=cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
 GIT_SSH_COMMAND='ssh -i /root/.ssh/repaid_github -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes' \
   git clone --branch "$BRANCH" git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git /root/repaid-source &&
 cd /root/repaid-source &&
@@ -80,7 +80,7 @@ If Git is not yet installed, copy the reviewed `setup.sh` to the server using SS
 **Only after repository visibility becomes public**, no-auth download works:
 
 ```bash
-RELEASE=main
+RELEASE=cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
 curl -fSL --proto '=https' --proto-redir '=https' \
   "https://raw.githubusercontent.com/Cat-Ghost-Community/NovAirRepairPanel/$RELEASE/setup.sh" -o /tmp/repaid-setup.sh &&
 # Review the downloaded file before sudo.
@@ -99,7 +99,7 @@ umask 077
 read -rsp 'GitHub read-only token: ' TOKEN; printf '\n'
 printf '%s\n' "$TOKEN" > /root/repaid-github-token
 unset TOKEN
-RELEASE=main
+RELEASE=cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
 HEADER=$(mktemp /root/repaid-curl.XXXXXX)
 printf 'header = "Authorization: Bearer %s"\n' "$(cat /root/repaid-github-token)" > "$HEADER"
 curl -fSL --proto '=https' --proto-redir '=https' --config "$HEADER" \
@@ -181,7 +181,9 @@ sudo repaid --rollback
 
 Updates pin the fetched commit, build before downtime, verify every privileged management source against Git, create an encrypted complete snapshot and rehearse on a restored copy before cutover. A failed candidate is not reported as successful.
 
-For the first upgrade from an older management version, use the new **reviewed root-owned checkout**: `bash /root/repaid-source/manage.sh --smart-update --ref REVIEWED_SHA`. This applies the new whole-control-tree verification during that upgrade. Afterwards `sudo repaid` follows the active release automatically.
+For an older management version already using this repository, use the new **reviewed root-owned checkout**: `bash /root/repaid-source/manage.sh --smart-update --ref REVIEWED_SHA`. Afterwards `sudo repaid` follows the active release automatically.
+
+An existing installation configured for the legacy `1beng` repository needs a separately reviewed repository handover, with backup and original keys preserved. Its guard intentionally rejects a silent repository change. Do not run a fresh installation over that data; follow [deployment handover guidance](DEPLOYMENT.md).
 
 Rollback preserves **current business data** and rejects incompatible schema rollback. It never silently restores an older database over newer transactions. Keys, owner credentials and provider settings are retained. Source installation/build needs prepared package/Git access; an uncached offline build is not promised. See [prepared offline releases](docs/network-independence/DEPLOYMENT.md).
 
@@ -242,7 +244,7 @@ Do not automatically retry a clean reset after an uncertain result. Inspect its 
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `--ref` / `REPAID_REF` | Wizard feature branch | Reviewed branch or 40-character commit; pin production releases |
+| `--ref` / `REPAID_REF` | `main` | Reviewed branch or 40-character commit; pin production releases |
 | `--repo` / `REPAID_REPO` | This repository's SSH URL | GitHub SSH/HTTPS; no embedded credentials |
 | `REPAID_SSH_IDENTITY_FILE` | Root SSH configuration | Root-only dedicated deploy key |
 | `REPAID_GITHUB_TOKEN_FILE` | Empty | Root-only HTTPS token file |
