@@ -50,7 +50,7 @@ async function main(){
   const owner=await login('owner@pg.invalid'),one=await login('one@pg.invalid'),two=await login('two@pg.invalid'),reviewer=await login('reviewer@pg.invalid');
   const techOne=await login('tech-one@pg.invalid'),techTwo=await login('tech-two@pg.invalid'),techForeign=await login('tech-foreign@pg.invalid');
   assert.equal((await request('/api/customers','HEAD',undefined,owner)).status,200);
-  const payload={first_name:'مشتری HTTP',mobile:'09120010001',credit_limit:'9007199254740991'};
+  const payload={first_name:'مشتری HTTP',last_name:'Fixture',mobile:'09120010001',credit_limit:'9007199254740991'};
   const response=await request('/api/customers','POST',payload,owner,'http-create-one');assert.equal(response.status,200);const saved=await response.json();assert.equal(saved.code,'C0001');assert.equal(saved.redirect,'/customers/'+saved.id);
   const persisted=(await db.query(`SELECT * FROM ${table('customers')} WHERE id=$1`,[saved.id])).rows[0];assert.equal(persisted.first_name,payload.first_name);assert.equal(String(persisted.credit_limit),'9007199254740991');assert.equal(Number(persisted.branch_id),1);assert.equal(Number((await db.query(`SELECT COUNT(*) n FROM ${table('accounting_journals')}`)).rows[0].n),0);check('real customer create and exact persisted value; no invented journal');
   assert.deepEqual(await (await request('/api/customers','POST',payload,owner,'http-create-one')).json(),saved);assert.equal((await request('/api/customers','POST',{...payload,first_name:'تغییر'},owner,'http-create-one')).status,409);
