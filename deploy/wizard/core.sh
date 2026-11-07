@@ -2,7 +2,7 @@
 # Adapted from the user's exp/{setup,install,manage}.sh: terminal helpers,
 # private root configuration, exact confirmations and collision-aware ports.
 set +x
-WIZARD_VERSION=1.2.0
+WIZARD_VERSION=1.3.0
 CONFIG_FILE=/etc/repaid/server.conf
 APP_ENV=/etc/repaid/repaid.env
 BACKUP_ENV=/etc/repaid/backup.env

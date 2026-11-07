@@ -10,6 +10,7 @@ printf '#!/usr/bin/env bash\ntouch "%s/UNSAFE"\n' "$adversarial" > "$adversarial
 bash "$adversarial/setup.sh" --plan
 [[ ! -e $adversarial/UNSAFE ]]
 echo 'PASS downloaded bootstrap refuses ambient modules beneath a shared writable directory'
+python3 scripts/bootstrap-acceptance.py
 # Only this disposable hosted VM; preserve installer disk admission reserves.
 rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc
 cp -a .git /var/tmp/repaid-wizard-origin.git

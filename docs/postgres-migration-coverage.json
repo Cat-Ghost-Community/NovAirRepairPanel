@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "e0bc8a3fe7c59e9d9a9a621d0d8fb0ef712b03e1ff3549096831e2ed4b942dfe",
+  "source_tree_sha256": "62d2a9d91323d5bbe4d5995f61a23acefb81e346ff13dae35f50b72c7a822f1a",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -66116,7 +66116,7 @@
       "kind": "deployment_script",
       "file": "deploy.sh",
       "client": false,
-      "runtime_source_sha256": "9456efb25ead2a447e55535c3bd08e3d49c73d5143aff60d135e502886437133",
+      "runtime_source_sha256": "304abba285b4c2d6d6b735e3222c4227d1fb53242244d667be9defd54fdef23c",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "deploy.sh",
@@ -66620,7 +66620,7 @@
       "kind": "deployment_script",
       "file": "deploy/wizard/core.sh",
       "client": false,
-      "runtime_source_sha256": "b2a2974a8485216181cb1f0ed2b8e122559b371726e7457db20c7f1454fa95db",
+      "runtime_source_sha256": "6f8ddfc22f93a568800a0f09926f32410b974adfbe12c3224b39e9d1ddaba4c9",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "deploy/wizard/core.sh"
@@ -67691,7 +67691,7 @@
       "kind": "deployment_script",
       "file": "install.sh",
       "client": false,
-      "runtime_source_sha256": "7807391aff865f9d9851fbcae358095ac2cab47a79224e720f5baf3a7e850244",
+      "runtime_source_sha256": "9dcf1ccb034e59acec375390ca6034a613a885885adb10717388776e9eec0cb7",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "deploy/wizard/address.sh",
@@ -68129,7 +68129,7 @@
       "kind": "deployment_script",
       "file": "manage.sh",
       "client": false,
-      "runtime_source_sha256": "d99c89ae68918adcb7aeec9fde9420abae56a95a97d7f6842fd5885a915e5eff",
+      "runtime_source_sha256": "abbc0e5d371329fafe73b87f573e767718d5559e8c137d482f726964a5fee4d6",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "deploy/wizard/address.sh",
@@ -68599,7 +68599,7 @@
       "kind": "deployment_script",
       "file": "scripts/wizard-linux-acceptance.sh",
       "client": false,
-      "runtime_source_sha256": "209ebd726d28fd29d068bdd442442293375a4b7476017d75b93ec9c5b28366e5",
+      "runtime_source_sha256": "912f00074ac779c51fafbc66c437d509ad3d6513f4fdea4d14d1cfae2c7a1d45",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/bootstrap.ts",
@@ -68852,7 +68852,7 @@
         {
           "file": "scripts/wizard-linux-acceptance.sh",
           "kind": "compiled_tool_dispatch",
-          "line": 74,
+          "line": 75,
           "tool": "deployment"
         }
       ],
@@ -68885,7 +68885,7 @@
       "kind": "deployment_script",
       "file": "setup.sh",
       "client": false,
-      "runtime_source_sha256": "c1cdad425e17f53f9902adb3e4fe2dd4caa6477639787b09073112db055c4ebc",
+      "runtime_source_sha256": "ff5de2547649809de9e825e4c1c032775f14fd125a8341389be4127654942491",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "deploy/wizard/address.sh",
@@ -123444,7 +123444,7 @@
     {
       "file": "deploy/wizard/core.sh",
       "kind": "shell",
-      "sha256": "66046a9bd598ab6edcd72a3dee625337c4f83c2ed16981161f7e9af8c21e147a",
+      "sha256": "4a0f503d8e6590327f4dc1ea98e53f83de755f629858660229a800948e31a0f0",
       "imports": [],
       "exports": [],
       "actions": [],
@@ -128805,7 +128805,7 @@
     {
       "file": "scripts/postgres-migration-inventory.cjs",
       "kind": "tool",
-      "sha256": "6aff35202cbd2a94d50dbe2f275d1a13ea35fe9dfd14c9432341f31f24cb139f",
+      "sha256": "362953e334ada74bcf141aea5aaab78505ad56d77ab74c17fa65f2c7f29c8130",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131445,12 +131445,12 @@
     {
       "file": "scripts/wizard-linux-acceptance.sh",
       "kind": "shell",
-      "sha256": "3d1df223418773e783aed4713da8bff18f25dd6c974a6bb676f49bbbefd0235d",
+      "sha256": "4791fb755f894b738e6d6b7cef5b6205806e48d248c0e108aa8dea3609059155",
       "imports": [
         {
           "specifier": "deployment",
           "kind": "compiled_tool",
-          "line": 74,
+          "line": 75,
           "type_only": false,
           "target": "scripts/deployment-operations.ts"
         }
@@ -131463,7 +131463,7 @@
       "dynamic_expressions": [
         {
           "kind": "compiled_tool_dispatch",
-          "line": 74,
+          "line": 75,
           "tool": "deployment"
         }
       ],
@@ -131473,7 +131473,7 @@
     {
       "file": "setup.sh",
       "kind": "shell",
-      "sha256": "ba192bdebd758ccddade904161e5352d0775c7ce1640e2408235ab4d38ad50f1",
+      "sha256": "615d44209ddae41a3516d9bf0990427f1f337dc3399042b383f1e456bc813efb",
       "imports": [
         {
           "specifier": "./manage.sh",
@@ -185179,7 +185179,7 @@
     {
       "file": "tests/installer.test.ts",
       "kind": "test",
-      "sha256": "3002809c308a918d898b252b7fc80e6939900e3f6ea3321f855ae17f781a90c3",
+      "sha256": "f3e7d2094dcf02a5c91f1363350a54e54a53885544052a0d9a237b5c3d106464",
       "imports": [
         {
           "specifier": "node:test",

@@ -20,99 +20,61 @@ Next.js, React, TypeScript and Tailwind. Persian RTL, branch controls, repair wo
 
 The reference project's Node18/20, PostgreSQL14 and Ubuntu20.04 requirements do not apply. This wizard uses **systemd**, not PM2/Prisma; one web process serves one business with multiple branches. It does not reset the firewall, upgrade the whole OS, change swap or steal another site's port.
 
-## 1. Private repository access: SSH deploy key
+## 1. One-command installation
 
-This repository is **currently private**. Anonymous raw downloads/clones will fail. Configure access as **root**, the identity used for release fetches, rather than only in your personal SSH account.
+Download the bootstrap, then run the interactive wizard. No manual clone, release checkout or Node installation is needed. Use the **Copy** button on the code block. This repository is currently **private**.
+
+### Public repository
+
+Only works if the repository is made public:
 
 ```bash
-sudo -i
-install -d -m 700 /root/.ssh
-# Choose a new filename. Never overwrite an existing key.
-ssh-keygen -t ed25519 -f /root/.ssh/repaid_github -C 'repaid-server-readonly'
-cat /root/.ssh/repaid_github.pub
+curl -fsSL https://raw.githubusercontent.com/Cat-Ghost-Community/NovAirRepairPanel/main/setup.sh \
+  -o "$HOME/novair-setup.sh" && sudo bash "$HOME/novair-setup.sh"
 ```
 
-GitHub: **repository > Settings > Deploy keys > Add deploy key**. Paste the public key; read-only access is enough. Never commit the private key.
+### Private repository (current)
 
-Verify the server fingerprint against [GitHub's official fingerprints](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints), then test:
-
-```bash
-ssh -i /root/.ssh/repaid_github -o IdentitiesOnly=yes -T git@github.com
-```
-
-The successful GitHub greeting normally exits with code **1**, not 0 ([official explanation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection?platform=linux)). Do not disable host-key checking. A passphrase-protected key needs an unlocked agent in the root shell used for future updates:
+Create a [fine-grained GitHub token](https://github.com/settings/personal-access-tokens/new) for **this repository only**, with **Contents: Read-only**. This command asks for it without placing the secret in shell history or curl's command arguments:
 
 ```bash
-eval "$(ssh-agent -s)"
-ssh-add /root/.ssh/repaid_github
-```
-
-## 2. One-command installation
-
-**Private repository: complete the SSH deploy-key setup above first.** Run this command in the root shell opened with `sudo -i`. Git must be installed, and `/root/repaid-source` must not already exist.
-
-Use the **Copy** icon in the upper-right corner of the code block to copy the complete command. It clones the private repository, selects the CI-verified source commit and starts the interactive Linux wizard.
-
-```bash
-GIT_SSH_COMMAND='ssh -i /root/.ssh/repaid_github -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes' \
-  git clone --branch main git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git /root/repaid-source && \
-  cd /root/repaid-source && \
-  git checkout --detach cc3f42dbb207f65cfff51fd49d0a8462664cc3f1 && \
-  REPAID_SSH_IDENTITY_FILE=/root/.ssh/repaid_github bash setup.sh --ref cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
-```
-
-Keep the terminal open and follow the wizard. Each step runs only after the previous step succeeds. No token is embedded in the command, and SSH host-key verification remains enabled.
-
-**Already installed?** Use the [management/update instructions](#update-and-code-rollback) instead of cloning over an existing installation. The pinned installer checks passed; this is not a commercial production-readiness certificate. For a newer reviewed release, replace both commit references together.
-
-The wizard asks for:
-
-1. **Domain or IPv4.** Domain mode obtains Let's Encrypt TLS. IP mode uses a self-signed certificate requiring explicit client trust; no public IP is guessed.
-2. **Certificate contact email**, for domain TLS. This does not grant admin access.
-3. **Paths and private port.** Safe defaults or custom separate code/data/backup paths. Port collisions are checked without displacing other applications.
-4. **Real company owner:** email, name and a repeated hidden password of 12-1024 characters. No demo/default account is created.
-5. **Review and confirmation.** Installation is not reported complete until backend/database, HTTPS and initial encrypted recovery verification succeed.
-
-SMTP, SMS and payment credentials are not invented. Configure this project's actual domestic integrations through their supported settings/private environment.
-
-If Git is not yet installed, copy the reviewed `setup.sh` to the server using SSH/SCP and run that saved bootstrap with the same repository/ref/key options. It installs Git before fetching its complete module set. Node, build tools and application services do not require manual package installation.
-
-### Public repository: download bootstrap first
-
-**Only after repository visibility becomes public**, no-auth download works:
-
-```bash
-RELEASE=cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
-curl -fSL --proto '=https' --proto-redir '=https' \
-  "https://raw.githubusercontent.com/Cat-Ghost-Community/NovAirRepairPanel/$RELEASE/setup.sh" -o /tmp/repaid-setup.sh &&
-# Review the downloaded file before sudo.
-sudo bash /tmp/repaid-setup.sh --repo https://github.com/Cat-Ghost-Community/NovAirRepairPanel.git --ref "$RELEASE"
-```
-
-Do not pipe `manage.sh` alone into Bash: it requires its version-matched `deploy/wizard/` modules. Saving the bootstrap first also permits interactive questions.
-
-### Private HTTPS alternative: token file
-
-Use a fine-grained GitHub token scoped to this repository with **Contents: Read-only**. Keep it root-only, never in a repository URL, command argument, committed environment or pasted history line.
-
-```bash
-sudo -i
-umask 077
-read -rsp 'GitHub read-only token: ' TOKEN; printf '\n'
-printf '%s\n' "$TOKEN" > /root/repaid-github-token
+read -rsp 'GitHub token: ' TOKEN; printf '\n'
+printf 'Authorization: Bearer %s\n' "$TOKEN" | curl -fsSL -H @- \
+  https://raw.githubusercontent.com/Cat-Ghost-Community/NovAirRepairPanel/main/setup.sh \
+  -o "$HOME/novair-setup.sh" && sudo bash "$HOME/novair-setup.sh"
 unset TOKEN
-RELEASE=cc3f42dbb207f65cfff51fd49d0a8462664cc3f1
-HEADER=$(mktemp /root/repaid-curl.XXXXXX)
-printf 'header = "Authorization: Bearer %s"\n' "$(cat /root/repaid-github-token)" > "$HEADER"
-curl -fSL --proto '=https' --proto-redir '=https' --config "$HEADER" \
-  "https://raw.githubusercontent.com/Cat-Ghost-Community/NovAirRepairPanel/$RELEASE/setup.sh" -o /root/repaid-setup.sh || { rm -f -- "$HEADER"; exit 1; }
-rm -f -- "$HEADER"
-# Review the bootstrap.
-REPAID_GITHUB_TOKEN_FILE=/root/repaid-github-token bash /root/repaid-setup.sh \
-  --repo https://github.com/Cat-Ghost-Community/NovAirRepairPanel.git --ref "$RELEASE"
 ```
 
-The bootstrap and subsequent Git fetches use private askpass authentication. Authenticating only the initial curl does **not** authorize later Git requests. Key/token **paths**, not secret contents, are retained for updates. Expired credentials fail explicitly.
+The first prompt authorizes the download. If anonymous Git access fails, the wizard asks for the same token again, with hidden input, and stores it in a generated **root-owned, mode 600** file for later release fetches. Its path is saved with installation settings; the secret is never put in the repository URL. Enter **q** to cancel. Failed authentication removes the newly created credential file and does not start installation. Public repositories need no token. Network and invalid-release failures are never reported as successful installation.
+
+The bootstrap resolves `main` to one exact commit before launching the installer. To review before execution, download without the `&& sudo bash ...` suffix, inspect the saved file, then run it. For a fixed reviewed release, replace `main` in the URL with its 40-character commit and run `sudo bash "$HOME/novair-setup.sh" --ref REVIEWED_SHA`.
+
+### What the wizard asks
+
+1. **Domain or IPv4.** Domain mode obtains Let's Encrypt TLS. IP mode uses a self-signed certificate requiring explicit client trust.
+2. **Certificate contact email**, for domain TLS. This does not grant admin access.
+3. **Paths and private port.** Separate code/data/backup paths; collisions are checked without displacing other applications.
+4. **Company owner:** email, name and a repeated hidden password of 12-1024 characters. No demo/default account is created.
+5. **Review and confirmation.** Installation is complete only after backend/database, HTTPS and initial encrypted recovery verification succeed.
+
+Keep the terminal open. Run the downloaded file rather than piping it into Bash, so interactive prompts retain the terminal. Existing installations offer update, management, doctor or protected clean reinstall; the bootstrap does not authorize a data reset. For daily updates, use the [management instructions](#update-and-code-rollback).
+
+### SSH deploy key / unattended installation
+
+Existing SSH installations remain supported. Add a read-only deploy key to **Settings > Deploy keys**, verify [GitHub's host fingerprints](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints), and use:
+
+```bash
+sudo REPAID_SSH_IDENTITY_FILE=/root/.ssh/repaid_github bash "$HOME/novair-setup.sh"
+```
+
+For unattended private HTTPS, prepare an ordinary root-owned credential file with mode **600**, then run:
+
+```bash
+sudo REPAID_GITHUB_TOKEN_FILE=/root/repaid-github-token bash "$HOME/novair-setup.sh"
+```
+
+Without a terminal, missing credentials fail explicitly; no hidden prompt or default owner is used. Preserve the credential file for future updates. Existing `repaid` service/data names and `REPAID_*` options remain compatible. SMS, payment and email credentials must be configured through the application's supported private settings.
+
 
 ## 3. What gets installed
 

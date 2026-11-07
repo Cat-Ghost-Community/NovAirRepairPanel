@@ -19,6 +19,17 @@ it('renders the working one-command plan without root or host mutation',()=>{
  const child=shell('cd "$PROJECT"; REPAID_DATA_DIR=/var/lib/repaid REPAID_BACKUP_DIR=/var/backups/repaid REPAID_APP_DIR=/opt/repaid SSL_TYPE=ip SERVER_IP=192.0.2.20 bash setup.sh --plan');assert.equal(child.status,0,child.stderr);assert.match(child.stdout,/https:\/\/192\.0\.2\.20/);assert.match(child.stdout,/Ref: main/);assert.match(child.stdout,/No database wipe/);
  for(const file of ['setup.sh','install.sh','manage.sh','deploy.sh']){const help=shell('cd "$PROJECT"; bash "$ENTRY" --help',{ENTRY:file});assert.equal(help.status,0,help.stderr);assert.match(help.stdout,/Repaid/);}
 });
+it('defaults a downloaded bootstrap to HTTPS while preserving explicit SSH and repository choices',()=>{
+ const entry=path.join(directory,'downloaded-setup.sh');fs.copyFileSync('setup.sh',entry);
+ for(const [extra,args,expected] of [
+  [{},[],/https:\/\/github\.com\/Cat-Ghost-Community\/NovAirRepairPanel\.git/],
+  [{REPAID_SSH_IDENTITY_FILE:'/root/.ssh/deploy'},[],/git@github\.com:Cat-Ghost-Community\/NovAirRepairPanel\.git/],
+  [{},['--repo','https://github.com/fixture/custom.git'],/https:\/\/github\.com\/fixture\/custom\.git/],
+ ] as [Record<string,string>,string[],RegExp][]){
+  const environment={...process.env,...extra};delete environment.REPAID_REPO;
+  const child=spawnSync(bash,[entry,'--plan',...args],{encoding:'utf8',windowsHide:true,env:environment});assert.equal(child.status,0,child.stderr);assert.match(child.stdout,expected);
+ }
+});
 it('renders reference-style framed menus, narrow-terminal fallback and accurate completion guidance',()=>{
  const wide=shell('source "$PROJECT/manage.sh"; APP_DIR=/opt/repaid; DATA_DIR=/var/lib/repaid; BACKUP_DIR=/var/backups/repaid; SSL_TYPE=ip; SERVER_IP=192.0.2.20; COLUMNS=80; render_main_menu active; show_install_complete');assert.equal(wide.status,0,wide.stderr);assert.match(wide.stdout,/Main Menu/);assert.match(wide.stdout,/Smart Update/);assert.match(wide.stdout,/Management Panel/);assert.match(wide.stderr,/self-signed|Self-signed/);const borders=wide.stdout.split('\n').filter(line=>/^  [╔║╚]/u.test(line));assert.ok(borders.length>8);for(const line of borders)assert.equal([...line].length,66,line);
  const narrow=shell('COLUMNS=34; show_banner "Setup Wizard"; divider');assert.equal(narrow.status,0,narrow.stderr);assert.doesNotMatch(narrow.stdout,/[╔║╚]/u);for(const line of narrow.stdout.split('\n').filter(line=>line.startsWith('  ---')))assert.ok(line.length<=34);

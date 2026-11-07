@@ -17,13 +17,20 @@ if [[ -n ${BASH_SOURCE[0]:-} && -f ${BASH_SOURCE[0]} ]]; then
   if [[ $trusted == 1 && -f $ROOT/deploy/wizard/core.sh && ! -L $ROOT/deploy && ! -L $ROOT/deploy/wizard ]]; then exec bash "$ROOT/manage.sh" --install-wizard "$@"; fi
 fi
 REF=${REPAID_REF:-main}
-REPO=${REPAID_REPO:-git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git}
+if [[ -n ${REPAID_SSH_IDENTITY_FILE:-} ]]; then DEFAULT_REPO=git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git
+else DEFAULT_REPO=https://github.com/Cat-Ghost-Community/NovAirRepairPanel.git; fi
+REPO=${REPAID_REPO:-$DEFAULT_REPO}
 ARGS=("$@")
+PLAN=0
 while (($#)); do
-  case $1 in --help|-h) printf '%s\n' 'Repaid bootstrap: sudo bash setup.sh [--ref BRANCH_OR_SHA] [--repo GITHUB_URL] [--yes]' 'Private GitHub access requires a server deploy key and verified known_hosts. Prefer saving/reviewing this file before sudo.'; exit;;
-    --plan) printf 'Bootstrap plan: fetch %s at %s into a private temporary directory, then launch its installer. No host changes applied.\n' "$REPO" "$REF"; exit;;
+  case $1 in --help|-h) printf '%s\n' 'Repaid bootstrap: sudo bash setup.sh [--ref BRANCH_OR_SHA] [--repo GITHUB_URL] [--yes]' 'Private HTTPS access offers a hidden token prompt. Unattended runs require REPAID_GITHUB_TOKEN_FILE; SSH deploy keys remain supported. Save/review this file before sudo.'; exit;;
+    --plan) PLAN=1;;
     --ref) REF=${2:?Release required}; shift;; --repo) REPO=${2:?Repository required}; shift;; --yes) ;; *) printf 'Unknown option: %s\n' "$1" >&2; exit 1;; esac; shift
 done
+if [[ $PLAN == 1 ]]; then
+  printf 'Bootstrap plan: fetch %s at %s into a private temporary directory, then launch its installer. No host changes applied.\n' "$REPO" "$REF"
+  exit
+fi
 [[ $EUID == 0 && $(uname -s) == Linux ]] || { echo 'Use sudo on Ubuntu/Debian.' >&2; exit 1; }
 [[ $REPO =~ ^git@github\.com:[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$ || $REPO =~ ^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$ ]] || { echo 'Unsupported repository URL' >&2; exit 1; }
 [[ $REF =~ ^[A-Za-z0-9][A-Za-z0-9_./-]*$ && $REF != *..* ]] || { echo 'Invalid release reference' >&2; exit 1; }
@@ -37,6 +44,18 @@ if [[ -n ${REPAID_SSH_IDENTITY_FILE:-} ]]; then
 fi
 if ! command -v git >/dev/null; then apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y git ca-certificates; fi
 TEMPORARY=$(mktemp -d /var/tmp/repaid-bootstrap.XXXXXX)
+NEW_TOKEN_FILE=''
+cleanup_bootstrap() {
+  local status=$?
+  [[ -z $NEW_TOKEN_FILE ]] || rm -f -- "$NEW_TOKEN_FILE"
+  rm -rf -- "$TEMPORARY"
+  exit "$status"
+}
+trap cleanup_bootstrap EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+configure_token() {
 if [[ -n ${REPAID_GITHUB_TOKEN_FILE:-} ]]; then
   file=$REPAID_GITHUB_TOKEN_FILE
   [[ $REPO == https://github.com/* && -f $file && ! -L $file && $(stat -c '%u' "$file") == 0 ]] || { echo 'Use a root-only token file with the HTTPS repository URL.' >&2; exit 1; }
@@ -50,8 +69,34 @@ ASKPASS
   chmod 0700 "$TEMPORARY/askpass"
   export GIT_ASKPASS="$TEMPORARY/askpass"
 fi
+}
+configure_token
+export REPAID_REPO=$REPO
+printf '\nNovAirRepairPanel setup - fetching %s (%s)\n' "$REPO" "$REF"
 git init "$TEMPORARY/source" >/dev/null
-git -c credential.helper= -C "$TEMPORARY/source" fetch --depth=1 "$REPO" "$REF"
+fetch_bootstrap() { timeout 90s git -c credential.helper= -C "$TEMPORARY/source" fetch --depth=1 "$REPO" "$REF" >"$TEMPORARY/fetch.log" 2>&1; }
+if ! fetch_bootstrap; then
+  if [[ $REPO != https://github.com/* || -n ${REPAID_GITHUB_TOKEN_FILE:-} || ! -t 0 ]]; then
+    cat "$TEMPORARY/fetch.log" >&2
+    echo 'Repository fetch failed. Check network/release access. For private HTTPS, provide REPAID_GITHUB_TOKEN_FILE (root-owned, chmod 600), or run interactively.' >&2
+    exit 1
+  fi
+  printf '\nRepository unavailable anonymously. Check connectivity and the selected release.\nFor a private repository, use a fine-grained token with Contents: Read-only.\nThe token will be stored in a root-only file for future updates. Enter q to cancel.\n' >&2
+  read -r -s -p 'GitHub token: ' token || { printf '\nCancelled.\n' >&2; exit 1; }
+  printf '\n' >&2
+  [[ -n $token && $token != q && $token != Q && $token != *[[:space:]]* ]] || { echo 'Cancelled or invalid token; no application installation started.' >&2; exit 1; }
+  [[ ! -L /root && $(stat -c '%u' /root) == 0 ]] || exit 1
+  mode=$(stat -c '%a' /root); (( (8#$mode & 8#022) == 0 )) || exit 1
+  NEW_TOKEN_FILE=$(mktemp /root/repaid-github-token.XXXXXX)
+  printf '%s\n' "$token" > "$NEW_TOKEN_FILE"
+  unset token
+  export REPAID_GITHUB_TOKEN_FILE=$NEW_TOKEN_FILE
+  configure_token
+  if ! fetch_bootstrap; then
+    echo 'Authenticated fetch failed. Check token scope, repository/release and connectivity. No application installation started.' >&2
+    exit 1
+  fi
+fi
 SHA=$(git -C "$TEMPORARY/source" rev-parse FETCH_HEAD)
 [[ $SHA =~ ^[0-9a-f]{40}$ ]] || exit 1
 git -C "$TEMPORARY/source" checkout --detach "$SHA" >/dev/null
