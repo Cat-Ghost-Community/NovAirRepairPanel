@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
 import {postgresOperationalHttp} from '@/lib/db/pg-operational-http';
 import { getDb } from "@/lib/db/schema";
-import { requireSession, requirePerm, fail, ok, readJson, audit,validate,HttpError } from "@/lib/api";
+import { requireSession, requirePerm, fail, ok, readJson, audit,validate } from "@/lib/api";
 import { addCustomerEvent } from "@/lib/repair";
 import { activeBranch, BRANCH_COOKIE, recordBranchId } from "@/lib/branch";
 import {atomic} from "@/lib/db/transaction";

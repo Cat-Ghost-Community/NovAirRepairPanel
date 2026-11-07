@@ -22,6 +22,8 @@ export default async function Dashboard() {
   const session = getSessionByToken(cookieStore.get("repaid_session")?.value);
   if (!session) redirect("/login");
   const user = session.user;
+  // One request-scoped clock snapshot keeps the greeting, date and age windows consistent.
+  const serverNow = new Date().getTime();
   const db = getDb();
 
   const role = user.role;
@@ -33,7 +35,7 @@ export default async function Dashboard() {
   // محدودهٔ شعبه: مدیران «همه شعب» یا شعبهٔ انتخابی، بقیه قفل روی شعبهٔ خودشان
   const scope = activeBranch(session, cookieStore.get(BRANCH_COOKIE)?.value);
   const bw = (alias: string) => branchWhere(scope, alias);
-  const jalaliToday = new Intl.DateTimeFormat("fa-IR", { timeZone:"Asia/Tehran", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  const jalaliToday = new Intl.DateTimeFormat("fa-IR", { timeZone:"Asia/Tehran", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(serverNow));
   const branchName =
     scope.branchId == null
       ? "همهٔ شعبه‌ها"
@@ -109,7 +111,7 @@ export default async function Dashboard() {
   const canFinancial = canUser(session, "finance.view");
   const upcomingDue: Array<{ kind: string; title: string; href: string; jdate: string }> = [];
   if (canFinancial) {
-    const g7 = new Date(Date.now() + 7 * 86400000);
+    const g7 = new Date(serverNow + 7 * 86400000);
     const g7ISO = `${g7.getFullYear()}-${String(g7.getMonth() + 1).padStart(2, "0")}-${String(g7.getDate()).padStart(2, "0")}`;
     const todayISO = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
     const fmtJ = (iso: string) => { const [,month,day] = fmtDate(iso).split("/"); return day && month ? `${day}/${month}` : "—"; };
@@ -474,7 +476,7 @@ export default async function Dashboard() {
       <div className="page-head">
         <div className="min-w-0">
           <h1 className="text-lg font-bold tracking-tight sm:text-xl">
-            <TehranGreeting serverNow={Date.now()}/>، {user.name.split(" ")[0]}
+            <TehranGreeting serverNow={serverNow}/>، {user.name.split(" ")[0]}
           </h1>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-zinc-500 dark:text-zinc-400">
             <span>{jalaliToday}</span>

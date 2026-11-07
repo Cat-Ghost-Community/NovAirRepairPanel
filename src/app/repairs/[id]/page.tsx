@@ -26,11 +26,6 @@ import { RepairCancellation } from '@/components/repair-cancellation';
 import { cancellationPosition } from '@/lib/repair-cancellation';
 import { Breadcrumb } from "@/components/breadcrumb";
 
-const TYPE_FA: Record<string, string> = {
-  mobile: "موبایل", laptop: "لپ‌تاپ", desktop: "دسکتاپ", tablet: "تبلت",
-  console: "کنسول بازی", smartwatch: "ساعت هوشمند", printer: "پرینتر",
-  network: "تجهیزات شبکه", other: "سایر",
-};
 import { fmtMoney, fmtDate, fmtDateTime, plain, timeAgo } from "@/lib/format";
 import { StatusBadge, PriorityBadge, Avatar } from "@/components/ui";
 import { Icon } from "@/components/icon";

@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "96856f2834cd20273eccd82898de7b8d4f9e20d8dd6b09e6a4e6271a6b4f20e4",
+  "source_tree_sha256": "7d622e9f3cd76cc6becef463766b09be59e4e719dd091c2d6cc9b7fbda632fff",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -20749,7 +20749,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "595c6f055b11458528ff6dfb9fde15d8290c848bfac2e62464a390ddf38b09ce",
+      "runtime_source_sha256": "bd2d71f5ab6ba0a3400f2e0a204fa89e6573d92d21e7bcf0450dc7c8dedbd17b",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -98530,7 +98530,7 @@
       "file": "src/app/page.tsx",
       "route": "/",
       "client": false,
-      "runtime_source_sha256": "ec4a5f39411346db433d1579233152a524f7fc258f5f646c3d84a47f19fc7820",
+      "runtime_source_sha256": "cf377e58b137b6e7cdfc1aae662b46e8c31c272b52597da13d86234c024d770b",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -107279,7 +107279,7 @@
       "file": "src/app/repairs/[id]/page.tsx",
       "route": "/repairs/[id]",
       "client": false,
-      "runtime_source_sha256": "5699d299c552c6d25ed91ac1f78344ff0c1c58efc9d6186ab2d38fe6b81b2562",
+      "runtime_source_sha256": "383427439503aed2f686e25510dc5b0c2264266d7c082599e8392c9c060397e0",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -139328,7 +139328,7 @@
     {
       "file": "src/app/api/devices/route.ts",
       "kind": "application",
-      "sha256": "9a0bd527808eb689e34aa3d6d42919f01a871a0897554b74d1aca39c995a8335",
+      "sha256": "af3730896f16a55b150fe142a0ba7fb5dd730cc11fc561c20752f1272e4f5975",
       "imports": [
         {
           "specifier": "next/server",
@@ -152790,7 +152790,7 @@
     {
       "file": "src/app/page.tsx",
       "kind": "application",
-      "sha256": "4402175810952a5a2f2abff255bd66d39849aaa459f90b5d0c9616258a14a291",
+      "sha256": "820ecc9cf06c4831770bebc90e1cfb8e03b05a0836f5ad4c8514dc5ce62d2d08",
       "imports": [
         {
           "specifier": "@/lib/page-access",
@@ -152919,7 +152919,7 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 25
+          "line": 27
         }
       ],
       "transaction_signals": []
@@ -154727,7 +154727,7 @@
     {
       "file": "src/app/repairs/[id]/page.tsx",
       "kind": "application",
-      "sha256": "f8c3a12969437214b17be2980eef9566384f1db4b1479da7f6f3aba2fb23780b",
+      "sha256": "fdae4fdb047741495393a8ad5d6547a2b59eac59f519bbc3a8642f495d507858",
       "imports": [
         {
           "specifier": "@/lib/current-device-catalog",
@@ -154921,63 +154921,63 @@
         {
           "specifier": "@/lib/format",
           "kind": "import",
-          "line": 34,
+          "line": 29,
           "type_only": false,
           "target": "src/lib/format.ts"
         },
         {
           "specifier": "@/components/ui",
           "kind": "import",
-          "line": 35,
+          "line": 30,
           "type_only": false,
           "target": "src/components/ui.tsx"
         },
         {
           "specifier": "@/components/icon",
           "kind": "import",
-          "line": 36,
+          "line": 31,
           "type_only": false,
           "target": "src/components/icon.tsx"
         },
         {
           "specifier": "./workspace-client",
           "kind": "import",
-          "line": 37,
+          "line": 32,
           "type_only": false,
           "target": "src/app/repairs/[id]/workspace-client.tsx"
         },
         {
           "specifier": "./deliver-signature",
           "kind": "import",
-          "line": 38,
+          "line": 33,
           "type_only": false,
           "target": "src/app/repairs/[id]/deliver-signature.tsx"
         },
         {
           "specifier": "./assign-button",
           "kind": "import",
-          "line": 39,
+          "line": 34,
           "type_only": false,
           "target": "src/app/repairs/[id]/assign-button.tsx"
         },
         {
           "specifier": "@/components/journey-drawer",
           "kind": "import",
-          "line": 40,
+          "line": 35,
           "type_only": false,
           "target": "src/components/journey-drawer.tsx"
         },
         {
           "specifier": "@/lib/assign-shared",
           "kind": "import",
-          "line": 41,
+          "line": 36,
           "type_only": false,
           "target": "src/lib/assign-shared.ts"
         },
         {
           "specifier": "@/components/qr",
           "kind": "import",
-          "line": 42,
+          "line": 37,
           "type_only": false,
           "target": "src/components/qr.tsx"
         }
@@ -154985,12 +154985,12 @@
       "exports": [
         {
           "name": "dynamic",
-          "line": 44,
+          "line": 39,
           "kind": "value"
         },
         {
           "name": "RepairDetailPage",
-          "line": 46,
+          "line": 41,
           "kind": "function"
         }
       ],
@@ -155005,18 +155005,18 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 67
+          "line": 62
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 269
+          "line": 264
         }
       ],
       "transaction_signals": [
         {
           "name": "database.transaction",
-          "line": 62
+          "line": 57
         }
       ]
     },
