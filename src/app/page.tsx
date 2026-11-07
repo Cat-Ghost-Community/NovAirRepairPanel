@@ -33,7 +33,7 @@ export default async function Dashboard() {
   // محدودهٔ شعبه: مدیران «همه شعب» یا شعبهٔ انتخابی، بقیه قفل روی شعبهٔ خودشان
   const scope = activeBranch(session, cookieStore.get(BRANCH_COOKIE)?.value);
   const bw = (alias: string) => branchWhere(scope, alias);
-  const jalaliToday = new Intl.DateTimeFormat("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  const jalaliToday = new Intl.DateTimeFormat("fa-IR", { timeZone:"Asia/Tehran", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
   const branchName =
     scope.branchId == null
       ? "همهٔ شعبه‌ها"
