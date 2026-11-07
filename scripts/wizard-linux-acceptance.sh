@@ -17,6 +17,7 @@ cp -a .git /var/tmp/repaid-wizard-origin.git
 chown -R root:root /var/tmp/repaid-wizard-origin.git
 git --git-dir=/var/tmp/repaid-wizard-origin.git config core.bare true
 git config --global url.file:///var/tmp/repaid-wizard-origin.git.insteadOf git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git
+git config --global --add url.file:///var/tmp/repaid-wizard-origin.git.insteadOf https://github.com/Cat-Ghost-Community/NovAirRepairPanel.git
 install -d -m 0700 /root/repaid-wizard-fixture
 python3 - <<'PY'
 import json,os,secrets
