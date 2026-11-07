@@ -49,9 +49,9 @@ export default async function SettingsPage() {
   if (!canUser(session, "settings.view")) redirect("/");
   const db = getDb();
   const branch = activeBranch(session,cookieStore.get(BRANCH_COOKIE)?.value).branchId;
-  const keys = ["business_name", "currency_unit", "tax_rate", "vat_enabled", "duty_rate", "round_to", "invoice_prefix", "ticket_prefix", "diagnostic_fee", "default_credit_limit", "public_base_url", "postal_api_url"];
+  const keys = ["business_name", "currency_unit", "tax_rate", "vat_enabled", "duty_rate", "round_to", "invoice_prefix", "ticket_prefix", "invoice_suffix", "ticket_suffix", "diagnostic_fee", "default_credit_limit", "public_base_url", "postal_api_url"];
   const values: Record<string, string> = {};
-  for (const k of keys) values[k] = getSetting(k);
+  for (const k of keys) values[k] = getSetting(k,k==="ticket_prefix"?"R":k==="invoice_prefix"?"INV-":"");
 
   const statuses = db.prepare("SELECT * FROM repair_statuses ORDER BY sort, id").all() as any[];
   // شمار پذیرش‌های فعلی هر وضعیت — برای نمایش «اکنون: N پذیرش» در نقشهٔ گردش کار

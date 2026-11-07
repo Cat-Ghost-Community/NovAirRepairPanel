@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "3fc4498409b9b8212c8fa19135909abf133c8827bed10d6e89b9617241157958",
+  "source_tree_sha256": "997686821ac3fc08c011f872bbd70f4b2db4735b8778035709208add53b67c3a",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -64671,7 +64671,7 @@
       "kind": "command_tool",
       "file": "scripts/network-isolation.cjs",
       "client": false,
-      "runtime_source_sha256": "eabfd86f1ebae51ba4c2a25463a753f949aa8aae18994aaebde4267390d2417b",
+      "runtime_source_sha256": "76ae1837ec7435f5d7228fbf248b6bc713e02b5b9e166a67071282f08b486659",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/network-isolation.cjs",
@@ -115952,7 +115952,7 @@
       "file": "src/app/settings/page.tsx",
       "route": "/settings",
       "client": false,
-      "runtime_source_sha256": "ce9e7bd2b5148299acf4918b1f1ab56d4530789d44965a5f46977ad3572eee9b",
+      "runtime_source_sha256": "77f96fa9f351b4349269eab634dc1c2acbf6f81100da4008fb573f0567789d61",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -128544,7 +128544,7 @@
     {
       "file": "scripts/network-isolation.cjs",
       "kind": "tool",
-      "sha256": "540f87ab27e35381a86a2f531dcccd1849ff12aa328419bd3861d781eea991a4",
+      "sha256": "4370ef4205497cf2477cc3f6e546889fde5c85e96518431b6885e3153840b6d4",
       "imports": [
         {
           "specifier": "node:fs",
@@ -128640,7 +128640,7 @@
         {
           "specifier": "node:sqlite",
           "kind": "require",
-          "line": 104,
+          "line": 105,
           "type_only": false,
           "external": "node:sqlite"
         }
@@ -128670,22 +128670,22 @@
         {
           "engine": "sqlite",
           "kind": "native_import",
-          "line": 104
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
           "line": 105
         },
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 105
+          "line": 106
         },
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 105
+          "line": 106
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 106
         }
       ],
       "transaction_signals": []
@@ -153985,7 +153985,7 @@
     {
       "file": "src/app/settings/page.tsx",
       "kind": "application",
-      "sha256": "64417cd21561c0781a594070aabd0d056139b32b91e3aeb7c139f2537fcdb93a",
+      "sha256": "8517c5e65662b799df979ca81833d47fe1479cbf564c384378ac8e08498d51e5",
       "imports": [
         {
           "specifier": "./repair-workflow-settings",
