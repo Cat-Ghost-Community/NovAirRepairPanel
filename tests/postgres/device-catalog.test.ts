@@ -55,7 +55,8 @@ it('independent connections cannot overwrite the same catalog version and audit 
 });
 it('native registry guards reject raw unknown/retired types and detect tampering without weakening identity checks',async()=>{
  for(const type of ['unknown','industrial'])await assert.rejects(()=>db.query(`INSERT INTO ${t('devices')}(customer_id,type,branch_id) VALUES(1,$1,1)`,[type]),/device type/);
- await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET customer_id=2 WHERE id=$1`,[deviceId]),/ownership is immutable/);
+ await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET customer_id=2 WHERE id=$1`,[deviceId]),/immutable merge evidence/);
+ await assert.rejects(()=>db.query(`UPDATE ${t('devices')} SET branch_id=2 WHERE id=$1`,[deviceId]),/ownership is immutable/);
  await assert.rejects(()=>db.transaction(async()=>{await db.query(`CREATE OR REPLACE FUNCTION ${t('pg_operational_profile_guard')}() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $$ BEGIN RETURN NEW;END $$`);await assert.rejects(()=>verifyPostgresDeviceCatalogGuard(db,schema),/function missing or altered/);throw Error('intentional catalog guard rollback');}),/intentional catalog guard rollback/);
  assert.equal((await verifyPostgresDeviceCatalogGuard(db,schema)).verified,true);
 });

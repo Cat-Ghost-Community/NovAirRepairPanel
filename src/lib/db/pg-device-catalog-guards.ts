@@ -1,11 +1,11 @@
 import {createHash} from 'node:crypto';
-import {postgresOperationalProfileStatements} from './pg-operational-profiles';
+import {postgresCustomerMergeStatements} from './pg-customer-merge';
 import {postgresRelation} from './postgres-auth';
 import type {PostgresDatabase} from './postgres';
 
 /** Version 10 replaces only the fixed enumeration. Version 5 stays immutable. */
 export function postgresDeviceCatalogGuardStatement(schema:string){
- const t=(name:string)=>postgresRelation(schema,name),original=postgresOperationalProfileStatements(schema)[0];
+ const t=(name:string)=>postgresRelation(schema,name),original=postgresCustomerMergeStatements(schema).find(statement=>statement.startsWith('CREATE OR REPLACE FUNCTION '+t('pg_operational_profile_guard')+'()'));
  const fixed="IF NEW.type NOT IN ('mobile','laptop','desktop','tablet','console','smartwatch','printer','network','other') OR (NEW.battery_health IS NOT NULL AND NEW.battery_health NOT BETWEEN 0 AND 100) THEN RAISE EXCEPTION 'Invalid device attributes' USING ERRCODE='23514'; END IF;";
  const configured=`IF TG_OP='INSERT' OR NEW.type IS DISTINCT FROM OLD.type THEN
       IF EXISTS(SELECT 1 FROM ${t('settings')} WHERE key='devices.catalog.v1') THEN
@@ -13,8 +13,8 @@ export function postgresDeviceCatalogGuardStatement(schema:string){
       ELSIF NEW.type NOT IN ('mobile','laptop','desktop','tablet','console','smartwatch','printer','network','other') THEN RAISE EXCEPTION 'Unknown device type' USING ERRCODE='23514'; END IF;
      END IF;
      IF NEW.battery_health IS NOT NULL AND NEW.battery_health NOT BETWEEN 0 AND 100 THEN RAISE EXCEPTION 'Invalid device attributes' USING ERRCODE='23514'; END IF;`;
- if(!original.includes(fixed))throw Error('Legacy operational guard requires explicit migration review');
- return original.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION').replace(fixed,configured);
+ if(!original?.includes(fixed))throw Error('Reviewed merge/operational guard requires explicit migration review');
+ return original.replace(fixed,configured);
 }
 export const postgresDeviceCatalogGuardChecksum=()=>createHash('sha256').update(postgresDeviceCatalogGuardStatement('repaid')).digest('hex');
 export async function verifyPostgresDeviceCatalogGuard(db:PostgresDatabase,schema:string){
