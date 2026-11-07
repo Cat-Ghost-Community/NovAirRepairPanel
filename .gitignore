@@ -70,3 +70,6 @@ next-env.d.ts
 *.pfx
 __pycache__/
 *.pyc
+
+# Keep Markdown documentation local; exclude from GitHub.
+*.[mM][dD]
