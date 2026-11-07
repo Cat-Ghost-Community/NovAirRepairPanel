@@ -63,7 +63,7 @@ configure_git_auth() {
 }
 fetch_release() {
   local cache="$APP_DIR/repository.git" sha line ref
-  if [[ ! -d $cache ]]; then git init --bare "$cache" >/dev/null; fi
+  if [[ ! -d $cache ]]; then git init --bare --initial-branch=main "$cache" >/dev/null; fi
   [[ ! -L $cache ]] || return 1
   configure_git_auth || return 1
   if [[ $GIT_REF =~ ^[0-9a-f]{40}$ ]]; then sha=$GIT_REF

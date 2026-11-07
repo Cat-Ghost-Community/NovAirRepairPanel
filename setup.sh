@@ -73,7 +73,7 @@ fi
 configure_token
 export REPAID_REPO=$REPO
 printf '\nNovAirRepairPanel setup - fetching %s (%s)\n' "$REPO" "$REF"
-git init "$TEMPORARY/source" >/dev/null
+git init --initial-branch=main "$TEMPORARY/source" >/dev/null
 fetch_bootstrap() { timeout 90s git -c credential.helper= -C "$TEMPORARY/source" fetch --depth=1 "$REPO" "$REF" >"$TEMPORARY/fetch.log" 2>&1; }
 if ! fetch_bootstrap; then
   if [[ $REPO != https://github.com/* || -n ${REPAID_GITHUB_TOKEN_FILE:-} || ! -t 0 ]]; then

@@ -99,7 +99,7 @@ show_install_complete() {
   if [[ $SSL_TYPE == ip ]]; then warn 'Self-signed TLS: verify and trust the certificate on each client. Public CA trust is not enabled.'; fi
   printf '  Next: sign in with your owner account; configure branches and staff.\n'
   printf '  Retain /etc/repaid/repaid.env and backup.env under separate, private key custody.\n'
-  warn 'A local backup does not prove off-host recovery or commercial accounting acceptance.'
+  printf '  Note: Off-host recovery and commercial accounting acceptance require separate verification.\n'
 }
 fresh_install() {
   require_root && require_linux && site_lock || return 1
