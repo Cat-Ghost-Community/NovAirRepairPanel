@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "93afcbfa6876a19013b0b13d93ef479d3e8364c58f97502ba3ac5dc6ebcf69e4",
+  "source_tree_sha256": "96856f2834cd20273eccd82898de7b8d4f9e20d8dd6b09e6a4e6271a6b4f20e4",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -47,7 +47,7 @@
     ]
   },
   "counts": {
-    "input_files": 746,
+    "input_files": 747,
     "api_route_files": 123,
     "api_handlers": 191,
     "pages": 72,
@@ -55,7 +55,7 @@
     "server_actions": 1,
     "command_tools": 26,
     "deployment_scripts": 14,
-    "local_runtime_edges": 3545,
+    "local_runtime_edges": 3561,
     "type_only_edges": 174,
     "unresolved_local_edges": 0,
     "nonliteral_dynamic_expressions": 1,
@@ -807,12 +807,12 @@
       "handlers": [
         {
           "method": "POST",
-          "line": 9,
+          "line": 11,
           "postgres_acceptance": "not_verified"
         }
       ],
       "client": false,
-      "runtime_source_sha256": "03a4100d5f8746b898e5c6d7441abb6724039ea7188588c4333e0d16c8560ab1",
+      "runtime_source_sha256": "2135cbd55aa7a8e8ecc83ae711197b3c77fdcc8e1a559d6abcbff7a653a613c4",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -1111,6 +1111,7 @@
         "src/lib/return-state.ts"
       ],
       "transaction_modules": [
+        "src/app/api/appointments/[id]/convert/route.ts",
         "src/lib/accounting-events.ts",
         "src/lib/accounting.ts",
         "src/lib/api.ts",
@@ -2055,12 +2056,12 @@
         },
         {
           "method": "POST",
-          "line": 26,
+          "line": 32,
           "postgres_acceptance": "not_verified"
         }
       ],
       "client": false,
-      "runtime_source_sha256": "689d0364fc9b451b51abe44c8c3669311978edc5678a3fb2c9505e42f7ca22b5",
+      "runtime_source_sha256": "04e71c254e640e954c187977c4d21bf2a5a62712da2eed5739f63d2fcb5ae5fe",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -2411,6 +2412,7 @@
         "direct_source": [],
         "transitive_source": [],
         "literal_http": [
+          "scripts/device-catalog-browser.cjs",
           "tests/postgres-application-gate.test.ts"
         ]
       },
@@ -46037,7 +46039,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "be939f6e4a717bd4b2083d555fc34dc82c32459eee645b5aaba4a1872957cb77",
+      "runtime_source_sha256": "cd3daf3ff93c96d9f7ea1104a58a9c5b8252a26994526a4117ac353b37560552",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -46125,6 +46127,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -46208,6 +46211,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -46324,6 +46328,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -46381,6 +46386,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -46406,6 +46412,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -47377,7 +47384,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "a69a9ea2cf2cac01d0c13276c40cfe770cb74c1f91bc47c28c5ed158236cde36",
+      "runtime_source_sha256": "07efd731707a55c4c925ed195d6bbbdf122af630abc3a2fb3cef962b46ebbed0",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -47465,6 +47472,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -47548,6 +47556,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -47664,6 +47673,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -47720,6 +47730,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -47745,6 +47756,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -48051,7 +48063,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "9a0d7207feb6c17aee174cd1af15c81e5229f6245e170feb26cd6403f5a4ee7d",
+      "runtime_source_sha256": "88db46c20b3044fae35e1122aeeea56be98a95d51725e082d605664e35b0aca7",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -48140,6 +48152,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -48223,6 +48236,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -48340,6 +48354,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -48398,6 +48413,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -48423,6 +48439,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -48732,7 +48749,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "9edd04d6dda8a1bad2f6246c0d9870f1aa7af778ddb421300019e82da958f814",
+      "runtime_source_sha256": "b887713ce0b5f45785c43fba528296062cc10e17cf13642bf25f3c76483b13e8",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -48821,6 +48838,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -48904,6 +48922,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -49020,6 +49039,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -49077,6 +49097,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -49101,6 +49122,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -49410,7 +49432,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "4426fee538e674a2ef52a120020dae9f29585ccb357f8b46c36bad9311819152",
+      "runtime_source_sha256": "02d35acba035648d395cf1e11a350ce7ad5a538cc9c67488530247cc192ec6d4",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -49499,6 +49521,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -49582,6 +49605,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -49698,6 +49722,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -49755,6 +49780,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -49779,6 +49805,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -50580,7 +50607,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "669fc0023e1dd2fd55901cc2f0b40ee634421683287c739e7d2b0bbcdfd1114e",
+      "runtime_source_sha256": "d66d949ef8fd1f7fb7dd1323a2572b3a3d3b4f5ffd1a2bed8586ca404309f62f",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -51179,7 +51206,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "7bf4cb865b7f00cb515dc3ab03b56b858f236bc3be535374f97cb677b8815517",
+      "runtime_source_sha256": "4938c6b63e61078753b01d65da5279dc85a95f98e1628bbf60ca40b4e09eeb94",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -51268,6 +51295,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -51351,6 +51379,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -51468,6 +51497,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -51525,6 +51555,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -51550,6 +51581,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -52538,7 +52570,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "89bce44b1cec07415ac044ceccdc6f11be11f05342e5ecac0a788dd25e259c23",
+      "runtime_source_sha256": "03c4e2ba211a363ad368d5e4f06895a4aae839e80294046830636db1e5248ec8",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -52627,6 +52659,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -52710,6 +52743,7 @@
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -52827,6 +52861,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -52884,6 +52919,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -52909,6 +52945,7 @@
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -53700,7 +53737,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "3ea6c7c0bd4854b1a604bf59cf90770d6ded0b82e96731a5d9b6ed51ad66c53b",
+      "runtime_source_sha256": "505be15030d31205094789e761b2d72fc4cd96a425d10bf26786644893e8f2cd",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -58535,7 +58572,7 @@
         }
       ],
       "client": false,
-      "runtime_source_sha256": "b2f961e427212c4a94f9e755fbdc34d193c10e451428ece4a20f76d241450d83",
+      "runtime_source_sha256": "ed8de2d0a7377b9fa527cc4adeeaafe8d6ffa911c71b7942d10a02146cb64aa5",
       "implicit_framework_dependencies": [
         "src/proxy.ts"
       ],
@@ -66450,7 +66487,7 @@
       "kind": "command_tool",
       "file": "scripts/network-isolation.cjs",
       "client": false,
-      "runtime_source_sha256": "4181a8b9a323148bb753be78387535b7b2924cbae81f1995085c058f7c943091",
+      "runtime_source_sha256": "091beb5083f48c250e72f8852919d0e2ab013c7b68c6eab79814242beded3dba",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/device-catalog-browser.cjs",
@@ -66483,6 +66520,11 @@
         "production_ready": false
       },
       "http_dependencies": [
+        {
+          "reference": "/api/appointments",
+          "file": "src/app/api/appointments/route.ts",
+          "route": "/api/appointments"
+        },
         {
           "reference": "/api/auth/login",
           "file": "src/app/api/auth/login/route.ts",
@@ -78181,7 +78223,7 @@
       "file": "src/app/appointments/page.tsx",
       "route": "/appointments",
       "client": false,
-      "runtime_source_sha256": "4fbbb6a5aaab88004d5f62d98ec207574193d53347175aa7d59f41129689a90b",
+      "runtime_source_sha256": "7af59f347b38a79535ee4ecb06ded8e1740fdaa3a26dbe746b65c0899a0e9f2b",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -107237,7 +107279,7 @@
       "file": "src/app/repairs/[id]/page.tsx",
       "route": "/repairs/[id]",
       "client": false,
-      "runtime_source_sha256": "59f4cf429634195291602313434c20a739531fe1922f2727678fd7e6e4a7045b",
+      "runtime_source_sha256": "5699d299c552c6d25ed91ac1f78344ff0c1c58efc9d6186ab2d38fe6b81b2562",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -107287,6 +107329,7 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
@@ -107349,6 +107392,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -107437,10 +107481,12 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -107505,6 +107551,7 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/backup-download-schema.ts",
@@ -107565,6 +107612,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -107624,6 +107672,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -107645,11 +107694,13 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -108629,7 +108680,7 @@
       "file": "src/app/repairs/assignment/page.tsx",
       "route": "/repairs/assignment",
       "client": false,
-      "runtime_source_sha256": "72eee2e35431cf84276d5edb2237aeb806ec53a3d4ea26ba82d6d5f929f310bf",
+      "runtime_source_sha256": "41af398a9d557fc98789394184fa99a59b8405383d0f0ea6c746782a4fd1deae",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -110671,7 +110722,7 @@
       "file": "src/app/repairs/group-receipt/[gid]/page.tsx",
       "route": "/repairs/group-receipt/[gid]",
       "client": false,
-      "runtime_source_sha256": "c32b1abda96a90d8299f1d01b2bc64dd1cf5471254595d148664b06234cac1bc",
+      "runtime_source_sha256": "5049dc233b1193daf7619693153370faf352a6ddd400b992df0411ad35595dd4",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -110706,6 +110757,7 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
@@ -110766,6 +110818,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -110846,10 +110899,12 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -110909,6 +110964,7 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/backup-download-schema.ts",
@@ -110967,6 +111023,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -111023,6 +111080,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -111045,11 +111103,13 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -112030,7 +112090,7 @@
       "file": "src/app/repairs/page.tsx",
       "route": "/repairs",
       "client": false,
-      "runtime_source_sha256": "9ae26d5c7bbf52a40757f675613ee510f1b6e48e8704f1671f7417ae5df7908d",
+      "runtime_source_sha256": "ee126e5696209cb0b6e14ac6feb0266bc5776dc0e41726591db796c4e54858ba",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -112065,6 +112125,7 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
@@ -112126,6 +112187,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -112207,10 +112269,12 @@
         "src/lib/credential-verification.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-credit-schema.ts",
         "src/lib/customer-payments.ts",
         "src/lib/customer-type.ts",
         "src/lib/daily-report-evidence.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/device-catalog.ts",
         "src/lib/document-number.ts",
         "src/lib/finance.ts",
@@ -112270,6 +112334,7 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/backup-download-schema.ts",
@@ -112329,6 +112394,7 @@
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -112385,6 +112451,7 @@
         "src/lib/db/postgres-operations.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/transaction.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
         "src/lib/inventory.ts",
@@ -112406,11 +112473,13 @@
         "src/lib/branch.ts",
         "src/lib/credit-reissue-schema.ts",
         "src/lib/currency-server.ts",
+        "src/lib/current-device-catalog.ts",
         "src/lib/customer-payments.ts",
         "src/lib/daily-report-evidence.ts",
         "src/lib/db/schema.ts",
         "src/lib/db/sqlite-admission.ts",
         "src/lib/db/sqlite-config.ts",
+        "src/lib/device-catalog-store.ts",
         "src/lib/finance.ts",
         "src/lib/idempotency.ts",
         "src/lib/installments.ts",
@@ -112703,7 +112772,7 @@
       "file": "src/app/repairs/queue/page.tsx",
       "route": "/repairs/queue",
       "client": false,
-      "runtime_source_sha256": "c2149868281b506cbd77d6d4e53787f9afce58d793b4470f378c3932ba916ff5",
+      "runtime_source_sha256": "dc6364c258297d155378e940366ec8ffd3522f736404d6d55a789fba012c5251",
       "implicit_framework_dependencies": [
         "src/app/layout.tsx",
         "src/proxy.ts"
@@ -129881,7 +129950,7 @@
     {
       "file": "scripts/device-catalog-browser.cjs",
       "kind": "tool",
-      "sha256": "b0bc986a5a7c6896e08a3ffe33d34d54b05b30407542464b7faca33a3ba71dca",
+      "sha256": "8aad26b19a225246786390caae32345319986ae2e5f3de94ed6436158152e184",
       "imports": [
         {
           "specifier": "node:assert/strict",
@@ -129896,6 +129965,7 @@
       "client": false,
       "module_server": false,
       "http_references": [
+        "/api/appointments",
         "/api/device-types",
         "/api/devices"
       ],
@@ -136115,7 +136185,7 @@
     {
       "file": "src/app/api/appointments/[id]/convert/route.ts",
       "kind": "application",
-      "sha256": "9c8ddb6c93f5f2340e1fce610c5b842a87d5a82a165418fc43ffbda6bd6aaebc",
+      "sha256": "ed50b3888b1b0e0aad00b5028f3e399467d4fb319a53b640e5eed5b44f108d72",
       "imports": [
         {
           "specifier": "@/lib/db/pg-integration-config",
@@ -136165,12 +136235,26 @@
           "line": 7,
           "type_only": false,
           "target": "src/lib/branch.ts"
+        },
+        {
+          "specifier": "@/lib/db/transaction",
+          "kind": "import",
+          "line": 8,
+          "type_only": false,
+          "target": "src/lib/db/transaction.ts"
+        },
+        {
+          "specifier": "@/lib/branch-access",
+          "kind": "import",
+          "line": 9,
+          "type_only": false,
+          "target": "src/lib/branch-access.ts"
         }
       ],
       "exports": [
         {
           "name": "POST",
-          "line": 9,
+          "line": 11,
           "kind": "function"
         }
       ],
@@ -136183,10 +136267,15 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 15
+          "line": 17
         }
       ],
-      "transaction_signals": []
+      "transaction_signals": [
+        {
+          "name": "atomic",
+          "line": 19
+        }
+      ]
     },
     {
       "file": "src/app/api/appointments/[id]/route.ts",
@@ -136258,7 +136347,7 @@
     {
       "file": "src/app/api/appointments/route.ts",
       "kind": "application",
-      "sha256": "259fd54725b215e9f7a299b02bc6df5a66fc0f935a0e6d523ab96932e7c8c671",
+      "sha256": "10a213a240a48674696de88813bdec8aa9f8021b90f13346f23fcfd684587d49",
       "imports": [
         {
           "specifier": "@/lib/db/pg-integration-config",
@@ -136323,7 +136412,7 @@
         },
         {
           "name": "POST",
-          "line": 26,
+          "line": 32,
           "kind": "function"
         }
       ],
@@ -136341,13 +136430,13 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 36
+          "line": 42
         }
       ],
       "transaction_signals": [
         {
           "name": "atomic",
-          "line": 37
+          "line": 43
         }
       ]
     },
@@ -146803,7 +146892,7 @@
     {
       "file": "src/app/appointments/convert-button.tsx",
       "kind": "application",
-      "sha256": "1ac166393d2a8219a23eb6eaf084963411bd58a2b7d1c9dc17302ed218af3617",
+      "sha256": "f2f58172a9931e59bce8f292f4e19a0d9b721c1eb3e4235d97e40bca3294206b",
       "imports": [
         {
           "specifier": "react",
@@ -154638,243 +154727,257 @@
     {
       "file": "src/app/repairs/[id]/page.tsx",
       "kind": "application",
-      "sha256": "0afa7e4e498f563eac6568304700d347b75b8f384802b09d2808d43ac5ba984d",
+      "sha256": "f8c3a12969437214b17be2980eef9566384f1db4b1479da7f6f3aba2fb23780b",
       "imports": [
+        {
+          "specifier": "@/lib/current-device-catalog",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "target": "src/lib/current-device-catalog.ts"
+        },
+        {
+          "specifier": "@/lib/device-catalog",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/device-catalog.ts"
+        },
         {
           "specifier": "./native-status-button",
           "kind": "import",
-          "line": 1,
+          "line": 3,
           "type_only": false,
           "target": "src/app/repairs/[id]/native-status-button.tsx"
         },
         {
           "specifier": "@/lib/db/pg-integration-config",
           "kind": "import",
-          "line": 2,
+          "line": 4,
           "type_only": false,
           "target": "src/lib/db/pg-integration-config.ts"
         },
         {
           "specifier": "@/lib/db/pg-shell",
           "kind": "import",
-          "line": 3,
+          "line": 5,
           "type_only": false,
           "target": "src/lib/db/pg-shell.ts"
         },
         {
           "specifier": "@/lib/db/pg-application",
           "kind": "import",
-          "line": 4,
+          "line": 6,
           "type_only": false,
           "target": "src/lib/db/pg-application.ts"
         },
         {
           "specifier": "@/lib/db/pg-repair-read",
           "kind": "import",
-          "line": 5,
+          "line": 7,
           "type_only": false,
           "target": "src/lib/db/pg-repair-read.ts"
         },
         {
           "specifier": "@/lib/db/pg-repair-notes",
           "kind": "import",
-          "line": 6,
+          "line": 8,
           "type_only": false,
           "target": "src/lib/db/pg-repair-notes.ts"
         },
         {
           "specifier": "@/lib/db/pg-app-auth",
           "kind": "import",
-          "line": 7,
+          "line": 9,
           "type_only": false,
           "target": "src/lib/db/pg-app-auth.ts"
         },
         {
           "specifier": "@/lib/db/pg-repair-workflow",
           "kind": "import",
-          "line": 8,
+          "line": 10,
           "type_only": false,
           "target": "src/lib/db/pg-repair-workflow.ts"
         },
         {
           "specifier": "@/lib/perms-shared",
           "kind": "import",
-          "line": 9,
+          "line": 11,
           "type_only": false,
           "target": "src/lib/perms-shared.ts"
         },
         {
           "specifier": "@/lib/http-error",
           "kind": "import",
-          "line": 10,
+          "line": 12,
           "type_only": false,
           "target": "src/lib/http-error.ts"
         },
         {
           "specifier": "@/components/pagination",
           "kind": "import",
-          "line": 11,
+          "line": 13,
           "type_only": false,
           "target": "src/components/pagination.tsx"
         },
         {
           "specifier": "@/lib/repair-workflow",
           "kind": "import",
-          "line": 12,
+          "line": 14,
           "type_only": false,
           "target": "src/lib/repair-workflow.ts"
         },
         {
           "specifier": "@/lib/page-access",
           "kind": "import",
-          "line": 13,
+          "line": 15,
           "type_only": false,
           "target": "src/lib/page-access.ts"
         },
         {
           "specifier": "@/lib/repair-access",
           "kind": "import",
-          "line": 14,
+          "line": 16,
           "type_only": false,
           "target": "src/lib/repair-access.ts"
         },
         {
           "specifier": "next/link",
           "kind": "import",
-          "line": 15,
+          "line": 17,
           "type_only": false,
           "external": "next/link"
         },
         {
           "specifier": "next/headers",
           "kind": "import",
-          "line": 16,
+          "line": 18,
           "type_only": false,
           "external": "next/headers"
         },
         {
           "specifier": "next/navigation",
           "kind": "import",
-          "line": 17,
+          "line": 19,
           "type_only": false,
           "external": "next/navigation"
         },
         {
           "specifier": "@/lib/db/schema",
           "kind": "import",
-          "line": 18,
+          "line": 20,
           "type_only": false,
           "target": "src/lib/db/schema.ts"
         },
         {
           "specifier": "@/lib/auth",
           "kind": "import",
-          "line": 19,
+          "line": 21,
           "type_only": false,
           "target": "src/lib/auth.ts"
         },
         {
           "specifier": "@/lib/repair",
           "kind": "import",
-          "line": 20,
+          "line": 22,
           "type_only": false,
           "target": "src/lib/repair.ts"
         },
         {
           "specifier": "@/lib/worklog",
           "kind": "import",
-          "line": 21,
+          "line": 23,
           "type_only": false,
           "target": "src/lib/worklog.ts"
         },
         {
           "specifier": "@/lib/status-fa",
           "kind": "import",
-          "line": 22,
+          "line": 24,
           "type_only": false,
           "target": "src/lib/status-fa.ts"
         },
         {
           "specifier": "@/components/repair-cancellation",
           "kind": "import",
-          "line": 23,
+          "line": 25,
           "type_only": false,
           "target": "src/components/repair-cancellation.tsx"
         },
         {
           "specifier": "@/lib/repair-cancellation",
           "kind": "import",
-          "line": 24,
+          "line": 26,
           "type_only": false,
           "target": "src/lib/repair-cancellation.ts"
         },
         {
           "specifier": "@/components/breadcrumb",
           "kind": "import",
-          "line": 25,
+          "line": 27,
           "type_only": false,
           "target": "src/components/breadcrumb.tsx"
         },
         {
           "specifier": "@/lib/format",
           "kind": "import",
-          "line": 32,
+          "line": 34,
           "type_only": false,
           "target": "src/lib/format.ts"
         },
         {
           "specifier": "@/components/ui",
           "kind": "import",
-          "line": 33,
+          "line": 35,
           "type_only": false,
           "target": "src/components/ui.tsx"
         },
         {
           "specifier": "@/components/icon",
           "kind": "import",
-          "line": 34,
+          "line": 36,
           "type_only": false,
           "target": "src/components/icon.tsx"
         },
         {
           "specifier": "./workspace-client",
           "kind": "import",
-          "line": 35,
+          "line": 37,
           "type_only": false,
           "target": "src/app/repairs/[id]/workspace-client.tsx"
         },
         {
           "specifier": "./deliver-signature",
           "kind": "import",
-          "line": 36,
+          "line": 38,
           "type_only": false,
           "target": "src/app/repairs/[id]/deliver-signature.tsx"
         },
         {
           "specifier": "./assign-button",
           "kind": "import",
-          "line": 37,
+          "line": 39,
           "type_only": false,
           "target": "src/app/repairs/[id]/assign-button.tsx"
         },
         {
           "specifier": "@/components/journey-drawer",
           "kind": "import",
-          "line": 38,
+          "line": 40,
           "type_only": false,
           "target": "src/components/journey-drawer.tsx"
         },
         {
           "specifier": "@/lib/assign-shared",
           "kind": "import",
-          "line": 39,
+          "line": 41,
           "type_only": false,
           "target": "src/lib/assign-shared.ts"
         },
         {
           "specifier": "@/components/qr",
           "kind": "import",
-          "line": 40,
+          "line": 42,
           "type_only": false,
           "target": "src/components/qr.tsx"
         }
@@ -154882,12 +154985,12 @@
       "exports": [
         {
           "name": "dynamic",
-          "line": 42,
+          "line": 44,
           "kind": "value"
         },
         {
           "name": "RepairDetailPage",
-          "line": 44,
+          "line": 46,
           "kind": "function"
         }
       ],
@@ -154902,18 +155005,18 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 64
+          "line": 67
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 266
+          "line": 269
         }
       ],
       "transaction_signals": [
         {
           "name": "database.transaction",
-          "line": 59
+          "line": 62
         }
       ]
     },
@@ -155933,96 +156036,103 @@
     {
       "file": "src/app/repairs/group-receipt/[gid]/page.tsx",
       "kind": "application",
-      "sha256": "d447f96c001725b0747ffb1744ffa3551b5cd68f158309b7234b31d61dd99c2a",
+      "sha256": "b1a36f3de8ac5f9895d4732dcec11ea617c5d128ebb512901fdbf3a926e656a2",
       "imports": [
+        {
+          "specifier": "@/lib/current-device-catalog",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "target": "src/lib/current-device-catalog.ts"
+        },
+        {
+          "specifier": "@/lib/device-catalog",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/device-catalog.ts"
+        },
         {
           "specifier": "@/lib/page-access",
           "kind": "import",
-          "line": 1,
+          "line": 3,
           "type_only": false,
           "target": "src/lib/page-access.ts"
         },
         {
           "specifier": "@/lib/repair-access",
           "kind": "import",
-          "line": 2,
+          "line": 4,
           "type_only": false,
           "target": "src/lib/repair-access.ts"
         },
         {
           "specifier": "next/navigation",
           "kind": "import",
-          "line": 3,
+          "line": 5,
           "type_only": false,
           "external": "next/navigation"
         },
         {
           "specifier": "next/headers",
           "kind": "import",
-          "line": 4,
+          "line": 6,
           "type_only": false,
           "external": "next/headers"
         },
         {
           "specifier": "@/lib/db/schema",
           "kind": "import",
-          "line": 5,
+          "line": 7,
           "type_only": false,
           "target": "src/lib/db/schema.ts"
         },
         {
           "specifier": "@/lib/format",
           "kind": "import",
-          "line": 6,
+          "line": 8,
           "type_only": false,
           "target": "src/lib/format.ts"
         },
         {
-          "specifier": "@/lib/status-fa",
-          "kind": "import",
-          "line": 7,
-          "type_only": false,
-          "target": "src/lib/status-fa.ts"
-        },
-        {
           "specifier": "@/app/repairs/[id]/receipt/print-controls",
           "kind": "import",
-          "line": 8,
+          "line": 9,
           "type_only": false,
           "target": "src/app/repairs/[id]/receipt/print-controls.tsx"
         },
         {
           "specifier": "@/lib/repair-receipt-position",
           "kind": "import",
-          "line": 9,
+          "line": 10,
           "type_only": false,
           "target": "src/lib/repair-receipt-position.ts"
         },
         {
           "specifier": "next/link",
           "kind": "import",
-          "line": 10,
+          "line": 11,
           "type_only": false,
           "external": "next/link"
         },
         {
           "specifier": "@/lib/auth",
           "kind": "import",
-          "line": 11,
+          "line": 12,
           "type_only": false,
           "target": "src/lib/auth.ts"
         },
         {
           "specifier": "@/lib/api",
           "kind": "import",
-          "line": 12,
+          "line": 13,
           "type_only": false,
           "target": "src/lib/api.ts"
         },
         {
           "specifier": "@/components/ui",
           "kind": "import",
-          "line": 13,
+          "line": 14,
           "type_only": false,
           "target": "src/components/ui.tsx"
         }
@@ -156030,12 +156140,12 @@
       "exports": [
         {
           "name": "dynamic",
-          "line": 15,
+          "line": 16,
           "kind": "value"
         },
         {
           "name": "GroupReceiptPage",
-          "line": 18,
+          "line": 19,
           "kind": "function"
         }
       ],
@@ -156048,7 +156158,7 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 21
+          "line": 23
         }
       ],
       "transaction_signals": []
@@ -156212,131 +156322,145 @@
     {
       "file": "src/app/repairs/page.tsx",
       "kind": "application",
-      "sha256": "eb7b58ef709d0e11af5519ef0f427148b121211e1ab6166d85c9ba35270167a4",
+      "sha256": "d38c97f76026176badb6a0235bea1b5ac283c4473a65d4f0680c95d3d58d08cc",
       "imports": [
+        {
+          "specifier": "@/lib/current-device-catalog",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "target": "src/lib/current-device-catalog.ts"
+        },
+        {
+          "specifier": "@/lib/device-catalog",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/device-catalog.ts"
+        },
         {
           "specifier": "@/lib/db/pg-integration-config",
           "kind": "import",
-          "line": 1,
+          "line": 3,
           "type_only": false,
           "target": "src/lib/db/pg-integration-config.ts"
         },
         {
           "specifier": "@/lib/db/pg-shell",
           "kind": "import",
-          "line": 2,
+          "line": 4,
           "type_only": false,
           "target": "src/lib/db/pg-shell.ts"
         },
         {
           "specifier": "@/lib/db/pg-application",
           "kind": "import",
-          "line": 3,
+          "line": 5,
           "type_only": false,
           "target": "src/lib/db/pg-application.ts"
         },
         {
           "specifier": "@/lib/db/pg-repair-read",
           "kind": "import",
-          "line": 4,
+          "line": 6,
           "type_only": false,
           "target": "src/lib/db/pg-repair-read.ts"
         },
         {
           "specifier": "@/lib/repair-workflow",
           "kind": "import",
-          "line": 5,
+          "line": 7,
           "type_only": false,
           "target": "src/lib/repair-workflow.ts"
         },
         {
           "specifier": "@/lib/page-access",
           "kind": "import",
-          "line": 6,
+          "line": 8,
           "type_only": false,
           "target": "src/lib/page-access.ts"
         },
         {
           "specifier": "next/link",
           "kind": "import",
-          "line": 7,
+          "line": 9,
           "type_only": false,
           "external": "next/link"
         },
         {
           "specifier": "next/headers",
           "kind": "import",
-          "line": 8,
+          "line": 10,
           "type_only": false,
           "external": "next/headers"
         },
         {
           "specifier": "@/lib/db/schema",
           "kind": "import",
-          "line": 9,
+          "line": 11,
           "type_only": false,
           "target": "src/lib/db/schema.ts"
         },
         {
           "specifier": "@/lib/auth",
           "kind": "import",
-          "line": 10,
+          "line": 12,
           "type_only": false,
           "target": "src/lib/auth.ts"
         },
         {
           "specifier": "@/lib/branch",
           "kind": "import",
-          "line": 11,
+          "line": 13,
           "type_only": false,
           "target": "src/lib/branch.ts"
         },
         {
           "specifier": "@/components/ui",
           "kind": "import",
-          "line": 12,
+          "line": 14,
           "type_only": false,
           "target": "src/components/ui.tsx"
         },
         {
           "specifier": "@/components/icon",
           "kind": "import",
-          "line": 13,
+          "line": 15,
           "type_only": false,
           "target": "src/components/icon.tsx"
         },
         {
           "specifier": "@/lib/format",
           "kind": "import",
-          "line": 14,
+          "line": 16,
           "type_only": false,
           "target": "src/lib/format.ts"
         },
         {
           "specifier": "@/lib/repair",
           "kind": "import",
-          "line": 15,
+          "line": 17,
           "type_only": false,
           "target": "src/lib/repair.ts"
         },
         {
           "specifier": "@/lib/status-fa",
           "kind": "import",
-          "line": 16,
+          "line": 18,
           "type_only": false,
           "target": "src/lib/status-fa.ts"
         },
         {
           "specifier": "@/components/pagination",
           "kind": "import",
-          "line": 17,
+          "line": 19,
           "type_only": false,
           "target": "src/components/pagination.tsx"
         },
         {
           "specifier": "@/lib/pagination",
           "kind": "import",
-          "line": 18,
+          "line": 20,
           "type_only": false,
           "target": "src/lib/pagination.ts"
         }
@@ -156344,12 +156468,12 @@
       "exports": [
         {
           "name": "dynamic",
-          "line": 35,
+          "line": 31,
           "kind": "value"
         },
         {
           "name": "RepairsPage",
-          "line": 37,
+          "line": 33,
           "kind": "function"
         }
       ],
@@ -156362,7 +156486,7 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 46
+          "line": 43
         }
       ],
       "transaction_signals": []
@@ -160872,7 +160996,7 @@
     {
       "file": "src/components/repair-queue-card.tsx",
       "kind": "component",
-      "sha256": "a1acc31320cb04ba429b1838ceab848177ccdaac8c7cc89d6df31f1f54886785",
+      "sha256": "c3b1ca667df80382d750b915c8ba329f0a42f5e79edf3aefdef13b8d165ddd3c",
       "imports": [
         {
           "specifier": "next/link",
@@ -163355,7 +163479,7 @@
     {
       "file": "src/lib/assign-shared.ts",
       "kind": "library",
-      "sha256": "1c2065172a9d42790fde75a720e5ec1bbf1fbddfdc0f00157034ec8330470adc",
+      "sha256": "ab30c517d17d1e9fbf0e30d321c467e516c0e769336e6aa21a2d2a8e8a9b68f2",
       "imports": [],
       "exports": [
         {
@@ -163370,12 +163494,12 @@
         },
         {
           "name": "DEVICE_TYPE_FA_ASSIGN",
-          "line": 142,
+          "line": 143,
           "kind": "value"
         },
         {
           "name": "isIsoDate",
-          "line": 149,
+          "line": 150,
           "kind": "function"
         }
       ],
@@ -166379,6 +166503,75 @@
           "engine": "sqlite",
           "kind": "getDb",
           "line": 7
+        }
+      ],
+      "transaction_signals": []
+    },
+    {
+      "file": "src/lib/current-device-catalog.ts",
+      "kind": "library",
+      "sha256": "22a586bdd63f6a2a174743d34d6a403a261d92d4fdbeea43f6af8510a289f111",
+      "imports": [
+        {
+          "specifier": "react",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "external": "react"
+        },
+        {
+          "specifier": "./db/pg-integration-config",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/db/pg-integration-config.ts"
+        },
+        {
+          "specifier": "./db/pg-application",
+          "kind": "import",
+          "line": 3,
+          "type_only": false,
+          "target": "src/lib/db/pg-application.ts"
+        },
+        {
+          "specifier": "./db/pg-device-catalog",
+          "kind": "import",
+          "line": 4,
+          "type_only": false,
+          "target": "src/lib/db/pg-device-catalog.ts"
+        },
+        {
+          "specifier": "./db/schema",
+          "kind": "import",
+          "line": 5,
+          "type_only": false,
+          "target": "src/lib/db/schema.ts"
+        },
+        {
+          "specifier": "./device-catalog-store",
+          "kind": "import",
+          "line": 6,
+          "type_only": false,
+          "target": "src/lib/device-catalog-store.ts"
+        }
+      ],
+      "exports": [
+        {
+          "name": "currentDeviceCatalog",
+          "line": 8,
+          "kind": "value"
+        }
+      ],
+      "actions": [],
+      "client": false,
+      "module_server": false,
+      "http_references": [],
+      "dynamic_expressions": [],
+      "storage_signals": [
+        {
+          "engine": "sqlite",
+          "kind": "getDb",
+          "line": 8
         }
       ],
       "transaction_signals": []
@@ -173118,61 +173311,75 @@
     {
       "file": "src/lib/db/pg-repair-assignment.ts",
       "kind": "library",
-      "sha256": "6f00eea47cbab5c3016165d59475ca4ac123470d8aceb44400925b0228784b97",
+      "sha256": "9ad3e342a4556a913c40f25d80eeb72e708831cc6199018ee97806b29c9a5982",
       "imports": [
+        {
+          "specifier": "./pg-device-catalog",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "target": "src/lib/db/pg-device-catalog.ts"
+        },
+        {
+          "specifier": "../device-catalog",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/device-catalog.ts"
+        },
         {
           "specifier": "../http-error",
           "kind": "import",
-          "line": 1,
+          "line": 3,
           "type_only": false,
           "target": "src/lib/http-error.ts"
         },
         {
           "specifier": "../assign-shared",
           "kind": "import",
-          "line": 2,
+          "line": 4,
           "type_only": false,
           "target": "src/lib/assign-shared.ts"
         },
         {
           "specifier": "./postgres-auth",
           "kind": "import",
-          "line": 3,
+          "line": 5,
           "type_only": false,
           "target": "src/lib/db/postgres-auth.ts"
         },
         {
           "specifier": "./pg-app-auth",
           "kind": "import",
-          "line": 4,
+          "line": 6,
           "type_only": false,
           "target": "src/lib/db/pg-app-auth.ts"
         },
         {
           "specifier": "./postgres-operations",
           "kind": "import",
-          "line": 5,
+          "line": 7,
           "type_only": false,
           "target": "src/lib/db/postgres-operations.ts"
         },
         {
           "specifier": "./pg-customer-finance",
           "kind": "import",
-          "line": 6,
+          "line": 8,
           "type_only": false,
           "target": "src/lib/db/pg-customer-finance.ts"
         },
         {
           "specifier": "./postgres",
           "kind": "import",
-          "line": 7,
+          "line": 9,
           "type_only": false,
           "target": "src/lib/db/postgres.ts"
         },
         {
           "specifier": "./pg-repair-workflow",
           "kind": "import",
-          "line": 8,
+          "line": 10,
           "type_only": false,
           "target": "src/lib/db/pg-repair-workflow.ts"
         }
@@ -173180,27 +173387,27 @@
       "exports": [
         {
           "name": "changePostgresRepairAssignment",
-          "line": 15,
+          "line": 17,
           "kind": "function"
         },
         {
           "name": "assignPostgresRepairs",
-          "line": 51,
+          "line": 53,
           "kind": "function"
         },
         {
           "name": "claimPostgresRepair",
-          "line": 56,
+          "line": 58,
           "kind": "function"
         },
         {
           "name": "postgresAssignmentTechnicians",
-          "line": 61,
+          "line": 63,
           "kind": "function"
         },
         {
           "name": "postgresRepairQueues",
-          "line": 62,
+          "line": 64,
           "kind": "function"
         }
       ],
@@ -173213,12 +173420,7 @@
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 17
-        },
-        {
-          "engine": "postgres",
-          "kind": "typed_async_query",
-          "line": 18
+          "line": 19
         },
         {
           "engine": "postgres",
@@ -173228,32 +173430,27 @@
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 23
+          "line": 22
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 28
+          "line": 25
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 29
+          "line": 30
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 38
+          "line": 31
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
           "line": 40
-        },
-        {
-          "engine": "postgres",
-          "kind": "typed_async_query",
-          "line": 41
         },
         {
           "engine": "postgres",
@@ -173273,6 +173470,11 @@
         {
           "engine": "postgres",
           "kind": "typed_async_query",
+          "line": 45
+        },
+        {
+          "engine": "postgres",
+          "kind": "typed_async_query",
           "line": 46
         },
         {
@@ -173282,8 +173484,8 @@
         },
         {
           "engine": "postgres",
-          "kind": "postgresDurableOperation",
-          "line": 54
+          "kind": "typed_async_query",
+          "line": 50
         },
         {
           "engine": "postgres",
@@ -173292,41 +173494,46 @@
         },
         {
           "engine": "postgres",
-          "kind": "typed_async_query",
-          "line": 61
+          "kind": "postgresDurableOperation",
+          "line": 58
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 67
+          "line": 63
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 68
+          "line": 70
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 68
+          "line": 71
+        },
+        {
+          "engine": "postgres",
+          "kind": "typed_async_query",
+          "line": 71
         }
       ],
       "transaction_signals": [
         {
           "name": "postgresDurableOperation",
-          "line": 54
-        },
-        {
-          "name": "db.transaction",
-          "line": 54
-        },
-        {
-          "name": "postgresDurableOperation",
           "line": 56
         },
         {
           "name": "db.transaction",
-          "line": 64
+          "line": 56
+        },
+        {
+          "name": "postgresDurableOperation",
+          "line": 58
+        },
+        {
+          "name": "db.transaction",
+          "line": 66
         }
       ]
     },
@@ -182865,68 +183072,82 @@
     {
       "file": "src/lib/repair-assign.ts",
       "kind": "library",
-      "sha256": "60e67a543fb05011aca65fc8ad7b7aa150980a5a44e8096254f503a93606c918",
+      "sha256": "ba9470760359b2ef08907e56e66404142de472ee944d8d033975f988b279fd4e",
       "imports": [
+        {
+          "specifier": "./device-catalog-store",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "target": "src/lib/device-catalog-store.ts"
+        },
+        {
+          "specifier": "./device-catalog",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "target": "src/lib/device-catalog.ts"
+        },
         {
           "specifier": "./pagination",
           "kind": "import",
-          "line": 1,
+          "line": 3,
           "type_only": false,
           "target": "src/lib/pagination.ts"
         },
         {
           "specifier": "./repair-workflow",
           "kind": "import",
-          "line": 2,
+          "line": 4,
           "type_only": false,
           "target": "src/lib/repair-workflow.ts"
         },
         {
           "specifier": "./db/transaction",
           "kind": "import",
-          "line": 3,
+          "line": 5,
           "type_only": false,
           "target": "src/lib/db/transaction.ts"
         },
         {
           "specifier": "@/lib/db/schema",
           "kind": "import",
-          "line": 16,
+          "line": 18,
           "type_only": false,
           "target": "src/lib/db/schema.ts"
         },
         {
           "specifier": "@/lib/api",
           "kind": "import",
-          "line": 17,
+          "line": 19,
           "type_only": false,
           "target": "src/lib/api.ts"
         },
         {
           "specifier": "@/lib/auth",
           "kind": "import",
-          "line": 18,
+          "line": 20,
           "type_only": false,
           "target": "src/lib/auth.ts"
         },
         {
           "specifier": "@/lib/repair",
           "kind": "import",
-          "line": 19,
+          "line": 21,
           "type_only": false,
           "target": "src/lib/repair.ts"
         },
         {
           "specifier": "@/lib/branch",
           "kind": "import",
-          "line": 20,
+          "line": 22,
           "type_only": false,
           "target": "src/lib/branch.ts"
         },
         {
           "specifier": "@/lib/assign-shared",
           "kind": "import",
-          "line": 21,
+          "line": 23,
           "type_only": false,
           "target": "src/lib/assign-shared.ts"
         }
@@ -182934,42 +183155,42 @@
       "exports": [
         {
           "name": "requireAssignAccess",
-          "line": 24,
+          "line": 26,
           "kind": "function"
         },
         {
           "name": "phaseOfRow",
-          "line": 37,
+          "line": 39,
           "kind": "function"
         },
         {
           "name": "assignmentDashboard",
-          "line": 120,
+          "line": 123,
           "kind": "function"
         },
         {
           "name": "technicianOptions",
-          "line": 162,
+          "line": 166,
           "kind": "function"
         },
         {
           "name": "assignTickets",
-          "line": 193,
+          "line": 197,
           "kind": "function"
         },
         {
           "name": "myQueue",
-          "line": 215,
+          "line": 219,
           "kind": "function"
         },
         {
           "name": "availableRepairs",
-          "line": 241,
+          "line": 246,
           "kind": "function"
         },
         {
           "name": "startRepair",
-          "line": 252,
+          "line": 257,
           "kind": "function"
         }
       ],
@@ -182982,43 +183203,43 @@
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 26
+          "line": 28
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 126
+          "line": 129
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 164
+          "line": 168
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 198
+          "line": 202
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 217
+          "line": 221
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 242
+          "line": 247
         },
         {
           "engine": "sqlite",
           "kind": "getDb",
-          "line": 253
+          "line": 258
         }
       ],
       "transaction_signals": [
         {
           "name": "atomic",
-          "line": 254
+          "line": 259
         }
       ]
     },

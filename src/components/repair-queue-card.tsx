@@ -30,7 +30,7 @@ export function RepairQueueCard({
   actions?: ReactNode;
 }) {
   const meta = PHASE_META[card.phase];
-  const deviceLabel = [card.device_brand, card.device_model].filter(Boolean).join(" ") || DEVICE_TYPE_FA_ASSIGN[card.device_type ?? ""] || "دستگاه";
+  const deviceLabel = [card.device_brand, card.device_model].filter(Boolean).join(" ") || card.device_type_label || DEVICE_TYPE_FA_ASSIGN[card.device_type ?? ""] || "دستگاه";
 
   return (
     <div
@@ -64,7 +64,7 @@ export function RepairQueueCard({
           </Link>
           <div className="truncate text-xs text-zinc-500">
             {card.customer_name}
-            <span className="text-zinc-400"> · {DEVICE_TYPE_FA_ASSIGN[card.device_type ?? ""] ?? card.device_type ?? ""}</span>
+            <span className="text-zinc-400"> · {card.device_type_label ?? DEVICE_TYPE_FA_ASSIGN[card.device_type ?? ""] ?? card.device_type ?? ""}</span>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">

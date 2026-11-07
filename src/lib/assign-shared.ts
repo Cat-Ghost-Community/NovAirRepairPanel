@@ -105,6 +105,7 @@ export type AssignTicketCard = {
   device_brand: string | null;
   device_model: string | null;
   device_type: string | null;
+  device_type_label?: string | null;
   created_at: string;
   status_name: string;
   status_color: string | null;

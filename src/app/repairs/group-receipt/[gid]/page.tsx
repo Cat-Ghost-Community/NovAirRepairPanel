@@ -1,10 +1,11 @@
+import {currentDeviceCatalog} from '@/lib/current-device-catalog';
+import {deviceTypeLabel} from '@/lib/device-catalog';
 import { requirePageAccess } from "@/lib/page-access";
 import { requireRepairRowsAccess } from "@/lib/repair-access";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { getDb } from "@/lib/db/schema";
 import { fmtMoney, fmtDate, toFaDigits } from "@/lib/format";
-import { DEVICE_TYPE_FA } from "@/lib/status-fa";
 import PrintControls from "@/app/repairs/[id]/receipt/print-controls";
 import {repairReceiptPositions,groupReceiptPosition} from '@/lib/repair-receipt-position';
 import Link from 'next/link';
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
 /** قبض پذیرش گروهی — همه دستگاه‌های یک پذیرش گروهی از یک مشتری روی یک برگه */
 export default async function GroupReceiptPage({ params,searchParams }: { params: Promise<{ gid: string }>;searchParams:Promise<Record<string,string|undefined>> }) {
   const session = await requirePageAccess("/repairs/group-receipt/[gid]");
+  const deviceCatalog=await currentDeviceCatalog();
   const { gid } = await params;
   const db = getDb();
   const tickets = db
@@ -74,7 +76,7 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
 
         {/* جدول دستگاه‌ها */}
         {paper==='roll'?<div className="mt-2 space-y-2">{tickets.map((t,i)=><article key={t.id} className="border-b border-zinc-300 pb-2 text-[11px] break-words print-avoid-break">
-          <div className="font-semibold">{toFaDigits(i+1)}. {DEVICE_TYPE_FA[t.type]??t.type} {t.brand} {t.model}</div>
+          <div className="font-semibold">{toFaDigits(i+1)}. {deviceTypeLabel(deviceCatalog,t.type)} {t.brand} {t.model}</div>
           <p>شمارهٔ پذیرش: <span dir="ltr" className="font-mono">{t.number}</span></p>
           <p>سریال / IMEI: <span dir="ltr" className="font-mono break-all">{t.serial||t.imei||'—'}</span></p>
           <p>ایراد اعلامی: {t.problem}</p>
@@ -95,7 +97,7 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
             {tickets.map((t, i) => (
               <tr key={t.id} className="border-b border-zinc-200 align-top">
                 <td className="py-1.5">{toFaDigits(i + 1)}</td>
-                <td className="py-1.5 font-medium">{DEVICE_TYPE_FA[t.type] ?? t.type} {t.brand} {t.model}</td>
+                <td className="py-1.5 font-medium">{deviceTypeLabel(deviceCatalog,t.type)} {t.brand} {t.model}</td>
                 <td className="py-1.5 font-mono text-[10px]" dir="ltr">{t.serial || t.imei || "—"}</td>
                 <td className="py-1.5">{t.problem}</td>
                 <td className="py-1.5 font-mono">{t.number}</td>

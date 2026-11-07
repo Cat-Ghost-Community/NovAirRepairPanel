@@ -1,3 +1,5 @@
+import {currentDeviceCatalog} from '@/lib/current-device-catalog';
+import {deviceTypeLabel} from '@/lib/device-catalog';
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
 import {postgresShellState} from '@/lib/db/pg-shell';
 import {readyApplicationPostgres} from '@/lib/db/pg-application';
@@ -17,12 +19,6 @@ import { sourceFa } from "@/lib/status-fa";
 import { Pagination } from "@/components/pagination";
 import { countOf, resolvePaging } from "@/lib/pagination";
 
-const DEVICE_TYPE_FA: Record<string, string> = {
-  mobile: "موبایل", laptop: "لپ‌تاپ", desktop: "دسکتاپ", tablet: "تبلت",
-  console: "کنسول بازی", smartwatch: "ساعت هوشمند", printer: "پرینتر",
-  network: "تجهیزات شبکه", other: "سایر",
-};
-
 /** نشان «روش دریافت» — حضوری یا ارسال‌شده */
 function sourceMeta(value?: string | null): { label: string; icon: string | null; cls: string } {
   const label = sourceFa(value);
@@ -36,6 +32,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RepairsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const session=await requirePageAccess("/repairs");
+  const deviceCatalog=await currentDeviceCatalog();
   const cookieStore = await cookies();
   const sp = await searchParams;
   const {tickets,statuses,counts,total,page,perPage,totalPages}=await(async()=>{
@@ -173,7 +170,7 @@ export default async function RepairsPage({ searchParams }: { searchParams: Prom
                         )}
                       </td>
                       <td className="td whitespace-nowrap">{t.first_name} {t.last_name}</td>
-                      <td className="td whitespace-nowrap">{t.brand} {t.model}<div className="text-xs text-zinc-400">{DEVICE_TYPE_FA[t.type] ?? t.type}</div></td>
+                      <td className="td whitespace-nowrap">{t.brand} {t.model}<div className="text-xs text-zinc-400">{deviceTypeLabel(deviceCatalog,t.type)}</div></td>
                       <td className="td whitespace-nowrap">
                         <span className={`${sm.cls} inline-flex items-center gap-1`}>{sm.icon && <Icon name={sm.icon} size={13} className="opacity-70" />}{sm.label}</span>
                       </td>

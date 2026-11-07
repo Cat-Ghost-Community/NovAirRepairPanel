@@ -1,3 +1,5 @@
+import {readDeviceCatalog} from './device-catalog-store';
+import {deviceTypeLabel,type DeviceCatalog} from './device-catalog';
 import {resolvePaging,countOf} from './pagination';
 import {changeRepairAssignment,requireAssignmentAuthority,currentWorkflowActor,enforceRepairWorkflow,repairWorkflow} from './repair-workflow';
 import {atomic} from './db/transaction';
@@ -42,7 +44,7 @@ export function phaseOfRow(r: any) {
   });
 }
 
-function toCard(r: any): AssignTicketCard {
+function toCard(r: any,catalog?:DeviceCatalog): AssignTicketCard {
   let allowedNext: string[] = [];
   try {
     allowedNext = JSON.parse(r.allowed_next ?? "[]");
@@ -64,6 +66,7 @@ function toCard(r: any): AssignTicketCard {
     device_brand: r.brand ?? null,
     device_model: r.model ?? null,
     device_type: r.type ?? null,
+    device_type_label:catalog?deviceTypeLabel(catalog,r.type??''):null,
     created_at: String(r.created_at ?? ""),
     status_name: String(r.status_name ?? ""),
     status_color: r.status_color ?? null,
@@ -149,8 +152,9 @@ export function assignmentDashboard(
 
   const awaiting: AssignTicketCard[] = [];
   const assigned: AssignTicketCard[] = [];
+  const catalog=readDeviceCatalog(db);
   for (const r of rows) {
-    const card = toCard(r);
+    const card = toCard(r,catalog);
     if (card.phase === "awaiting") awaiting.push(card);
     else if (card.phase === "assigned" || card.phase === "in_progress") assigned.push(card);
     // آمادهٔ تحویل و تحویل‌شده از این کارتابل خارج می‌شوند (صف تحویل جداگانه دارد)
@@ -229,8 +233,9 @@ export function myQueue(session: Session, cookieValue?: string | null,opts:{page
   const not_started: AssignTicketCard[] = [];
   const in_progress: AssignTicketCard[] = [];
   const ready: AssignTicketCard[] = [];
+  const catalog=readDeviceCatalog(db);
   for (const r of rows) {
-    const card = toCard(r);
+    const card = toCard(r,catalog);
     if (card.phase === "assigned") not_started.push(card);
     else if (card.phase === "in_progress") in_progress.push(card);
     else if (card.phase === "ready") ready.push(card);

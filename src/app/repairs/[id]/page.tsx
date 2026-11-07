@@ -1,3 +1,5 @@
+import {currentDeviceCatalog} from '@/lib/current-device-catalog';
+import {deviceTypeLabel} from '@/lib/device-catalog';
 import {NativeRepairStatusButton} from './native-status-button';
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
 import {postgresShellState} from '@/lib/db/pg-shell';
@@ -43,6 +45,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RepairDetailPage({ params,searchParams }: { params: Promise<{ id: string }>;searchParams:Promise<Record<string,string|undefined>> }) {
   const session=await requirePageAccess("/repairs/[id]");
+  const deviceCatalog=await currentDeviceCatalog();
   const cookieStore = await cookies();
   const { id } = await params;
   const ticketId=Number(id),sp=await searchParams;if(!Number.isSafeInteger(ticketId)||ticketId<=0)notFound();
@@ -208,7 +211,7 @@ export default async function RepairDetailPage({ params,searchParams }: { params
             </div>
             <div className="text-sm text-zinc-500">
               <Link href={`/devices/${t.dev_id}`} className="hover:underline">{t.brand} {t.model}</Link>
-              <span className="text-zinc-400"> · {TYPE_FA[t.type] ?? t.type}</span>
+              <span className="text-zinc-400"> · {deviceTypeLabel(deviceCatalog,t.type)}</span>
               {t.imei && <span className="text-zinc-400"> · IMEI {t.imei}</span>}
             </div>
           </div>

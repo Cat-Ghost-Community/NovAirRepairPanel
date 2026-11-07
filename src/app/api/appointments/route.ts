@@ -3,7 +3,7 @@ import {postgresAppointmentsHttp} from '@/lib/db/pg-appointments-http';
 import {atomic} from "@/lib/db/transaction";
 import { NextRequest } from "next/server";
 import { getDb } from "@/lib/db/schema";
-import { requireSession, requirePerm, ok, fail, readJson, audit,HttpError } from "@/lib/api";
+import { requireSession, requirePerm, ok, fail, readJson, audit,HttpError,validate } from "@/lib/api";
 import { BRANCH_COOKIE, recordBranchId, activeBranch } from "@/lib/branch";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,12 @@ export async function GET(req: NextRequest) {
     const db = getDb();
     const status = req.nextUrl.searchParams.get("status") ?? "";
     const branch = activeBranch(session,req.cookies.get(BRANCH_COOKIE)?.value).branchId;
+    if(req.nextUrl.searchParams.get('select')==='devices'){
+      requirePerm(session,'devices.view');const customer=validate.id(req.nextUrl.searchParams.get('customer_id')),q=(req.nextUrl.searchParams.get('q')??'').trim(),page=Number(req.nextUrl.searchParams.get('page')??1);
+      if(q.length>200||!Number.isSafeInteger(page)||page<1||page>100000)throw new HttpError(400,'صفحه یا عبارت جست‌وجو معتبر نیست.');
+      const like='%'+q+'%',rows=db.prepare("SELECT id,brand,model,serial FROM devices d WHERE customer_id=? AND is_archived=0 AND (? IS NULL OR d.id IN (SELECT device_id FROM device_branch_access WHERE branch_id=?)) AND (?='' OR brand LIKE ? OR model LIKE ? OR serial LIKE ?) ORDER BY id LIMIT 51 OFFSET ?").all(customer,branch,branch,q,like,like,like,(page-1)*50);
+      return ok({options:rows.slice(0,50),hasMore:rows.length>50,page});
+    }
     const rows = db.prepare("SELECT * FROM appointments WHERE (? IS NULL OR branch_id=?) AND (?='' OR status=?) ORDER BY preferred_at DESC LIMIT 200").all(branch,branch,status,status);
     return ok({ appointments: rows });
   } catch (e) {
