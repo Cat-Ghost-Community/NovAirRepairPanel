@@ -258,3 +258,23 @@ Wizard **1.3.0**, source `dd4b5b029a5f056e2cd03b80feeaebeff2f55ea0`:
 - [Network isolation](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42334758567) passed.
 
 These checks used disposable CI hosts and synthetic accounts. No customer data or production services were changed. They do not certify the actual production host or remove the product release blockers above.
+
+## Device types, registration fields and greetings
+
+The company owner can open **Settings → Device types** (`/settings#devices`) or **Devices → Manage types and fields** (`/settings/device-types`). Definitions are shared across branches; branch staff cannot change them.
+
+- Add or rename categories, select their icons, and retire/reactivate categories. Retirement removes a type from new registration without deleting its devices, repairs or historical filters.
+- Configure standard and custom fields separately for each type: labels, order, required values, text, numbers, dates, selection lists and checkboxes. Required fields and valid choices are enforced on the server.
+- Standalone device registration, reception, quick intake and bulk intake use the same definitions. Appointment conversion selects an actual registered device instead of inventing a placeholder. Previous custom values retain their saved labels in device profiles.
+- Empty Devices filters are hidden using the current user's branch scope. Registering a device makes its category available automatically. The company manager can still select all branches.
+- Dashboard greetings and its calendar date use `Asia/Tehran`. The greeting updates while the dashboard remains open: morning 05:00–11:59, afternoon 12:00–16:59, evening 17:00–19:59 and night 20:00–04:59.
+
+Configuration uses audited, versioned settings. Simultaneous edits are rejected rather than overwriting another administrator's changes. Refresh an open registration form after its definition changes. The native PostgreSQL implementation includes forward migration **10**, preserving migration 1–9 checksums and reviewed ownership/merge guards; the existing application-wide PostgreSQL release gate remains in place. No production migration or cutover is performed by this repository update.
+
+Verified source `1d724c6`:
+
+- [Application and PostgreSQL acceptance](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42426989206): 480 application tests, 222 native PostgreSQL tests, 49 HTTP/browser acceptance groups, type checking, production build and Linux installation/update/recovery passed. Lint: zero errors, 119 remaining warnings.
+- [Network-isolated acceptance](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42426989198): 24 groups passed, including real catalog editing, required registration fields, filter reappearance, retirement/history, Tehran greeting, appointment device selection and mobile layout.
+- [Extended Linux wizard acceptance](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42426989233): eight lifecycle groups passed.
+
+These results use disposable databases and synthetic accounts. They do not certify production infrastructure, authorize historical-data corrections or remove the existing commercial release gates.
