@@ -56,12 +56,12 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   if (sp.vip === "1") sql += " AND c.is_vip = 1";
   if (sp.blacklist === "1") sql += " AND c.is_blacklisted = 1";
 
-  if (typeFilter) sql += " AND c.customer_type = ?";
+  if (typeFilter) sql += " AND (CASE WHEN c.customer_type IS NULL OR c.customer_type='new' THEN 'regular' ELSE c.customer_type END) = ?";
   if (typeFilter) params.push(typeFilter);
   // محدودهٔ شعبه: کاربران غیرمدیر همیشه به شعبهٔ خود قفل می‌شوند
   const bScope = financialBranch==null?{sql:"1=1",params:[]}:{sql:"c.id IN (SELECT customer_id FROM customer_branch_access WHERE branch_id=?)",params:[financialBranch]};
   if (bScope.sql !== "1=1") { sql += ` AND ${bScope.sql}`; params.push(...bScope.params); }
-  const countWhere = `c.is_archived = 0${q ? " AND ((c.first_name || ' ' || c.last_name) LIKE ? OR c.company LIKE ? OR c.mobile LIKE ? OR c.email LIKE ? OR c.code LIKE ?)" : ""}${sp.vip === "1" ? " AND c.is_vip = 1" : ""}${sp.blacklist === "1" ? " AND c.is_blacklisted = 1" : ""}${typeFilter ? " AND c.customer_type = ?" : ""}${bScope.sql !== "1=1" ? ` AND ${bScope.sql}` : ""}`;
+  const countWhere = `c.is_archived = 0${q ? " AND ((c.first_name || ' ' || c.last_name) LIKE ? OR c.company LIKE ? OR c.mobile LIKE ? OR c.email LIKE ? OR c.code LIKE ?)" : ""}${sp.vip === "1" ? " AND c.is_vip = 1" : ""}${sp.blacklist === "1" ? " AND c.is_blacklisted = 1" : ""}${typeFilter ? " AND (CASE WHEN c.customer_type IS NULL OR c.customer_type='new' THEN 'regular' ELSE c.customer_type END) = ?" : ""}${bScope.sql !== "1=1" ? ` AND ${bScope.sql}` : ""}`;
   total = Number(db.prepare(`SELECT COUNT(*) c FROM customers c WHERE ${countWhere}`).get(...params)?.c ?? 0);
   const paging=resolvePaging(sp,total); ({page,perPage,totalPages}=paging);const offset=paging.offset;
   sql += ` ORDER BY c.created_at DESC LIMIT ${perPage} OFFSET ${offset}`;

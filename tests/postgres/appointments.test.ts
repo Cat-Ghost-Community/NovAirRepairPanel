@@ -15,7 +15,7 @@ before(async()=>{
  await applyPostgresMigrations(db,schema,{targetVersion:1});
  await db.query(`INSERT INTO ${t('branches')}(id,name,code) VALUES(1,'One','ONE'),(2,'Two','TWO')`);
  await db.query(`INSERT INTO ${t('users')}(id,name,email,password_hash,role,branch_id) VALUES(1,'Owner','owner@support.invalid','unused','owner',1),(2,'One','one@support.invalid','unused','reception',1),(3,'Two','two@support.invalid','unused','reception',2)`);
- await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,branch_id) VALUES(1,'ONE','One',1),(2,'TWO','Two',2)`);
+ await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,last_name,branch_id) VALUES(1,'ONE','One','Fixture',1),(2,'TWO','Two','Fixture',2)`);
  await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,serial,imei,branch_id) VALUES(1,1,'mobile','SERIAL-ONE','111111111111111',1),(2,2,'mobile','SERIAL-TWO','222222222222222',2)`);
  await db.query(`INSERT INTO ${t('users')}(id,name,email,password_hash,role,branch_id) VALUES(4,'Tech One','techone@appointments.invalid','unused','technician',1),(5,'Tech Two','techtwo@appointments.invalid','unused','technician',2)`);
  await applyPostgresMigrations(db,schema);

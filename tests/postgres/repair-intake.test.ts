@@ -1,3 +1,4 @@
+import {nextPostgresNumber} from '../../src/lib/db/pg-customer-finance';
 import {before,after,it} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
@@ -19,7 +20,7 @@ before(async()=>{
  await applyPostgresMigrations(db,schema,{targetVersion:1});
  await db.query(`INSERT INTO ${t('branches')}(id,name,code) VALUES(1,'One','INTAKE-ONE'),(2,'Two','INTAKE-TWO')`);
  await db.query(`INSERT INTO ${t('users')}(id,name,email,password_hash,role,branch_id) VALUES(1,'Owner','owner@intake.invalid','unused','owner',1),(2,'One','one@intake.invalid','unused','reception',1),(3,'Two','two@intake.invalid','unused','reception',2)`);
- await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,branch_id) VALUES(1,'INTAKE-ONE','One',1),(2,'INTAKE-TWO','Two',2)`);
+ await db.query(`INSERT INTO ${t('customers')}(id,code,first_name,last_name,branch_id) VALUES(1,'INTAKE-ONE','One','Fixture',1),(2,'INTAKE-TWO','Two','Fixture',2)`);
  await db.query(`INSERT INTO ${t('devices')}(id,customer_id,type,serial,branch_id) VALUES(1,1,'mobile','INTAKE-ONE',1),(2,2,'mobile','INTAKE-TWO',2)`);
  await db.query(`INSERT INTO ${t('settings')}(key,value) VALUES('diagnostic_fee','137')`);
  await applyPostgresMigrations(db,schema);
@@ -40,3 +41,22 @@ it('cash permission is verified separately and missing credential key never writ
 it('failure after verified receipt/source insertion rolls back every local effect and preserves retry safety',async()=>{const before=await counts();let injected=false;const failing:PostgresDatabase={...db,query:async<Row extends QueryResultRow=QueryResultRow>(sql:string,values:unknown[]=[])=>{if(sql.includes('INSERT INTO')&&sql.includes('audit_logs')&&values[2]==='repair_ticket'){injected=true;return db.query<Row>('SELECT 1/0');}return db.query<Row>(sql,values);}};const body={...base,deposit:307},key='intake-audit-rollback';await assert.rejects(()=>createPostgresRepairIntake(failing,schema,one,1,body,key));assert.equal(injected,true);assert.deepEqual(await counts(),before);const result=await createPostgresRepairIntake(db,schema,one,1,body,key);assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('payments')} WHERE ticket_id=$1`,[result.id])).rows[0].n,'1');assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('operation_receipts')} WHERE operation_key=$1`,[key])).rows[0].n,'1');});
 it('native guards reject raw state/history mutation and independently detect disabled triggers',async()=>{const id=(await db.query(`SELECT MIN(id) id FROM ${t('repair_tickets')}`)).rows[0].id;await assert.rejects(()=>db.query(`UPDATE ${t('repair_tickets')} SET technician_id=2 WHERE id=$1`,[id]));await assert.rejects(()=>db.query(`DELETE FROM ${t('repair_status_history')} WHERE ticket_id=$1`,[id]));await assert.rejects(()=>db.query(`UPDATE ${t('repair_statuses')} SET name='Altered' WHERE name='New'`));await assert.rejects(()=>db.query(`TRUNCATE ${t('repair_tickets')}`));await db.query(`ALTER TABLE ${t('repair_tickets')} DISABLE TRIGGER pg_repair_intake_source`);try{await assert.rejects(()=>verifyPostgresRepairIntakeGuards(db,schema),/trigger missing or altered/);}finally{await db.query(`ALTER TABLE ${t('repair_tickets')} ENABLE TRIGGER pg_repair_intake_source`);}assert.equal((await verifyPostgresRepairIntakeGuards(db,schema)).verified,true);});
 it('independent verifier detects changed guard body and transaction rollback restores the original proof',async()=>{await assert.rejects(()=>db.transaction(async()=>{await db.query(`CREATE OR REPLACE FUNCTION ${t('pg_repair_intake_guard')}() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $tamper$ BEGIN RETURN NEW; END $tamper$`);await assert.rejects(()=>verifyPostgresRepairIntakeGuards(db,schema),/function missing or altered/);throw new Error('intentional guard rehearsal rollback');}),/intentional guard rehearsal rollback/);assert.equal((await verifyPostgresRepairIntakeGuards(db,schema)).verified,true);});
+
+it('surname validation rolls intake back and configured ticket numbers use persisted settings',async()=>{
+ const original=await counts();
+ await db.query(`UPDATE ${t('customers')} SET last_name=' ' WHERE id=1`);
+ try{await assert.rejects(()=>createPostgresRepairIntake(db,schema,one,1,base,'missing-surname'),status(400));assert.deepEqual(await counts(),original);}finally{await db.query(`UPDATE ${t('customers')} SET last_name='Fixture' WHERE id=1`);}
+ await db.query(`INSERT INTO ${t('settings')}(key,value) VALUES('ticket_prefix','RP-'),('ticket_suffix','-B') ON CONFLICT(key) DO UPDATE SET value=EXCLUDED.value`);
+ const result=await createPostgresRepairIntake(db,schema,one,1,base,'configured-number');
+ assert.equal(result.number,'RP-'+String(Number(original.counter)+1).padStart(4,'0')+'-B');
+ assert.equal((await db.query(`SELECT number FROM ${t('repair_tickets')} WHERE id=$1`,[result.id])).rows[0].number,result.number);
+});
+it('configured invoice numbering conserves the legacy counter floor, serializes concurrent types and rolls back',async()=>{
+ await db.query(`INSERT INTO ${t('settings')}(key,value) VALUES('invoice_prefix','F-'),('invoice_suffix','-A') ON CONFLICT(key) DO UPDATE SET value=EXCLUDED.value`);
+ await db.query(`INSERT INTO ${t('counters')}(key,value) VALUES('invoice:sale',7)`);
+ assert.equal(await db.transaction(()=>nextPostgresNumber(db,schema,'invoice:repair','INV-')),'F-0008-A');
+ const results=await Promise.all([db.transaction(()=>nextPostgresNumber(db,schema,'invoice:sale','SINV-')),peer.transaction(()=>nextPostgresNumber(peer,schema,'invoice:purchase','PINV-'))]);
+ assert.deepEqual(results.sort(),['F-0009-A','F-0010-A']);
+ await assert.rejects(()=>db.transaction(async()=>{assert.equal(await nextPostgresNumber(db,schema,'invoice:sale','SINV-'),'F-0011-A');throw Error('numbering rollback');}),/numbering rollback/);
+ assert.equal(await db.transaction(()=>nextPostgresNumber(db,schema,'invoice:sale','SINV-')),'F-0011-A');
+});

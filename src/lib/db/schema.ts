@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import {documentNumber} from '../document-number';
 import path from "node:path";
 import fs from "node:fs";
 import { ACCOUNTING_DDL } from "@/lib/accounting-schema";
@@ -98,7 +99,7 @@ CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_id INTEGER NOT
 CREATE TABLE IF NOT EXISTS tracking_tokens (token_hash TEXT PRIMARY KEY, ticket_id INTEGER NOT NULL REFERENCES repair_tickets(id) ON DELETE CASCADE, expires_at INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_tracking_tokens_expires ON tracking_tokens(expires_at);
 CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE, first_name TEXT, last_name TEXT, company TEXT, mobile TEXT, phone TEXT, email TEXT, address TEXT, city TEXT, country TEXT, postal_code TEXT, tax_id TEXT, dob TEXT, notes TEXT, tags TEXT DEFAULT '[]', is_vip INTEGER DEFAULT 0, is_blacklisted INTEGER DEFAULT 0, blacklist_reason TEXT, credit_limit INTEGER DEFAULT 0, payment_terms TEXT, is_company INTEGER DEFAULT 0, contact_person TEXT, is_archived INTEGER DEFAULT 0, branch_id INTEGER, created_by INTEGER, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT,
-  national_id TEXT, job TEXT, referral_source TEXT, nickname TEXT, referrer_customer_id INTEGER, referrer_commission_type TEXT, referrer_commission_value REAL DEFAULT 0, is_colleague INTEGER DEFAULT 0, customer_type TEXT DEFAULT 'new', organization_name TEXT);
+  national_id TEXT, job TEXT, referral_source TEXT, nickname TEXT, referrer_customer_id INTEGER, referrer_commission_type TEXT, referrer_commission_value REAL DEFAULT 0, is_colleague INTEGER DEFAULT 0, customer_type TEXT DEFAULT 'regular', organization_name TEXT);
 CREATE TABLE IF NOT EXISTS devices (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER NOT NULL REFERENCES customers(id), type TEXT NOT NULL, brand TEXT, model TEXT, model_number TEXT, sku TEXT, serial TEXT, imei TEXT, imei2 TEXT, mac TEXT, asset_tag TEXT, color TEXT, ram TEXT, storage TEXT, cpu TEXT, gpu TEXT, os TEXT, os_version TEXT, carrier TEXT, battery_health INTEGER, condition TEXT, purchase_date TEXT, warranty_until TEXT, notes TEXT, specs TEXT DEFAULT '{}', is_archived INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT,
   is_blacklisted INTEGER DEFAULT 0, blacklist_reason TEXT, next_service_date TEXT, service_interval_days INTEGER);
 CREATE INDEX IF NOT EXISTS idx_devices_customer ON devices(customer_id);
@@ -521,7 +522,7 @@ const MIGRATIONS: Array<[string, string, string]> = [
   ["customers", "referrer_commission_type", "ALTER TABLE customers ADD COLUMN referrer_commission_type TEXT"],
   ["customers", "referrer_commission_value", "ALTER TABLE customers ADD COLUMN referrer_commission_value REAL DEFAULT 0"],
   ["customers", "is_colleague", "ALTER TABLE customers ADD COLUMN is_colleague INTEGER DEFAULT 0"],
-  ["customers", "customer_type", "ALTER TABLE customers ADD COLUMN customer_type TEXT DEFAULT 'new'"],
+  ["customers", "customer_type", "ALTER TABLE customers ADD COLUMN customer_type TEXT DEFAULT 'regular'"],
   ["customers", "organization_name", "ALTER TABLE customers ADD COLUMN organization_name TEXT"],
   // امضای دیجیتال مشتری روی برآورد — الزامات حقوقی: تصویر امضا، نام، زمان، IP و مرورگر
   ["estimates", "signature_data", "ALTER TABLE estimates ADD COLUMN signature_data TEXT"],
@@ -576,5 +577,6 @@ export function nextSeq(key: string, prefix: string, pad = 4): string {
   const db = getDb();
   db.prepare("INSERT INTO counters(key, value) VALUES(?, 1) ON CONFLICT(key) DO UPDATE SET value = value + 1").run(key);
   const row = db.prepare("SELECT value FROM counters WHERE key = ?").get(key) as { value: number };
-  return `${prefix}${String(row.value).padStart(pad, "0")}`;
+  const settings=key==='ticket'||key==='invoice'||key.startsWith('invoice:')?Object.fromEntries((db.prepare("SELECT key,value FROM settings WHERE key IN ('ticket_prefix','ticket_suffix','invoice_prefix','invoice_suffix')").all() as {key:string;value:string}[]).map(setting=>[setting.key,setting.value])):{};
+  return documentNumber(key,prefix,row.value,pad,settings);
 }

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getDb, nextSeq } from "@/lib/db/schema";
 import { requireSession, requirePerm, fail, ok, readJson, audit, validate, HttpError } from "@/lib/api";
 import { addCustomerEvent } from "@/lib/repair";
-import { CUSTOMER_TYPES } from "@/lib/customer-type";
+import { customerTypeValue } from "@/lib/customer-type";
 import { activeBranch, BRANCH_COOKIE, recordBranchId } from "@/lib/branch";
 import {atomic} from "@/lib/db/transaction";
 import {assertBranchProfileWrite} from "@/lib/branch-access";
@@ -61,7 +61,8 @@ export async function POST(req: NextRequest) {
     if (b.email) dupes.push(...(db.prepare("SELECT id, first_name, last_name, email FROM customers WHERE email = ? AND is_archived = 0 AND (? IS NULL OR id IN (SELECT customer_id FROM customer_branch_access WHERE branch_id=?))").all(b.email, lookupBranch, lookupBranch) as any[]));
     if (b.national_id) dupes.push(...(db.prepare("SELECT id, first_name, last_name, mobile FROM customers WHERE national_id = ? AND is_archived = 0 AND (? IS NULL OR id IN (SELECT customer_id FROM customer_branch_access WHERE branch_id=?))").all(String(b.national_id), lookupBranch, lookupBranch) as any[]));
     if (b.postal_code) validate.maxLength(b.postal_code, 20, "کد پستی");
-    if (b.customer_type && !CUSTOMER_TYPES.includes(b.customer_type)) b.customer_type = "new";
+    b.customer_type = customerTypeValue(b.customer_type);
+    if (!b.customer_type) throw new HttpError(400, "نوع مشتری معتبر نیست.");
     if (b.organization_name) validate.maxLength(b.organization_name, 120, "نام سازمان");
     // همگام‌سازی: نوع همکار ⇄ فلگ is_colleague
     if (b.customer_type === "colleague") b.is_colleague = true;
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
         code, b.first_name ?? null, b.last_name ?? null, b.company || null, b.mobile ?? null, b.phone ?? null,
         b.email ?? null, b.address ?? null, b.city ?? null, b.tax_id ?? null, JSON.stringify(b.tags ?? []),
         b.is_vip ? 1 : 0, 0, b.company ? 1 : 0, b.contact_person ?? null, creditLimit, b.notes ?? null,
-        b.national_id ?? null, b.job ?? null, b.referral_source ?? null, b.nickname ?? null, b.referrer_customer_id ?? null, b.postal_code ?? null, b.is_colleague ? 1 : 0, b.customer_type ?? "new", b.organization_name ?? null, session.user.id, branchId
+        b.national_id ?? null, b.job ?? null, b.referral_source ?? null, b.nickname ?? null, b.referrer_customer_id ?? null, b.postal_code ?? null, b.is_colleague ? 1 : 0, b.customer_type ?? "regular", b.organization_name ?? null, session.user.id, branchId
       ).lastInsertRowid as number;
     audit(session, "create", "customer", id, null, { name, mobile: b.mobile,branch_id:branchId });
     addCustomerEvent(id, "customer", "مشتری ثبت شد", name, session.user.id);

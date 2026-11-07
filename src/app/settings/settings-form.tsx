@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui";
 import { parseMoneyInput, moneyDisplayValue, toEnDigits } from "@/lib/format";
+import {documentNumber} from '@/lib/document-number';
 
 type FieldType = "text" | "number" | "money" | "percent" | "checkbox" | "currency" | "url";
 type Field = { key: string; label: string; type: FieldType; hint?: string; placeholder?: string };
@@ -36,10 +37,12 @@ const GROUPS: Group[] = [
   {
     id: "numbering",
     title: "شماره‌گذاری اسناد",
-    desc: "پیشوند شماره‌ها؛ شماره به‌صورت خودکار و پیوسته ساخته می‌شود.",
+    desc: "پیشوند + شماره پیوسته + پسوند؛ تنظیمات فقط روی اسناد جدید اعمال می‌شوند و شماره اسناد قبلی تغییر نمی‌کند.",
     fields: [
       { key: "ticket_prefix", label: "پیشوند شماره پذیرش", type: "text", placeholder: "RP-" },
+      { key: "ticket_suffix", label: "پسوند شماره پذیرش", type: "text", placeholder: "-A" },
       { key: "invoice_prefix", label: "پیشوند شماره فاکتور", type: "text", placeholder: "INV-" },
+      { key: "invoice_suffix", label: "پسوند شماره فاکتور", type: "text", placeholder: "-A" },
     ],
   },
   {
@@ -140,6 +143,7 @@ export function SettingsForm({ values }: { values: Record<string, string> }) {
           <div key={group.id} className="px-5 py-4">
             <h3 className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">{group.title}</h3>
             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{group.desc}</p>
+            {group.id==='numbering'&&<div className="mt-3 flex flex-wrap gap-3 text-xs text-zinc-500" aria-live="polite"><span>نمونه پذیرش: <bdi dir="ltr">{documentNumber('ticket','R',2,4,form)}</bdi></span><span>نمونه فاکتور: <bdi dir="ltr">{documentNumber('invoice','INV-',2,4,form)}</bdi></span><span>شماره‌های بالا نمونه‌اند؛ شمارنده بازنشانی نمی‌شود.</span></div>}
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {group.fields.map((field) => {
                 const id = `set-${field.key}`;

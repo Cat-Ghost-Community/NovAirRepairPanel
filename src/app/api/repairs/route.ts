@@ -5,6 +5,7 @@ import {postgresRepairsHttp} from '@/lib/db/pg-repair-http';
 import { NextRequest } from "next/server";
 import { captureFinancialDocument } from "@/lib/accounting-events";
 import { getDb, nextSeq } from "@/lib/db/schema";
+import {requireReceptionCustomerName} from '@/lib/reception-validation';
 import { requireSession, requirePerm, fail, ok, readJson, audit, validate, HttpError } from "@/lib/api";
 import { getStatusByName, addCustomerEvent, encryptSecret, notifyUser } from "@/lib/repair";
 import { BRANCH_COOKIE, recordBranchId, activeBranch, branchWhere } from "@/lib/branch";
@@ -65,6 +66,9 @@ export async function POST(req: NextRequest) {
     if (!device || device.customer_id !== b.customer_id) {
       return Response.json({ error: "این دستگاه متعلق به این مشتری نیست." }, { status: 400 });
     }
+    const customer = db.prepare('SELECT first_name,last_name FROM customers WHERE id=?').get(b.customer_id) as {first_name:string;last_name:string}|undefined;
+    if(!customer)throw new HttpError(404,'مشتری یافت نشد.');
+    requireReceptionCustomerName(customer);
 
     const statusNew = getStatusByName("New") ?? getStatusByName("Received");
     const branch = recordBranchId(session, req.cookies.get(BRANCH_COOKIE)?.value);

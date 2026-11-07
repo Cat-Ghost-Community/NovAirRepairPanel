@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { EmptyState,Modal,useToast } from "@/components/ui";
 import {SearchableSelect} from '@/components/searchable-select';
 import {Checkbox} from '@/components/checkbox';
-import {CUSTOMER_TYPES,customerTypeFa} from '@/lib/customer-type';
+import {CUSTOMER_TYPES,customerTypeFa,customerTypeValue} from '@/lib/customer-type';
 import {toFaDigits} from '@/lib/format';
 
 export function CustomerActions({ customerId, canEdit, blacklist }: { customerId: number; canEdit: boolean; canMerge: boolean; blacklist: boolean }) {
@@ -82,7 +82,7 @@ export function CustomerProfileActions({customerId,canEdit,canMerge,profile,bran
  },[panel,search,page,branchId,customerId,retry]);
  function open(next:'edit'|'merge'){
   setError(null);setPanel(next);
-  if(next==='edit')setForm(Object.fromEntries([...editFields.map(([key])=>[key,String(profile[key]??'')]),['address',String(profile.address??'')],['notes',String(profile.notes??'')],['customer_type',String(profile.customer_type??'new')]]));
+  if(next==='edit')setForm(Object.fromEntries([...editFields.map(([key])=>[key,String(profile[key]??'')]),['address',String(profile.address??'')],['notes',String(profile.notes??'')],['customer_type',customerTypeValue(profile.customer_type)??'regular']]));
   else{setSearch('');setPage(1);setSelected(null);setConfirmed(false);setLookup({items:[],loading:true,error:null,hasMore:false});}
  }
  async function submit(body:Record<string,unknown>){
@@ -103,7 +103,7 @@ export function CustomerProfileActions({customerId,canEdit,canMerge,profile,bran
    <form id="customer-profile-edit" onSubmit={event=>{event.preventDefault();void submit({action:'update',...form,expected_updated_at:profile.updated_at??null});}}>
     <fieldset disabled={busy} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
      {editFields.map(([key,label])=><label key={key} className="min-w-0"><span className="label">{label}</span><input className="input w-full min-w-0" value={form[key]??''} type={key==='email'?'email':'text'} inputMode={['mobile','phone','postal_code'].includes(key)?'tel':undefined} dir={['email','mobile','phone'].includes(key)?'ltr':undefined} maxLength={key==='email'?254:160} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}
-     <label className="min-w-0"><span className="label">نوع مشتری</span><SearchableSelect value={form.customer_type??'new'} onChange={event=>setForm(previous=>({...previous,customer_type:event.target.value}))}>{CUSTOMER_TYPES.map(type=><option key={type} value={type}>{customerTypeFa(type)}</option>)}</SearchableSelect></label>
+     <label className="min-w-0"><span className="label">نوع مشتری</span><SearchableSelect value={form.customer_type??'regular'} onChange={event=>setForm(previous=>({...previous,customer_type:event.target.value}))}>{CUSTOMER_TYPES.map(type=><option key={type} value={type}>{customerTypeFa(type)}</option>)}</SearchableSelect></label>
      {(['address','notes'] as const).map(key=><label key={key} className="min-w-0 sm:col-span-2"><span className="label">{key==='address'?'نشانی':'توضیحات'}</span><textarea className="input min-h-24 w-full resize-y" maxLength={key==='notes'?2000:1000} value={form[key]??''} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}
     </fieldset>{error&&<p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
    </form>

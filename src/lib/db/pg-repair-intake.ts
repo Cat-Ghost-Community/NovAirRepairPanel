@@ -1,3 +1,4 @@
+import {requireReceptionCustomerName} from '../reception-validation';
 import {createHash,createHmac} from 'node:crypto';
 import {HttpError} from '../http-error';
 import {encryptCredential} from '../secrets';
@@ -38,9 +39,10 @@ export async function createPostgresRepairIntake(db:PostgresDatabase,schema:stri
  return postgresDurableOperation(db,schema,token??'',{permission:'repairs.create',branchId:target,operation:'repair.intake',key,payload:input},async scope=>{
   if(deposit)await requirePostgresIdentity(db,schema,token,'payments.create',target);
   await lockPostgresCustomerFunds(db,schema,customer);
-  const party=(await db.query(`SELECT c.id FROM ${t('customers')} c WHERE c.id=$1 AND c.is_archived=0 AND EXISTS(SELECT 1 FROM ${t('customer_branch_access')} a WHERE a.customer_id=c.id AND a.branch_id=$2) FOR UPDATE OF c`,[customer,target])).rows[0];
+  const party=(await db.query(`SELECT c.id,c.first_name,c.last_name FROM ${t('customers')} c WHERE c.id=$1 AND c.is_archived=0 AND EXISTS(SELECT 1 FROM ${t('customer_branch_access')} a WHERE a.customer_id=c.id AND a.branch_id=$2) FOR UPDATE OF c`,[customer,target])).rows[0];
   const source=(await db.query(`SELECT d.id FROM ${t('devices')} d WHERE d.id=$1 AND d.customer_id=$2 AND d.is_archived=0 AND EXISTS(SELECT 1 FROM ${t('device_branch_access')} a WHERE a.device_id=d.id AND a.branch_id=$3) FOR UPDATE OF d`,[device,customer,target])).rows[0];
   if(!party||!source)throw new HttpError(404,'مشتری و دستگاه فعال این شعبه با یکدیگر تطبیق ندارند.');
+  requireReceptionCustomerName(party);
   const status=(await db.query(`SELECT id FROM ${t('repair_statuses')} WHERE name IN ('New','Received') ORDER BY CASE name WHEN 'New' THEN 0 ELSE 1 END,id LIMIT 1 FOR SHARE`)).rows[0];if(!status)throw new HttpError(503,'وضعیت‌های پذیرش تنظیم نشده‌اند.');
   const setting=b.diagnostic_fee==null||b.diagnostic_fee===''?(await db.query(`SELECT value FROM ${t('settings')} WHERE key='diagnostic_fee'`)).rows[0]?.value??0:b.diagnostic_fee,fee=pgMoney(setting);
   if(fee<0)throw new HttpError(400,'هزینهٔ عیب‌یابی نمی‌تواند منفی باشد.');

@@ -5,7 +5,7 @@ import {requirePostgresIdentity} from './pg-app-auth';
 import {postgresDurableOperation} from './postgres-operations';
 import {pgDay,pgId,pgMoney,pgRecord,pgText,postgresFinancialAudit,scopeFor} from './pg-customer-finance';
 import {safePostgresInteger,type PostgresDatabase} from './postgres';
-import {CUSTOMER_TYPES} from '../customer-type';
+import {CUSTOMER_TYPES,customerTypeValue} from '../customer-type';
 import {toEnDigits} from '../format';
 
 export const DEVICE_TYPES=['mobile','laptop','desktop','tablet','console','smartwatch','printer','network','other'] as const;
@@ -107,7 +107,7 @@ export async function mutatePostgresCustomer(db:PostgresDatabase,schema:string,t
    for(const field of ['first_name','last_name','company','mobile','phone','email','address','city','tax_id','notes','postal_code','organization_name'])if(Object.hasOwn(body,field))changes[field]=pgText(body[field],field==='notes'?2000:field==='address'?1000:field==='email'?254:160);
    if(changes.mobile){const mobile=toEnDigits(String(changes.mobile)).replace(/[ +()-]/g,'').replace(/^98/,'0').replace(/^9(?=\d{9}$)/,'09');if(!/^09\d{9}$/.test(mobile))throw new HttpError(400,'شماره موبایل معتبر نیست.');changes.mobile=mobile;}
    if(changes.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(changes.email)))throw new HttpError(400,'ایمیل معتبر نیست.');
-   if(Object.hasOwn(body,'customer_type')){if(typeof body.customer_type!=='string'||!CUSTOMER_TYPES.includes(body.customer_type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');changes.customer_type=body.customer_type;changes.is_colleague=body.customer_type==='colleague'?1:0;}
+   if(Object.hasOwn(body,'customer_type')){body.customer_type=customerTypeValue(body.customer_type);if(typeof body.customer_type!=='string'||!CUSTOMER_TYPES.includes(body.customer_type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');changes.customer_type=body.customer_type;changes.is_colleague=body.customer_type==='colleague'?1:0;}
    if(Object.hasOwn(body,'is_colleague')){if(typeof body.is_colleague!=='boolean')throw new HttpError(400,'گزینهٔ همکار معتبر نیست.');changes.is_colleague=body.is_colleague?1:0;}
    if(body.customer_type==='colleague')changes.is_colleague=1;
    if(!({...before,...changes}.first_name)&&!({...before,...changes}.company))throw new HttpError(400,'نام یا نام شرکت الزامی است.');

@@ -77,6 +77,18 @@ async function main(){
    for(const width of [375,768,1440])for(const dark of [false,true]){await page.setViewportSize({width,height:1000});await page.goto(origin+'/customers');await settled();await page.getByRole('heading',{name:'مشتریان',exact:true}).waitFor();await page.evaluate(v=>document.documentElement.classList.toggle('dark',v),dark);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Responsive overflow');await page.screenshot({path:path.join(root,'customers-'+width+'-'+dark+'.png'),fullPage:true,animations:'disabled'});}
    const customer=await api('/api/customers','POST',{first_name:'آزمون قطع شبکه',last_name:'موقت',mobile:'09129990001'},'network-customer-create');assert.equal(customer.status(),200,await customer.text());const saved=await customer.json();assert.ok(saved.id);
    const lookup=await api('/api/customers/lookup?q=09129990001');assert.equal(lookup.status(),200);assert.match(await lookup.text(),/09129990001/);
+   await page.goto(origin+'/repairs/new');await page.locator('#fn').fill('پذیرش');await page.locator('#mob').fill('09129990003');
+   assert.equal(await page.locator('#ln').getAttribute('required'),'');
+   const nextIntake=page.getByRole('button',{name:'بعدی ←',exact:true});assert.equal(await nextIntake.isEnabled(),false);
+   await page.locator('#ln').fill('آزمون');assert.equal(await nextIntake.isEnabled(),true);
+   assert.equal(await page.getByText('مشتری تازه‌کار',{exact:true}).count(),0);
+   record('reception requires surname before continuing; obsolete novice classification absent');
+   await page.goto(origin+'/settings');await page.locator('#set-ticket_prefix').fill('NET-');await page.locator('#set-ticket_suffix').fill('-A');
+   const settingSaved=page.waitForResponse(r=>r.url()===origin+'/api/settings'&&r.request().method()==='POST');await page.getByRole('button',{name:'ذخیره تنظیمات',exact:true}).click();assert.equal((await settingSaved).status(),200);
+   await page.reload();assert.equal(await page.locator('#set-ticket_suffix').inputValue(),'-A');assert.equal(await page.locator('bdi').filter({hasText:'NET-0002-A'}).count(),1);
+   const createdDevice=await api('/api/devices','POST',{customer_id:saved.id,type:'mobile',brand:'Network fixture',model:'Numbering'});assert.equal(createdDevice.status(),200,await createdDevice.text());const numberingDevice=await createdDevice.json();
+   const createdTicket=await api('/api/repairs','POST',{customer_id:saved.id,device_id:numberingDevice.id,problem:'Numbering verification',deposit:0});assert.equal(createdTicket.status(),200,await createdTicket.text());assert.match((await createdTicket.json()).number,/^NET-\d+-A$/);
+   record('real settings save/reload, live numbering preview and newly persisted intake use configured prefix and suffix');
    const convResponse=await api('/api/chat/conversations','POST',{type:'direct',user_id:fixture.technician.id});assert.equal(convResponse.status(),200,await convResponse.text());const conv=await convResponse.json();
    const bytes=Buffer.from('Isolated first-party internal attachment'),upload=await context.request.post(origin+'/api/chat/upload',{headers:{Origin:origin},multipart:{file:{name:'network-evidence.txt',mimeType:'text/plain',buffer:bytes}}});assert.equal(upload.status(),200,await upload.text());const attached=await upload.json();
    const message=await api('/api/chat/conversations/'+conv.id+'/messages','POST',{body:'پیام داخلی بدون اینترنت جهانی',client_key:crypto.randomUUID(),attachment_ids:[attached.id]});assert.equal(message.status(),200,await message.text());assert.equal((await api('/api/chat/attachments/'+attached.id)).status(),200);assert.deepEqual(await (await api('/api/chat/attachments/'+attached.id)).body(),bytes);

@@ -3,7 +3,7 @@ import {requirePostgresIdentity} from './pg-app-auth';
 import {postgresDurableOperation} from './postgres-operations';
 import {safePostgresInteger,type PostgresDatabase} from './postgres';
 import {HttpError} from '../http-error';
-import {CUSTOMER_TYPES} from '../customer-type';
+import {CUSTOMER_TYPES,customerTypeValue} from '../customer-type';
 import {toEnDigits} from '../format';
 import {rial} from '../money';
 
@@ -20,7 +20,7 @@ function input(value:unknown){
  if(fields.mobile){let mobile=toEnDigits(fields.mobile).replace(/[ +()-]/g,'');if(mobile.startsWith('98'))mobile='0'+mobile.slice(2);if(/^9\d{9}$/.test(mobile))mobile='0'+mobile;if(!/^09\d{9}$/.test(mobile))throw new HttpError(400,'شماره موبایل معتبر نیست.');fields.mobile=mobile;}
  if(fields.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))throw new HttpError(400,'ایمیل معتبر نیست.');
  if(fields.national_id){fields.national_id=toEnDigits(fields.national_id);if(!/^\d{10}$/.test(fields.national_id))throw new HttpError(400,'کد ملی معتبر نیست.');}
- const type=body.customer_type??'new';if(typeof type!=='string'||!CUSTOMER_TYPES.includes(type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');
+ const type=customerTypeValue(body.customer_type);if(typeof type!=='string'||!CUSTOMER_TYPES.includes(type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');
  for(const key of ['force','is_vip','is_colleague'])if(body[key]!=null&&typeof body[key]!=='boolean')throw new HttpError(400,'گزینهٔ مشتری معتبر نیست.');
  const tags=body.tags??[];if(!Array.isArray(tags)||tags.length>20||tags.some(tag=>typeof tag!=='string'||tag.length>60||tag.includes('\0')))throw new HttpError(400,'برچسب‌ها معتبر نیستند.');
  if(body.referrer_customer_id!=null||body.referrer_commission_type!=null||body.referrer_commission_value!=null)throw new HttpError(409,'گردش مالی معرف هنوز در مرحلهٔ مهاجرت PostgreSQL فعال نشده است.');
@@ -40,7 +40,7 @@ export class PostgresCustomersRepository{
    const scope=await requirePostgresIdentity(this.db,this.schema,token,'customers.view',branch),values:unknown[]=[scope.branchId],where=[`c.is_archived=0`,`($1::bigint IS NULL OR c.id IN(SELECT customer_id FROM ${this.table('customer_branch_access')} WHERE branch_id=$1))`];
    if(q){values.push('%'+q+'%');where.push(`(COALESCE(c.first_name,'')||' '||COALESCE(c.last_name,'') ILIKE $${values.length} OR c.company ILIKE $${values.length} OR c.mobile ILIKE $${values.length} OR c.email ILIKE $${values.length} OR c.code ILIKE $${values.length})`);}
    if(query.vip==='1')where.push('c.is_vip=1');if(query.blacklist==='1')where.push('c.is_blacklisted=1');
-   if(query.type){if(!CUSTOMER_TYPES.includes(query.type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');values.push(query.type);where.push(`c.customer_type=$${values.length}`);}
+   if(query.type){if(!CUSTOMER_TYPES.includes(query.type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');values.push(query.type);where.push(`(CASE WHEN c.customer_type IS NULL OR c.customer_type='new' THEN 'regular' ELSE c.customer_type END)=${values.length}`);}
    const total=safePostgresInteger((await this.db.query(`SELECT COUNT(*) total FROM ${this.table('customers')} c WHERE ${where.join(' AND ')}`,values)).rows[0].total);
    const currentPage=Math.min(page,Math.max(1,Math.ceil(total/perPage)));
    const rows=await this.db.query(`SELECT c.*,(SELECT COUNT(*) FROM ${this.table('devices')} d WHERE d.customer_id=c.id AND d.is_archived=0 AND ($1::bigint IS NULL OR d.id IN(SELECT device_id FROM ${this.table('device_branch_access')} WHERE branch_id=$1))) device_count,(SELECT COUNT(*) FROM ${this.table('repair_tickets')} t WHERE t.customer_id=c.id AND ($1::bigint IS NULL OR t.branch_id=$1)) repair_count FROM ${this.table('customers')} c WHERE ${where.join(' AND ')} ORDER BY c.created_at DESC,c.id DESC LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,perPage,(currentPage-1)*perPage]);

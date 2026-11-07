@@ -1,3 +1,4 @@
+import {documentNumber} from '../document-number';
 import type {Session} from '../auth';
 import {createHash} from 'node:crypto';
 import {validateId} from '../validate-id';
@@ -18,7 +19,12 @@ export function pgId(value:unknown){return validateId(value);}
 export function pgText(value:unknown,max=1000,required=false){if(value==null&&!required)return null;if(typeof value!=='string'||value.includes('\0')||value.length>max||required&&value.trim().length<5)throw new HttpError(400,'متن یا مرجع مستند معتبر وارد کنید.');return value.trim()||null;}
 export function pgDay(value:unknown){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value)throw new HttpError(400,'تاریخ معتبر میلادی لازم است.');return value;}
 export function pgRecord(value:unknown){if(!value||typeof value!=='object'||Array.isArray(value))throw new HttpError(400,'اطلاعات سند معتبر نیست.');return value as Record<string,unknown>;}
-export async function nextPostgresNumber(db:PostgresDatabase,schema:string,key:string,prefix:string){const counter=(await db.query(`INSERT INTO ${postgresRelation(schema,'counters')}(key,value) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET value=${postgresRelation(schema,'counters')}.value+1 RETURNING value`,[key])).rows[0];return prefix+String(safePostgresInteger(counter.value)).padStart(4,'0');}
+export async function nextPostgresNumber(db:PostgresDatabase,schema:string,key:string,prefix:string){
+ const counterKey=key.startsWith('invoice:')?'invoice':key,counters=postgresRelation(schema,'counters');
+ const counter=(await db.query(`INSERT INTO ${counters}(key,value) VALUES($1,CASE WHEN $1='invoice' THEN (SELECT COALESCE(MAX(value),0)+1 FROM ${counters} WHERE key LIKE 'invoice:%') ELSE 1 END) ON CONFLICT(key) DO UPDATE SET value=${counters}.value+1 RETURNING value`,[counterKey])).rows[0];
+ const settings=key==='ticket'||key==='invoice'||key.startsWith('invoice:')?Object.fromEntries((await db.query(`SELECT key,value FROM ${postgresRelation(schema,'settings')} WHERE key IN ('ticket_prefix','ticket_suffix','invoice_prefix','invoice_suffix')`)).rows.map(row=>[String(row.key),String(row.value)])):{};
+ return documentNumber(key,prefix,safePostgresInteger(counter.value),4,settings);
+}
 export async function postgresFinancialAudit(db:PostgresDatabase,schema:string,scope:PgFinancialActor,action:string,entity:string,id:number,after:unknown){await db.query(`INSERT INTO ${postgresRelation(schema,'audit_logs')}(user_id,action,entity,entity_id,"after",branch_id) VALUES($1,$2,$3,$4,$5,$6)`,[scope.session.user.id,action,entity,id,JSON.stringify(after),scope.branchId]);}
 export function requirePostgresTransaction(db:PostgresDatabase){if(!db.isTransaction())throw Error('Financial helper requires its authoritative local transaction');}
 export async function lockPostgresCustomerFunds(db:PostgresDatabase,schema:string,customer:number){requirePostgresTransaction(db);pgId(customer);await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[schema,'customer-funds:'+customer]);}

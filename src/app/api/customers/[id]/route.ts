@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getDb } from "@/lib/db/schema";
 import { requireSession, fail, ok, readJson, audit, HttpError, requirePerm,validate } from "@/lib/api";
 import { addCustomerEvent } from "@/lib/repair";
-import { CUSTOMER_TYPES } from "@/lib/customer-type";
+import { CUSTOMER_TYPES, customerTypeValue } from "@/lib/customer-type";
 import { atomic } from '@/lib/db/transaction';
 import { activeBranch,BRANCH_COOKIE } from '@/lib/branch';
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const fields = ["first_name", "last_name", "company", "mobile", "phone", "email", "address", "city", "tax_id", "notes", "postal_code", "is_colleague", "customer_type", "organization_name"];
       // اعتبارسنجی نوع مشتری + همگام‌سازی: نوع همکار ⇄ فلگ is_colleague
       if (b.customer_type !== undefined) {
+        b.customer_type = customerTypeValue(b.customer_type);
         if (!CUSTOMER_TYPES.includes(b.customer_type)) throw new HttpError(400, "نوع مشتری نامعتبر است.");
         if (b.customer_type === "colleague") b.is_colleague = true;
         else if (!("is_colleague" in b)) b.is_colleague = false;

@@ -248,7 +248,7 @@ export default function NewRepairPage() {
   };
 
   const canNext = () => {
-    if (step === 0) return !!customer || (newCust.first_name && newCust.mobile);
+    if (step === 0) return customer ? !!customer.first_name?.trim() && !!customer.last_name?.trim() : !!(newCust.first_name?.trim() && newCust.last_name?.trim() && newCust.mobile);
     if (step === 1) return !!device || (newDev.brand && newDev.model);
     if (step === 2) return problem.trim().length > 3;
     if (step === 3) return customQuestions.filter((q) => q.is_required).every((q) => (customAnswers[q.id] ?? "").trim() !== "");
@@ -362,6 +362,7 @@ export default function NewRepairPage() {
                 </div>
               )}
             </div>
+            {customer&&(!customer.first_name?.trim()||!customer.last_name?.trim())&&<p role="alert" className="text-sm text-amber-700 dark:text-amber-300">نام و نام خانوادگی برای پذیرش الزامی است. ابتدا <a className="underline" href={`/customers/${customer.id}`}>اطلاعات مشتری را تکمیل کنید</a>.</p>}
             <div className="relative">
               <div className="absolute inset-0 flex items-center" aria-hidden><div className="w-full border-t border-zinc-200 dark:border-zinc-800" /></div>
               <div className="relative flex justify-center"><span className="bg-white dark:bg-zinc-900 px-2 text-xs text-zinc-400">یا مشتری جدید</span></div>
