@@ -65,7 +65,7 @@ export default function NewRepairPage() {
   // device
   const [devices, setDevices] = useState<Device[]>([]);
   const [device, setDevice] = useState<Device | null>(null);
-  const [deviceDraft, setNewDev] = useState<Record<string, any>>({ type: "mobile", brand: "", model: "", condition: "خوب" });
+  const [deviceDraft, setNewDev] = useState<Record<string, any>>({ type: "mobile", brand: "", model: "", condition: "good" });
   const newDev:Record<string,any>={...deviceDraft,type:catalog?.types.some(t=>t.id===deviceDraft.type&&t.active)?deviceDraft.type:catalog?.types.find(t=>t.active)?.id??deviceDraft.type};
   const [devDupes, setDevDupes] = useState<any[] | null>(null);
   const [devBlacklisted, setDevBlacklisted] = useState<{ serial: string; imei: string; reason: string } | null>(null);

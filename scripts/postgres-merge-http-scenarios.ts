@@ -8,7 +8,7 @@ export async function postgresMergeHttpAcceptance({db,schema,request,owner,two,c
  const t=(name:string)=>postgresRelation(schema,name);
  const command=async(route:string,body:unknown,key:string)=>{const response=await request(route,'POST',body,owner,key);assert.equal(response.status,200,route+': '+await response.clone().text());return response.json();};
  const source=await command('/api/customers',{first_name:'HTTP merge duplicate'},'merge-http-source'),browser=await command('/api/customers',{first_name:'Browser merge duplicate'},'merge-browser-source');
- const device=await command('/api/devices',{customer_id:source.id,type:'mobile',serial:'MERGE-HTTP-ONLY'},'merge-http-device');
+ const device=await command('/api/devices',{customer_id:source.id,type:'mobile',brand:'Fixture',model:'Device',serial:'MERGE-HTTP-ONLY'},'merge-http-device');
  const before=new Map<string,Record<string,unknown>[]>();for(const name of ['invoices','payments','accounting_events','accounting_journals','accounting_lines'])before.set(name,(await db.query(`SELECT * FROM ${t(name)} ORDER BY id`)).rows);
  const events=(await db.query(`SELECT * FROM ${t('customer_events')} WHERE customer_id=$1 ORDER BY id`,[source.id])).rows;
  assert.equal((await request('/api/customers/'+source.id,'POST',{action:'merge_into',target_id:customer},two,'merge-http-foreign')).status,404);

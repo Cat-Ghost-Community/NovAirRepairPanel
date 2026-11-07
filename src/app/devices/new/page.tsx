@@ -24,7 +24,7 @@ export default function NewDevicePage() {
   const custLabel=lookup.key===lookupKey?lookup.label:'';
   const [preferredType, setType] = useState("mobile");
   const type=catalog?.types.some(t=>t.id===preferredType&&t.active)?preferredType:catalog?.types.find(t=>t.active)?.id??preferredType;
-  const [form, setForm] = useState<any>({ brand: "", model: "" });
+  const [form, setForm] = useState<any>({ brand: "", model: "", condition:"good" });
   const [busy, setBusy] = useState(false);
   const operation=useRef<{body:string;key:string}|null>(null);
 

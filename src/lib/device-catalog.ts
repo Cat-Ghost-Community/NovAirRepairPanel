@@ -4,9 +4,10 @@ export const DEVICE_CATALOG_KEY='devices.catalog.v1';
 export type DeviceField={id:string;label:string;kind:'text'|'number'|'date'|'select'|'checkbox';required:boolean;options?:string[]};
 export type DeviceType={id:string;label:string;icon:string;active:boolean;fields:DeviceField[]};
 export type DeviceCatalog={revision:number;types:DeviceType[]};
+export const DEVICE_CONDITION_LABELS:Record<string,string>={new:'جدید',good:'خوب',fair:'متوسط',poor:'ضعیف'};
 export const DEVICE_COLUMNS:Record<string,string>={brand:'برند',model:'مدل',model_number:'شماره مدل',sku:'کد کالا',serial:'شماره سریال',imei:'IMEI',imei2:'IMEI دوم',mac:'آدرس MAC',asset_tag:'کد اموال',color:'رنگ',ram:'حافظه رم',storage:'حافظه',cpu:'پردازنده',gpu:'گرافیک',os:'سیستم‌عامل',os_version:'نسخه سیستم‌عامل',carrier:'اپراتور',battery_health:'سلامت باتری (٪)',condition:'وضعیت',purchase_date:'تاریخ خرید',warranty_until:'پایان ضمانت',notes:'توضیحات'};
 const originals=[['mobile','موبایل','phone','imei storage carrier color battery_health'],['laptop','لپ‌تاپ','laptop','serial cpu ram storage gpu os'],['desktop','دسکتاپ','monitor','serial cpu ram gpu storage'],['tablet','تبلت','tablet','imei serial storage'],['console','کنسول بازی','gamepad','serial storage'],['smartwatch','ساعت هوشمند','watch','serial'],['printer','پرینتر','printer','serial'],['network','تجهیزات شبکه','router','mac serial'],['other','سایر','plug','serial']];
-export function defaultDeviceCatalog():DeviceCatalog{return {revision:0,types:originals.map(([id,label,icon,fields])=>({id,label,icon,active:true,fields:['brand','model',...fields.split(' ')].map(key=>({id:key,label:DEVICE_COLUMNS[key],kind:key==='battery_health'?'number':'text',required:['brand','model'].includes(key)}))}))};}
+export function defaultDeviceCatalog():DeviceCatalog{return {revision:0,types:originals.map(([id,label,icon,fields])=>({id,label,icon,active:true,fields:['brand','model',...fields.split(' '),'condition'].map(key=>({id:key,label:DEVICE_COLUMNS[key],kind:key==='battery_health'?'number':key==='condition'?'select':'text',required:['brand','model'].includes(key),...(key==='condition'?{options:Object.keys(DEVICE_CONDITION_LABELS)}:{})}))}))};}
 export function deviceTypeLabel(catalog:DeviceCatalog,type:string){return catalog.types.find(t=>t.id===type)?.label??originals.find(t=>t[0]===type)?.[1]??type;}
 export function deviceTypeIcon(catalog:DeviceCatalog,type:string){return catalog.types.find(t=>t.id===type)?.icon??originals.find(t=>t[0]===type)?.[2]??'plug';}
 export function parseDeviceCatalog(value:string|undefined|null):DeviceCatalog{
@@ -65,7 +66,8 @@ export function validateDeviceRegistration(catalog:DeviceCatalog,typeId:string,b
   if(field.kind==='number'&&(!/^-?\d{1,12}(?:\.\d{1,6})?$/.test(value)||!Number.isFinite(Number(value))))throw new HttpError(400,`${field.label} باید عدد باشد.`);
   if(field.id==='battery_health'&&(!/^\d+$/.test(value)||Number(value)>100))throw new HttpError(400,'سلامت باتری باید بین صفر و صد باشد.');
   if(field.kind==='date'&&(!/^\d{4}-\d{2}-\d{2}$/.test(value)||Number.isNaN(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value))throw new HttpError(400,`${field.label} تاریخ معتبر نیست.`);
-  if(field.kind==='select'&&!field.options?.includes(value))throw new HttpError(400,`${field.label} را از گزینه‌های مجاز انتخاب کنید.`);
+  const choice=field.id==='condition'&&!field.options?.includes(value)?Object.entries(DEVICE_CONDITION_LABELS).find(([,label])=>label===value)?.[0]??value:value;
+  if(field.kind==='select'&&!field.options?.includes(choice))throw new HttpError(400,`${field.label} را از گزینه‌های مجاز انتخاب کنید.`);
   if(field.kind==='checkbox'&&!['true','false','1','0'].includes(value))throw new HttpError(400,`${field.label} معتبر نیست.`);
   if(field.kind==='checkbox'&&field.required&&!['true','1'].includes(value))throw new HttpError(400,`${field.label} باید تأیید شود.`);
   if(field.id.startsWith('custom_'))custom[field.id+':'+field.label]=value;

@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import type {DeviceCatalog} from '@/lib/device-catalog';
+import {DEVICE_CONDITION_LABELS} from '@/lib/device-catalog';
 import {SearchableSelect} from './searchable-select';
 import {JalaliDatePicker} from './jalali-date-picker';
 import {toEnDigits} from '@/lib/format';
@@ -13,10 +14,10 @@ export function DeviceRegistrationFields({catalog,type,values,onChange,prefix='d
  const fields=catalog.types.find(t=>t.id===type)?.fields??[];
  const custom=values.custom_fields&&typeof values.custom_fields==='object'?values.custom_fields as Record<string,unknown>:{};
  return <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{fields.map(field=>{
-  const key=field.id,id=['device','dv'].includes(prefix)&&(key==='brand'||key==='model')?key:prefix+'-'+key,value=key.startsWith('custom_')?custom[key]:values[key];
+  const key=field.id,id=['device','dv'].includes(prefix)&&(key==='brand'||key==='model')?key:prefix==='device'&&!key.startsWith('custom_')?'f-'+key:prefix+'-'+key,value=key.startsWith('custom_')?custom[key]:values[key];
   const change=(value:unknown)=>onChange(key.startsWith('custom_')?{...values,custom_fields:{...custom,[key]:value}}:{...values,[key]:value});
   return <div key={key} className="min-w-0"><label htmlFor={id} className="label">{field.label}{field.required?' *':''}</label>
-   {field.kind==='select'?<SearchableSelect id={id} value={String(value??'')} onChange={event=>change(event.target.value)} required={field.required}><option value="">انتخاب کنید</option>{field.options?.map(option=><option key={option} value={option}>{option}</option>)}</SearchableSelect>:
+   {field.kind==='select'?<SearchableSelect id={id} value={String(value??'')} onChange={event=>change(event.target.value)} required={field.required}><option value="">انتخاب کنید</option>{field.options?.map(option=><option key={option} value={option}>{key==='condition'?DEVICE_CONDITION_LABELS[option]??option:option}</option>)}</SearchableSelect>:
     field.kind==='checkbox'?<input id={id} type="checkbox" className="h-5 w-5 accent-brand-600" checked={value===true||value==='true'||value==='1'} required={field.required} onChange={event=>change(String(event.target.checked))}/>:
     field.kind==='date'?<JalaliDatePicker id={id} value={String(value??'')} clearable={!field.required} onChange={change}/>:
     key==='notes'?<textarea id={id} className="input" rows={3} value={String(value??'')} maxLength={4000} required={field.required} onChange={event=>change(event.target.value)}/>:
