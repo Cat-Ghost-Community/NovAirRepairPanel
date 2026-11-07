@@ -1,0 +1,79 @@
+{
+  "name": "repaid",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "^24.0.0"
+  },
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "node --import tsx --import ./scripts/test-environment.cjs --test --test-concurrency=1 tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check:server": "npm run typecheck && npm test && npm run build",
+    "smoke": "node scripts/server-smoke.cjs",
+    "setup": "node --import tsx scripts/bootstrap.ts",
+    "backup": "node --import tsx scripts/backup.ts",
+    "backup:encrypted": "node --import tsx scripts/backup-encrypted.ts",
+    "backup:scheduled": "node --import tsx scripts/scheduled-backup.ts",
+    "backup:set": "node --import tsx scripts/recovery-set.ts create",
+    "backup:verify-set": "node --import tsx scripts/recovery-set.ts verify",
+    "backup:copy-set": "node --import tsx scripts/recovery-set.ts copy",
+    "backup:restore-set": "node --import tsx scripts/recovery-set.ts restore",
+    "backup:check": "node --import tsx scripts/recovery-set.ts check",
+    "backup:restore": "node --import tsx scripts/restore-backup.ts",
+    "backup:prepare-recovery": "node --import tsx scripts/prepare-recovery.ts",
+    "test:postgres": "node --import tsx scripts/test-postgres.ts",
+    "db:rehearse-postgres": "node --import tsx scripts/rehearse-postgres.ts",
+    "db:snapshot": "node --import tsx scripts/create-migration-snapshot.ts",
+    "db:verify-postgres": "node --import tsx scripts/verify-postgres.ts",
+    "db:profile": "node --import tsx scripts/profile-database.ts",
+    "db:build-tools": "node scripts/build-database-tools.cjs",
+    "db:migrate-attachments": "node --import tsx scripts/migrate-attachments.ts",
+    "db:port-postgres-ledger": "node --import tsx scripts/port-postgres-ledger.ts",
+    "migrate:credentials": "node --import tsx scripts/rotate-credentials.ts",
+    "test:browser": "node scripts/ui-smoke.cjs",
+    "test:load": "node scripts/load-test.cjs",
+    "db:migrate-postgres": "node --import tsx scripts/migrate-postgres.ts",
+    "test:postgres:http": "node --import tsx scripts/postgres-http-acceptance.ts",
+    "check:network": "node scripts/audit-network-dependencies.cjs",
+    "test:network": "node scripts/network-isolation.cjs",
+    "package:offline": "node scripts/package-offline.cjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/estedad": "^5.3.0",
+    "@radix-ui/react-dialog": "^1.1.23",
+    "bwip-js": "^4.11.4",
+    "lucide-react": "^1.48.0",
+    "next": "16.4.2",
+    "pg": "8.23.1",
+    "qrcode": "^1.5.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "recharts": "^3.10.1",
+    "sonner": "^2.0.8",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^26.6.2",
+    "@types/pg": "8.23.1",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "esbuild": "0.28.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "playwright-core": "^1.64.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree@8.70.0": {
+      "minimatch": "11.0.1"
+    }
+  }
+}

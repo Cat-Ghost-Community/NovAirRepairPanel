@@ -1,0 +1,10 @@
+import {DatabaseSync} from 'node:sqlite';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+const file=fs.realpathSync(process.argv[2]??''),root=path.dirname(file);
+if(!process.send||path.dirname(root)!==fs.realpathSync(os.tmpdir())||!path.basename(root).startsWith('repaid-admission-'))throw Error('Private admission fixture required');
+const db=new DatabaseSync(file);
+db.exec('PRAGMA busy_timeout=1000;BEGIN IMMEDIATE;UPDATE balances SET amount=amount+7 WHERE id=1');
+process.send({locked:true});
+setTimeout(()=>{db.exec('COMMIT');db.close();process.disconnect?.();},150);

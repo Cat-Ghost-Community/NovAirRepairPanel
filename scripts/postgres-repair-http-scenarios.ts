@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import type {Page} from 'playwright-core';
+import type {PostgresDatabase} from '../src/lib/db/postgres';
+import {postgresRelation} from '../src/lib/db/postgres-auth';
+type Request=(path:string,method?:string,body?:unknown,cookie?:string,key?:string)=>Promise<Response>;
+
+export async function postgresRepairHttpAcceptance(c:{db:PostgresDatabase;schema:string;request:Request;owner:string;one:string;two:string;customerId:number;deviceId:number;check:(message:string)=>void}){
+ const {db,schema,request,owner,one,two,customerId,deviceId,check}=c,t=(name:string)=>postgresRelation(schema,name),secret='  native intake secret  ',body={customer_id:customerId,device_id:deviceId,diagnostic_fee:137,deposit:503,problem:'Actual native intake with verified advance',security_type:'password',security_value:secret};
+ const replies=await Promise.all(Array.from({length:3},()=>request('/api/repairs','POST',body,one,'http-native-repair-intake')));for(const reply of replies)assert.equal(reply.status,200,await reply.clone().text());const saved=await replies[0].json();for(const reply of replies.slice(1))assert.deepEqual(await reply.json(),saved);
+ const row=(await db.query(`SELECT * FROM ${t('repair_tickets')} WHERE id=$1`,[saved.id])).rows[0];assert.equal(row.branch_id,'1');assert.equal(row.customer_id,String(customerId));assert.equal(row.device_id,String(deviceId));assert.equal(row.diagnostic_fee,'137');assert.equal(row.technician_id,null);assert.match(String(row.security_value_enc),/^v2\./);
+ const receipts=(await db.query(`SELECT p.id,p.amount,p.invoice_id,e.id event_id,e.payload_json,r.journal_id FROM ${t('payments')} p JOIN ${t('accounting_events')} e ON e.source_type='payment' AND e.source_id=p.id::text AND e.event_type='receipt' LEFT JOIN ${t('accounting_event_reviews')} r ON r.event_id=e.id WHERE p.ticket_id=$1`,[saved.id])).rows;assert.equal(receipts.length,1);assert.equal(receipts[0].amount,'503');assert.equal(receipts[0].invoice_id,null);assert.equal(JSON.parse(String(receipts[0].payload_json)).control_amount,503);assert.equal(receipts[0].journal_id,null,'Unapproved recognition must remain pending');
+ const reviewed=await request('/api/accounting','POST',{action:'review_event',id:Number(receipts[0].event_id),posting_date:new Date().toISOString().slice(0,10),reason:'Independent review of disposable actual intake cash evidence',lines:[{account_code:'1000',debit:503},{account_code:'2010',credit:503,customer_id:customerId}]},owner,'http-native-repair-advance-review');assert.equal(reviewed.status,200,await reviewed.clone().text());const journal=await reviewed.json();
+ const lines=(await db.query(`SELECT account_code,debit,credit FROM ${t('accounting_lines')} WHERE journal_id=$1 ORDER BY account_code`,[journal.journal_id])).rows;assert.deepEqual(lines,[{account_code:'1000',debit:'503',credit:'0'},{account_code:'2010',debit:'0',credit:'503'}]);
+ assert.equal((await db.query(`SELECT COUNT(*) n FROM ${t('repair_status_history')} WHERE ticket_id=$1`,[saved.id])).rows[0].n,'1');assert.equal((await request('/api/repairs','POST',{...body,deposit:504},one,'http-native-repair-intake')).status,409);
+ assert.equal((await request('/api/repairs','POST',body,two,'http-native-foreign-intake')).status,404);
+ const local=await request('/api/repairs?q='+encodeURIComponent(saved.number),'GET',undefined,one),text=await local.text();assert.equal(local.status,200);assert.ok(JSON.parse(text).tickets.some((ticket:{id:number})=>ticket.id===saved.id));assert.equal(text.includes(secret),false);assert.equal(text.includes(String(row.security_value_enc)),false);
+ const foreign=await request('/api/repairs?q='+encodeURIComponent(saved.number),'GET',undefined,two);assert.equal(foreign.status,200);assert.equal((await foreign.json()).total,0);
+ const denied=await request('/repairs/'+saved.id,'GET',undefined,two),html=await denied.text();assert.ok([200,404].includes(denied.status));assert.match(html,/noindex/);assert.equal(html.includes(body.problem),false);
+ check('actual native repair intake commits one ticket, initial history, protected credential and verified advance503 across concurrent HTTP retries; pending source receives exact Cash/Advances journal only after explicit independent review, with branch/response privacy');
+ return {ticketId:Number(saved.id),number:String(saved.number),secret};
+}
+
+export async function postgresRepairBrowserAcceptance(c:{page:Page;origin:string;ticketId:number;number:string;secret:string;check:(message:string)=>void}){
+ const {page,origin,ticketId,number,secret,check}=c;await page.goto(origin+'/repairs/'+ticketId);await page.getByText(number,{exact:true}).first().waitFor();assert.equal((await page.content()).includes(secret),false);
+ await page.getByRole('tab',{name:'مالی',exact:true}).click();const advance=page.getByText('پیش‌دریافت تخصیص‌نیافته',{exact:true});await advance.waitFor();assert.match(await advance.locator('..').innerText(),/۵۰[.٫]۳ تومان|50[.٫]3 تومان/,'The original display convention converts503 canonical rials to50.3 toman without losing the residual rial');
+ for(const width of [320,375,768,1440])for(const dark of [false,true]){await page.setViewportSize({width,height:width<768?812:1000});await page.evaluate(value=>document.documentElement.classList.toggle('dark',value),dark);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true,'Repair workspace overflow '+width);}
+ await page.goto(origin+'/repairs?q='+encodeURIComponent(number));await page.getByRole('link',{name:number,exact:true}).first().waitFor();assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
+ check('actual original Persian repair list/workspace reads persisted intake and separate available advance503 in both themes and320/375/768/1440; private credential absent and unported mutations remain explicitly unavailable');
+}

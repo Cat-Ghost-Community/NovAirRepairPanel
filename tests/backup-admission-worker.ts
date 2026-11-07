@@ -1,0 +1,4 @@
+import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {DatabaseSync} from 'node:sqlite';import {reserveBackupPreparation,releaseBackupPreparation} from '../src/lib/backup-admission';
+const filename=fs.realpathSync(process.argv[2]??''),parent=path.dirname(filename);if(!process.send||path.dirname(parent)!==fs.realpathSync(os.tmpdir())||!path.basename(parent).startsWith('repaid-backup-admission-'))throw new Error('Isolated backup admission worker required');
+const db=new DatabaseSync(filename);db.exec('PRAGMA busy_timeout=1000;PRAGMA foreign_keys=ON');const id=reserveBackupPreparation(db,1);const timeout=setTimeout(()=>{process.exitCode=1;db.close();process.disconnect?.();},10000);
+process.once('message',message=>{if(message!=='release')return;clearTimeout(timeout);releaseBackupPreparation(db,id);db.close();process.disconnect?.();});process.send({id});

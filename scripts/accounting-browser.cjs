@@ -1,0 +1,130 @@
+const fs=require('node:fs');
+const path=require('node:path');
+const {spawnSync}=require('node:child_process');
+const {DatabaseSync}=require('node:sqlite');
+const {chromium}=require('playwright-core');
+const base=process.env.BASE_URL||'http://127.0.0.1:3002',filename=path.resolve(process.env.E2E_DB||'');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit local isolated DB required');
+const prepared=spawnSync(process.execPath,['--import','tsx','scripts/accounting-browser-fixture.ts'],{env:process.env,encoding:'utf8',windowsHide:true});
+if(prepared.status!==0)throw new Error(prepared.stderr);
+const fixture=JSON.parse(fs.readFileSync('.freebuff/accounting-browser-fixture.json','utf8'));
+const fa=value=>Number(value).toLocaleString('en-US').replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+(async()=>{
+  const db=new DatabaseSync(filename,{readOnly:true}),browser=await chromium.launch({channel:'chrome',headless:true});
+  const evidence={checks:[],screenshots:[],browserErrors:[]};
+  const check=(name,pass)=>{evidence.checks.push({name,pass});if(!pass)throw new Error(name);};
+  try{
+    const context=await browser.newContext({locale:'fa-IR',viewport:{width:1440,height:1000}});
+    const login=await context.request.post(base+'/api/auth/login',{headers:{origin:base},data:{email:'owner@repaid.local',password:'demo1234'}});
+    check('real fixture owner login',login.ok());
+    const post=async(url,body,client=context)=>{const r=await client.request.post(base+url,{headers:{origin:base,'idempotency-key':crypto.randomUUID()},data:body});const d=await r.json();if(!r.ok())throw new Error(`${url}: ${d.error}`);return d;};
+    await post('/api/settings',{values:{vat_enabled:'0',tax_rate:'0',duty_rate:'0',round_to:'0'}});
+    const page=await context.newPage();page.on('pageerror',e=>evidence.browserErrors.push(e.message));
+    await page.goto(base+'/finance/accounting',{waitUntil:'networkidle'});
+    const overview=r=>new URL(r.url()).pathname==='/api/accounting'&&r.request().method()==='GET'&&!new URL(r.url()).searchParams.has('view');
+    const act=async(button,action)=>{
+      const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/accounting'&&r.request().method()==='POST'&&r.request().postDataJSON().action===action);
+      const refreshed=page.waitForResponse(overview);
+      await button.click();const reply=await response,data=await reply.json();if(!reply.ok())throw new Error(data.error);
+      await refreshed;await page.getByText('در حال دریافت اطلاعات…',{exact:true}).waitFor({state:'hidden'});return data;
+    };
+    await page.getByRole('button',{name:'دوره‌ها',exact:true}).click();
+    if(Number(db.prepare('SELECT COUNT(*) n FROM accounting_accounts').get().n)===0)await act(page.getByRole('button',{name:'ایجاد سرفصل‌های پایه',exact:true}),'initialize_chart');
+    const year=new Date().getUTCFullYear();
+    if(Number(db.prepare('SELECT COUNT(*) n FROM accounting_periods').get().n)===0){
+      await page.locator('#period-name').fill('سال مستقل آزمون مرورگر');await page.locator('#period-from').fill(`${year}-01-01`);await page.locator('#period-to').fill(`${year}-12-31`);
+      await act(page.getByRole('button',{name:'ایجاد دورهٔ باز',exact:true}),'create_period');
+    }
+    check('chart and explicit open period persist in the actual server DB',Number(db.prepare('SELECT COUNT(*) n FROM accounting_accounts').get().n)===23&&Number(db.prepare("SELECT COUNT(*) n FROM accounting_periods WHERE status='open'").get().n)>0);
+    await page.getByRole('button',{name:'اسناد',exact:true}).click();
+    const memo=`سند مستقل مرورگر ${fixture.nonce}`;
+    await page.locator('#journal-memo').fill(memo);await page.locator('#account-0').selectOption('1000');await page.locator('#account-1').selectOption('4010');await page.locator('#debit-0').fill('100');await page.locator('#credit-1').fill('100');
+    const draft=await act(page.getByRole('button',{name:'ذخیرهٔ پیش‌نویس',exact:true}),'draft');
+    const card=page.locator('.card').filter({has:page.getByText(memo,{exact:true})});
+    await card.getByRole('button',{name:'ویرایش پیش‌نویس',exact:true}).click();
+    await page.getByRole('button',{name:'ذخیرهٔ اصلاح پیش‌نویس',exact:true}).waitFor();
+    await page.locator('#debit-0').fill('125');await page.locator('#credit-1').fill('125');
+    await act(page.getByRole('button',{name:'ذخیرهٔ اصلاح پیش‌نویس',exact:true}),'edit_draft');
+    check('UI edits a draft before posting with exact new amounts',db.prepare('SELECT SUM(debit) amount FROM accounting_lines WHERE journal_id=?').get(draft.id)?.amount===125);
+    await card.getByRole('button',{name:'مشاهدهٔ سطرها',exact:true}).click();
+    await page.getByRole('dialog').getByText('1000',{exact:true}).waitFor();
+    check('reviewer can inspect actual debit/credit lines before posting',await page.getByRole('dialog').getByText('4010',{exact:true}).isVisible());
+    await page.keyboard.press('Escape');
+    await act(card.getByRole('button',{name:'نهایی‌کردن',exact:true}),'post');
+    check('UI posting writes a balanced immutable journal',db.prepare('SELECT state FROM accounting_journals WHERE id=?').get(draft.id)?.state==='posted'&&db.prepare('SELECT SUM(debit)-SUM(credit) difference FROM accounting_lines WHERE journal_id=?').get(draft.id)?.difference===0);
+    await page.locator('#accounting-reason').fill('اصلاح مستندِ سند آزمایشی و حفظ سابقه');
+    await act(card.getByRole('button',{name:'برگشت با دلیل ثبت‌شده',exact:true}),'reverse');
+    check('UI reversal preserves original and opposite posted journal',db.prepare('SELECT state FROM accounting_journals WHERE id=?').get(draft.id)?.state==='reversed'&&Boolean(db.prepare("SELECT id FROM accounting_journals WHERE reversal_of=? AND state='posted'").get(draft.id)));
+    const voidMemo=`پیش‌نویس اشتباه مرورگر ${fixture.nonce}`;
+    await page.locator('#journal-memo').fill(voidMemo);await page.locator('#account-0').selectOption('1000');await page.locator('#account-1').selectOption('4010');await page.locator('#debit-0').fill('50');await page.locator('#credit-1').fill('50');
+    const mistake=await act(page.getByRole('button',{name:'ذخیرهٔ پیش‌نویس',exact:true}),'draft');
+    await page.locator('#accounting-reason').fill('ابطال پیش‌نویس اشتباهی بدون ایجاد ثبت مالی');
+    const mistakenCard=page.locator('.card').filter({has:page.getByText(voidMemo,{exact:true})});
+    await act(mistakenCard.getByRole('button',{name:'ابطال پیش‌نویس با دلیل',exact:true}),'void_draft');
+    check('UI preserves voided draft without posting or exposing a post action',Boolean(db.prepare('SELECT journal_id FROM accounting_journal_voids WHERE journal_id=?').get(mistake.id))&&await mistakenCard.getByRole('button',{name:'نهایی‌کردن',exact:true}).count()===0);
+    const invoice=await post('/api/invoices',{type:'sale',customer_id:fixture.customer,confirm:true,items:[{kind:'labor',name:'خدمت واقعی آزمون دفترکل',qty:1,unit_price:1000}]});
+    check('independent financial source is exact',invoice.total===1000);
+    const review=async(type,id,debit,credit)=>{
+      await page.reload({waitUntil:'networkidle'});await page.getByRole('button',{name:'رویدادها',exact:true}).click();
+      await page.locator('#event-source').selectOption(type);await page.locator('#event-source-id').fill(String(id));
+      const filtered=page.waitForResponse(r=>overview(r)&&new URL(r.url()).searchParams.get('event_source_id')===String(id));
+      await page.getByRole('button',{name:'اعمال فیلتر رویدادها',exact:true}).click();await filtered;
+      const label=type==='invoice'?'فاکتور':'دریافت/پرداخت';const row=page.locator('.card').filter({has:page.getByText(`${label} ${fa(id)}`,{exact:true})});
+      await row.getByRole('button',{name:'بررسی و تنظیم سند',exact:true}).click();
+      await page.locator('#account-0').selectOption(debit);await page.locator('#account-1').selectOption(credit);await page.locator('#journal-memo').fill('تأیید تعهدی صریح سناریوی مستقل مرورگر');
+      await act(page.getByRole('button',{name:'تأیید و ثبت رویداد',exact:true}),'review_event');
+    };
+    await review('invoice',invoice.id,'1100','4010');
+    const receipt=await post('/api/payments',{invoice_id:invoice.id,amount:400,method:'cash'});
+    await review('payment',receipt.id,'1000','1100');
+    const event=db.prepare("SELECT id FROM accounting_events WHERE event_key=?").get(`invoice:${invoice.id}:confirm`);
+    const recognized=db.prepare('SELECT journal_id FROM accounting_event_reviews WHERE event_id=?').get(event.id);
+    check('source review posts exact revenue with customer dimension',db.prepare("SELECT debit,customer_id FROM accounting_lines WHERE journal_id=? AND account_code='1100'").get(recognized.journal_id)?.debit===1000&&db.prepare("SELECT debit,customer_id FROM accounting_lines WHERE journal_id=? AND account_code='1100'").get(recognized.journal_id)?.customer_id===fixture.customer);
+    await page.getByRole('button',{name:'اصلاح سوابق',exact:true}).click();
+    await page.getByText(`مغایرت ماندهٔ ذخیره‌شده · شناسهٔ ${fa(fixture.correctionInvoice)}`,{exact:true}).waitFor();
+    await page.locator('#accounting-reason').fill('تطبیق مستقل ماندهٔ ذخیره‌شده با مدارک نسخهٔ آزمایشی');
+    const cacheCard=page.locator('.card').filter({has:page.getByText(`مغایرت ماندهٔ ذخیره‌شده · شناسهٔ ${fa(fixture.correctionInvoice)}`,{exact:true})});
+    const correction=await act(cacheCard.getByRole('button',{name:'پیشنهاد اصلاح با دلیل',exact:true}),'propose_correction');
+    const correctionCard=page.locator('.card').filter({has:page.getByText(new RegExp(`^اصلاح ${fa(correction.id)} ·`))});
+    check('proposer cannot self-approve in UI',await correctionCard.getByRole('button',{name:'تأیید مستقل',exact:true}).isDisabled());
+    check('proposal leaves historical cached value unchanged',db.prepare('SELECT paid FROM invoices WHERE id=?').get(fixture.correctionInvoice)?.paid===300);
+    const approver=await browser.newContext({locale:'fa-IR',viewport:{width:1440,height:1000}});
+    const approvedLogin=await approver.request.post(base+'/api/auth/login',{headers:{origin:base},data:{email:fixture.email,password:'fixture-approval-2026'}});check('independent approver logs in through real authentication',approvedLogin.ok());
+    await post('/api/accounting',{action:'approve_correction',id:correction.id},approver);
+    const rehearsal=await post('/api/accounting',{action:'rehearse_correction',id:correction.id},approver);
+    check('actual backup restore and rehearsal precede correction',rehearsal.status==='rehearsed'&&db.prepare('SELECT paid FROM invoices WHERE id=?').get(fixture.correctionInvoice)?.paid===300);
+    await post('/api/accounting',{action:'apply_correction',id:correction.id,confirm:true},approver);
+    check('approved isolated correction changes only derived cache',db.prepare('SELECT paid,total,status FROM invoices WHERE id=?').get(fixture.correctionInvoice)?.paid===0&&db.prepare('SELECT paid,total,status FROM invoices WHERE id=?').get(fixture.correctionInvoice)?.total===1000&&db.prepare('SELECT paid,total,status FROM invoices WHERE id=?').get(fixture.correctionInvoice)?.status==='cancelled');
+    await approver.close();
+    await page.goto(base+'/payroll',{waitUntil:'networkidle'});
+    const runRow=page.getByRole('row').filter({has:page.getByText(fixture.technicianName,{exact:true})});
+    const approveResponse=page.waitForResponse(r=>r.url()===base+'/api/payroll'&&r.request().method()==='POST');
+    await runRow.getByRole('button',{name:'تأیید',exact:true}).click();check('commission approval requires successful backend response',(await approveResponse).ok());
+    await runRow.getByRole('button',{name:'ثبت سند پرداخت',exact:true}).click();
+    await page.locator('#commission-amount').fill('40');await page.locator('#commission-reference').fill('BROWSER-COMMISSION-RECEIPT');
+    check('payout needs explicit confirmation of completed settlement',await page.getByRole('button',{name:'ثبت قطعی سند پرداخت',exact:true}).isDisabled());
+    await page.getByRole('checkbox',{name:'پرداخت انجام شده و مرجع آن را بررسی کرده‌ام.'}).check();
+    const payoutResponse=page.waitForResponse(r=>r.url()===base+'/api/payroll'&&r.request().method()==='POST');
+    await page.getByRole('button',{name:'ثبت قطعی سند پرداخت',exact:true}).click();check('partial commission payout persists exact rial conversion',(await payoutResponse).ok()&&db.prepare('SELECT SUM(amount) n FROM commission_payments WHERE run_id=?').get(fixture.run)?.n===400&&db.prepare('SELECT status FROM payroll_runs WHERE id=?').get(fixture.run)?.status==='partially_paid');
+    await page.getByRole('dialog').waitFor({state:'hidden'});
+    fs.mkdirSync('.freebuff/accounting-visual',{recursive:true});
+    const widths=[320,375,390,430,768,1024,1280,1440,1920];
+    const capture=async(label)=>{
+      for(const theme of ['light','dark']){await page.evaluate(theme=>{document.documentElement.classList.toggle('dark',theme==='dark');localStorage.setItem('repaid-theme',theme);},theme);
+        for(const width of widths){await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(70);
+          const layout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,rtl:document.documentElement.lang==='fa'&&getComputedStyle(document.documentElement).direction==='rtl'}));
+          const file=`.freebuff/accounting-visual/${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.screenshots.push({label,theme,width,...layout,file});
+        }
+      }
+    };
+    await capture('payroll');await runRow.getByRole('button',{name:'ثبت سند پرداخت',exact:true}).click();await capture('commission-dialog');await page.keyboard.press('Escape');
+    await page.goto(base+'/finance/accounting',{waitUntil:'networkidle'});
+    for(const [index,tab] of ['تراز آزمایشی','دفتر کل','صورت‌های مالی','تطبیق','رویدادها','اسناد','اصلاح سوابق','دوره‌ها'].entries()){
+      await page.getByRole('button',{name:tab,exact:true}).click();if(tab==='دفتر کل')await page.locator('#ledger-account').selectOption('1000');await page.waitForTimeout(150);await capture(`accounting-${index}`);
+    }
+    check('all new accounting/payroll states fit tested viewports',evidence.screenshots.every(s=>!s.overflow));
+    check('Persian RTL maintained',evidence.screenshots.every(s=>s.rtl));check('no browser runtime errors',evidence.browserErrors.length===0);
+    await context.close();
+  }finally{fs.writeFileSync('.freebuff/accounting-browser.json',JSON.stringify(evidence,null,2));await browser.close();db.close();}
+  console.log(JSON.stringify({checks:evidence.checks,screenshots:evidence.screenshots.length,errors:evidence.browserErrors.length},null,2));
+})().catch(error=>{console.error(error);process.exitCode=1;});

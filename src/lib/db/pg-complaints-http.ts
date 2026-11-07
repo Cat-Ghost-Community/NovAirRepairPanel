@@ -1,0 +1,8 @@
+import type {NextRequest} from 'next/server';
+import {HttpError} from '../http-error';
+import {readRequestJson} from '../request-json';
+import {postgresFinancialRequest} from './pg-financial-http';
+import {postgresFailure} from './pg-http';
+import {PostgresComplaints} from './pg-complaints';
+import {pgId} from './pg-customer-finance';
+export async function postgresComplaintsHttp(req:NextRequest,id?:number){try{const mutation=!['GET','HEAD'].includes(req.method),q=req.nextUrl.searchParams,selectors=q.get('view'),{database,schema,token,branchId}=await postgresFinancialRequest(req,mutation||selectors==='customers'||selectors==='tickets'?'complaints.manage':'complaints.view'),service=new PostgresComplaints(database,schema);if(!mutation){if(selectors==='customers'||selectors==='tickets')return Response.json(await service.selectors(token,branchId,selectors,q.get('q')??'',Number(q.get('page')??1),q.has('customer_id')?pgId(Number(q.get('customer_id'))):undefined),{headers:{'Cache-Control':'no-store'}});return Response.json(id?await service.get(token,branchId,pgId(id)):await service.list(token,branchId,{page:Number(q.get('page')??1),perPage:Number(q.get('perPage')??q.get('limit')??200),q:q.get('q')??'',status:q.get('status')??'',priority:q.get('priority')??''}),{headers:{'Cache-Control':'no-store'}});}const body=await readRequestJson(req),key=req.headers.get('idempotency-key');if(req.method==='POST'&&!id)return Response.json(await service.create(token,branchId,body,key));if(req.method==='PATCH'&&id)return Response.json(await service.update(token,branchId,pgId(id),body,key));throw new HttpError(405,'روش درخواست پشتیبانی نمی‌شود.');}catch(error){return postgresFailure(error);}}

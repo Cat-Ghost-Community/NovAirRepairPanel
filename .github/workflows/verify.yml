@@ -1,0 +1,142 @@
+name: Verify application
+on:
+  pull_request:
+  push:
+    branches: [main]
+concurrency:
+  group: verify-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      REPAID_DEMO_MODE: "0"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Whitespace regression check
+        run: |
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            git diff --check HEAD^ HEAD
+          else
+            git diff-tree --check --root HEAD
+          fi
+      - name: Verify source-bound PostgreSQL migration inventory
+        run: node scripts/postgres-migration-inventory.cjs --check
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Build production database and recovery tools
+        run: npm run db:build-tools
+      - run: npm test
+        env:
+          REPAID_DEMO_MODE: "1"
+      - run: npm audit --audit-level=high
+      - name: Enforce Vite removal
+        run: node -e "const lock=require('./package-lock.json');if(Object.keys(lock.packages).some(p=>/(^|\/)node_modules\/(vite|vitest)$/.test(p)))process.exit(1)"
+      - run: npm run build
+  postgres-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.4-bookworm
+        env:
+          POSTGRES_USER: repaid_test
+          POSTGRES_PASSWORD: isolated_ci_only
+          POSTGRES_DB: postgres
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U repaid_test -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      REPAID_PG_TEST_ADMIN_URL: postgresql://repaid_test:isolated_ci_only@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Require matching native PostgreSQL recovery clients
+        run: |
+          if [[ ! -x /usr/lib/postgresql/18/bin/pg_dump || ! -x /usr/lib/postgresql/18/bin/pg_restore ]]; then
+            # Ubuntu's default repository need not contain the server's major.
+            # Install only native clients from the signed official PGDG repo.
+            curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+              https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+              --output "$RUNNER_TEMP/repaid-postgresql.asc"
+            fingerprint=$(gpg --batch --with-colons --show-keys "$RUNNER_TEMP/repaid-postgresql.asc" | awk -F: '$1=="fpr" {print $10; exit}')
+            test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+            sudo install -d /usr/share/postgresql-common/pgdg
+            sudo install -m 0644 "$RUNNER_TEMP/repaid-postgresql.asc" /usr/share/postgresql-common/pgdg/repaid-ci.asc
+            . /etc/os-release
+            printf 'deb [signed-by=/usr/share/postgresql-common/pgdg/repaid-ci.asc] https://apt.postgresql.org/pub/repos/apt %s-pgdg main\n' "$VERSION_CODENAME" | sudo tee /etc/apt/sources.list.d/repaid-pgdg.list >/dev/null
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client-18
+          fi
+          /usr/lib/postgresql/18/bin/pg_dump --version
+          /usr/lib/postgresql/18/bin/pg_restore --version
+      - run: npm run test:postgres
+      - name: Real PostgreSQL website, browser and rollback acceptance
+        run: npm run test:postgres:http
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+          PG_HTTP_BROWSER: "1"
+
+  installer-linux-acceptance:
+    # Disposable GitHub VM only. No customer database or deployment credential.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Prepare isolated source and synthetic owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Only this disposable hosted VM: retain the production disk reserve
+          # across two full builds instead of weakening installer admission.
+          [[ "$RUNNER_ENVIRONMENT" == github-hosted ]]
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          df -h /
+          sudo cp -a .git /var/tmp/repaid-ci-origin.git
+          sudo chown -R root:root /var/tmp/repaid-ci-origin.git
+          sudo git --git-dir=/var/tmp/repaid-ci-origin.git config core.bare true
+          sudo git config --global url.file:///var/tmp/repaid-ci-origin.git.insteadOf git@github.com:Cat-Ghost-Community/NovAirRepairPanel.git
+          sudo install -d -m 0700 /root/repaid-fixture
+          sudo python3 - <<'PY'
+          import json, os, secrets
+          with open('/root/repaid-fixture/owner.json', 'x') as file:
+              json.dump({'email':'owner@installer.test.invalid','name':'Installer acceptance owner','password':secrets.token_urlsafe(32)},file)
+          os.chmod('/root/repaid-fixture/owner.json',0o600)
+          PY
+      - name: Install real systemd service, SQLite, Nginx and self-signed TLS
+        run: |
+          sudo env SSL_TYPE=ip SERVER_IP=127.0.0.1 REPAID_OWNER_FILE=/root/repaid-fixture/owner.json bash setup.sh --yes --ref "$GITHUB_SHA"
+      - name: Exercise update, code rollback and verified recovery doctor
+        run: |
+          sudo repaid --smart-update --yes --ref "$GITHUB_SHA"
+          sudo repaid --rollback --yes
+          sudo repaid --doctor
+          sudo curl --fail --silent --show-error --cacert /etc/repaid/tls/cert.pem https://127.0.0.1/api/health
+      - name: Bounded service diagnostics
+        if: failure()
+        run: |
+          sudo journalctl -u repaid -u nginx -u repaid-backup -n 60 --no-pager || true
+          sudo tail -n 60 /var/log/repaid/deploy.log || true

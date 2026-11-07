@@ -1,0 +1,11 @@
+[Unit]
+Description=Repaid hourly backup proposal; enable only after restore rehearsal
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=120
+Persistent=true
+Unit=repaid-backup.service
+
+[Install]
+WantedBy=timers.target

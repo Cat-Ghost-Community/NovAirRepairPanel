@@ -1,0 +1,273 @@
+{
+  "baseline": false,
+  "checks": [
+    "server DNS and direct-IP denial canaries",
+    "reused verified standalone build with exact current runtime sources; new package verified, no rebuild claimed",
+    "bundled administration CLI starts without registry access or database mutation",
+    "cold backend health under isolated Node DNS/TCP",
+    "fresh-profile real login and Persian first-party fonts",
+    "39 actual persisted page navigations with foreign browser destinations denied",
+    "both exact print-font weights loaded first party with immutable caching",
+    "real customer CRUD/search and internal chat message/upload/authenticated exact download",
+    "real supplier popup print preserves nonce and escapes stored text; bundled spreadsheet export",
+    "real durable local cash receipt/replay without gateway execution",
+    "CSRF remains enforced",
+    "persisted cash obligation and branch-isolation checks under server network denial",
+    "browser foreign-fetch canary rejected, no success stubs",
+    "logout revocation and anonymous first-party font delivery",
+    "backend restart and second clean-browser cold start"
+  ],
+  "home": {
+    "metrics": {
+      "lcp": 248,
+      "cls": 0.00003515625
+    },
+    "navigation": [
+      {
+        "dcl": 143.2999999988824,
+        "load": 239.2999999988824
+      }
+    ],
+    "resources": [
+      {
+        "type": "link",
+        "bytes": 952,
+        "encoded": 652,
+        "name": "/_next/static/css/989db934789ffb55.css"
+      },
+      {
+        "type": "link",
+        "bytes": 18375,
+        "encoded": 18075,
+        "name": "/_next/static/css/e950ec573dda67dc.css"
+      },
+      {
+        "type": "link",
+        "bytes": 2063,
+        "encoded": 1763,
+        "name": "/_next/static/chunks/webpack-92f3d24eec55e826.js"
+      },
+      {
+        "type": "script",
+        "bytes": 64361,
+        "encoded": 64061,
+        "name": "/_next/static/chunks/4bd1b696-8cd12253b448cc13.js"
+      },
+      {
+        "type": "script",
+        "bytes": 829,
+        "encoded": 529,
+        "name": "/_next/static/chunks/main-app-faad4b003081a0c4.js"
+      },
+      {
+        "type": "script",
+        "bytes": 3559,
+        "encoded": 3259,
+        "name": "/_next/static/chunks/8500-63a4afbeacab3b52.js"
+      },
+      {
+        "type": "script",
+        "bytes": 67433,
+        "encoded": 67133,
+        "name": "/_next/static/chunks/3794-04350b0fcecd82e5.js"
+      },
+      {
+        "type": "script",
+        "bytes": 506,
+        "encoded": 206,
+        "name": "/_next/static/chunks/app/login/page-6492c60635a39ff5.js"
+      },
+      {
+        "type": "script",
+        "bytes": 1017,
+        "encoded": 717,
+        "name": "/_next/static/chunks/app/error-29d2760c9737436b.js"
+      },
+      {
+        "type": "css",
+        "bytes": 57300,
+        "encoded": 57000,
+        "name": "/_next/static/media/estedad-arabic-wght-normal.8c2db11c.woff2"
+      },
+      {
+        "type": "css",
+        "bytes": 27476,
+        "encoded": 27176,
+        "name": "/_next/static/media/estedad-latin-wght-normal.1789c69d.woff2"
+      },
+      {
+        "type": "other",
+        "bytes": 26231,
+        "encoded": 25931,
+        "name": "/favicon.ico"
+      },
+      {
+        "type": "fetch",
+        "bytes": 478,
+        "encoded": 178,
+        "name": "/track"
+      },
+      {
+        "type": "fetch",
+        "bytes": 1051,
+        "encoded": 751,
+        "name": "/track"
+      },
+      {
+        "type": "fetch",
+        "bytes": 14910,
+        "encoded": 14610,
+        "name": "/login"
+      },
+      {
+        "type": "script",
+        "bytes": 15686,
+        "encoded": 15386,
+        "name": "/_next/static/chunks/9715-deb1ee558ca5f7f6.js"
+      },
+      {
+        "type": "script",
+        "bytes": 21697,
+        "encoded": 21397,
+        "name": "/_next/static/chunks/1984-7df38e0c524a753d.js"
+      },
+      {
+        "type": "script",
+        "bytes": 110218,
+        "encoded": 109918,
+        "name": "/_next/static/chunks/2120-c83258283777bc10.js"
+      },
+      {
+        "type": "script",
+        "bytes": 6520,
+        "encoded": 6220,
+        "name": "/_next/static/chunks/1649-ea31ffa92cb23eba.js"
+      },
+      {
+        "type": "script",
+        "bytes": 5931,
+        "encoded": 5631,
+        "name": "/_next/static/chunks/4156-89a17b1358428f46.js"
+      },
+      {
+        "type": "script",
+        "bytes": 3999,
+        "encoded": 3699,
+        "name": "/_next/static/chunks/app/page-43c399800af59a47.js"
+      },
+      {
+        "type": "script",
+        "bytes": 5644,
+        "encoded": 5344,
+        "name": "/_next/static/chunks/1731-a1dd1c886a1e03ac.js"
+      },
+      {
+        "type": "script",
+        "bytes": 9387,
+        "encoded": 9087,
+        "name": "/_next/static/chunks/app/layout-e3b4354221cbfe3d.js"
+      },
+      {
+        "type": "fetch",
+        "bytes": 4030,
+        "encoded": 3730,
+        "name": "/api/notifications"
+      },
+      {
+        "type": "fetch",
+        "bytes": 435,
+        "encoded": 135,
+        "name": "/api/chat/summary"
+      },
+      {
+        "type": "other",
+        "bytes": 26231,
+        "encoded": 25931,
+        "name": "/favicon.ico"
+      }
+    ],
+    "font": "\"Estedad Variable\", Vazirmatn, \"Estedad Variable\", ui-sans-serif, system-ui, sans-serif",
+    "geometry": [
+      {
+        "tag": "HEADER",
+        "x": 0,
+        "y": 0,
+        "width": 1216,
+        "height": 56
+      },
+      {
+        "tag": "MAIN",
+        "x": 0,
+        "y": 56,
+        "width": 1216,
+        "height": 944
+      },
+      {
+        "tag": "H1",
+        "x": 24,
+        "y": 92,
+        "width": 1168,
+        "height": 29
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 330.09375,
+        "width": 1165.984375,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 472.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 472.09375,
+        "width": 376.65625,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 878.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 878.09375,
+        "width": 376.65625,
+        "height": 48
+      }
+    ]
+  },
+  "fontFaces": [
+    {
+      "weight": "400",
+      "status": "loaded"
+    },
+    {
+      "weight": "700",
+      "status": "loaded"
+    }
+  ],
+  "browser": {
+    "requests": 2175,
+    "externalAttempts": [],
+    "failures": [],
+    "runtimeErrors": []
+  },
+  "server": {
+    "transport": "Node DNS/TCP process guard; not an OS firewall",
+    "allowedConnections": 1,
+    "deniedConnections": 0
+  },
+  "realProviderTransactions": false,
+  "productionVerified": false,
+  "originalDataUsed": false
+}

@@ -1,0 +1,159 @@
+{
+  "method": "Single clean-profile desktop lab pair; same initial disposable DB; local evidence Xg6cXr and bsIMUp; not field CWV or statistically validated speedup",
+  "before": {
+    "lcp_ms": 260,
+    "cls": 0.000037517361111111106,
+    "payload_bytes": {
+      "js": 315929,
+      "css": 18727,
+      "font": 84176
+    },
+    "unapproved_requests": 3,
+    "geometry": [
+      {
+        "tag": "HEADER",
+        "x": 0,
+        "y": 0,
+        "width": 1216,
+        "height": 56
+      },
+      {
+        "tag": "MAIN",
+        "x": 0,
+        "y": 56,
+        "width": 1216,
+        "height": 944
+      },
+      {
+        "tag": "H1",
+        "x": 24,
+        "y": 92,
+        "width": 1168,
+        "height": 29
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 330.09375,
+        "width": 1165.984375,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 472.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 472.09375,
+        "width": 376.65625,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 878.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 878.09375,
+        "width": 376.65625,
+        "height": 48
+      }
+    ]
+  },
+  "after": {
+    "lcp_ms": 248,
+    "cls": 0.00003515625,
+    "payload_bytes": {
+      "js": 314350,
+      "css": 18727,
+      "font": 84176
+    },
+    "unapproved_requests": 0,
+    "resource_failures": 0,
+    "runtime_errors": 0,
+    "geometry": [
+      {
+        "tag": "HEADER",
+        "x": 0,
+        "y": 0,
+        "width": 1216,
+        "height": 56
+      },
+      {
+        "tag": "MAIN",
+        "x": 0,
+        "y": 56,
+        "width": 1216,
+        "height": 944
+      },
+      {
+        "tag": "H1",
+        "x": 24,
+        "y": 92,
+        "width": 1168,
+        "height": 29
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 330.09375,
+        "width": 1165.984375,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 472.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 472.09375,
+        "width": 376.65625,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 419.671875,
+        "y": 878.09375,
+        "width": 771.328125,
+        "height": 48
+      },
+      {
+        "tag": "HEADER",
+        "x": 25.015625,
+        "y": 878.09375,
+        "width": 376.65625,
+        "height": 48
+      }
+    ]
+  },
+  "print_fonts": {
+    "woff2_bytes": 101704,
+    "foreign_font_requests_before": 2,
+    "foreign_font_requests_after": 0,
+    "after_weights": [
+      {
+        "weight": "400",
+        "status": "loaded"
+      },
+      {
+        "weight": "700",
+        "status": "loaded"
+      }
+    ]
+  },
+  "inp": "Not measured",
+  "productionVerified": false,
+  "measured_application_stage": "Asset/CSP/QR changes before final report-builder escaping; final revision has separate Linux results, not a matched cross-platform performance comparison"
+}

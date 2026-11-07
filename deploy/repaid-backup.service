@@ -1,0 +1,24 @@
+[Unit]
+Description=Repaid verified encrypted database snapshot
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=repaid
+Group=repaid
+WorkingDirectory=/opt/repaid
+Environment=NODE_ENV=production
+Environment=REPAID_DEMO_MODE=0
+Environment=REPAID_DATA_DIR=/var/lib/repaid
+Environment=REPAID_BACKUP_DIR=/var/backups/repaid
+Environment=REPAID_BACKUP_WORK_DIR=/var/lib/repaid/backup-work
+EnvironmentFile=/etc/repaid/backup.env
+ExecStart=/usr/bin/npm run backup:scheduled
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/repaid /var/backups/repaid
+TimeoutStartSec=3600
+StandardOutput=journal
+StandardError=journal

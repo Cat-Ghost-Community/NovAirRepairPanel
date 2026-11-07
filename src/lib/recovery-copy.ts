@@ -1,0 +1,35 @@
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {DatabaseSync} from 'node:sqlite';
+import {pipeline} from 'node:stream/promises';import {createPrivateWriteStream} from './private-storage';
+import {fileSha256,openStandaloneSqlite,verifySqliteFile,requireBackupSpace} from './backup';import {protectedBackupPath} from './backup-archive';import {verifySnapshotAttachments} from './attachment-storage';import {atomic} from './db/transaction';import {sqliteProjectionHash} from './db/sqlite-evidence';
+const quote=(value:string)=>'"'+value.replaceAll('"','""')+'"';
+const has=(db:DatabaseSync,table:string)=>!!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
+/** Prepares a NEW activation artifact; never changes forensic evidence or the active deployment.
+ * Restored authentication and in-flight artifact ownership must not be revived as completed operations. */
+export async function prepareRecoveryCopy(input:{source:string;destination:string;expectedSha256:string;reason:string;objectDirectory?:string}){
+ const source=fs.realpathSync(input.source),destination=protectedBackupPath(input.destination),live=path.resolve(process.env.REPAID_DATA_DIR??'data','repaid.db');
+ if(source===live||destination===live||source===destination)throw new Error('Use a forensic standalone source and a new offline recovery copy, never the active database');
+ if(!/^[a-f0-9]{64}$/.test(input.expectedSha256)||typeof input.reason!=='string'||input.reason.trim().length<10||input.reason.length>1000)throw new Error('Independent source hash and a documented recovery reason required');
+ verifySqliteFile(source);if(await fileSha256(source)!==input.expectedSha256)throw new Error('Forensic source hash mismatch');const objects=await verifySnapshotAttachments(source,input.objectDirectory);
+ requireBackupSpace(path.dirname(destination),BigInt(fs.statSync(source).size));const output=createPrivateWriteStream(destination);await pipeline(fs.createReadStream(source),output);const fd=fs.openSync(destination,'r+');try{fs.fsyncSync(fd);}finally{fs.closeSync(fd);}const original=openStandaloneSqlite(source);let copy:DatabaseSync;try{copy=new DatabaseSync(destination);}catch(error){original.close();throw error;}let sessions=0,tickets=0,preparations=0,tables=0;
+ try{const backupStates=new Map<string,string>();
+ if(has(original,'backup_downloads')){const read=original.prepare("SELECT backup_id,state FROM backup_downloads WHERE state IN ('prepared','streaming')");read.setReadBigInts(true);for(const row of read.iterate()){const id=String(row.backup_id),next=row.state==='streaming'?'interrupted':'expired';if(backupStates.size>=10000||(backupStates.has(id)&&backupStates.get(id)!==next))throw new Error('Ambiguous or excessive legacy backup artifact evidence');backupStates.set(id,next);}}
+ copy.exec('PRAGMA foreign_keys=ON;PRAGMA busy_timeout=5000;PRAGMA synchronous=FULL');atomic(copy,()=>{
+  if(has(copy,'sessions'))sessions=Number(copy.prepare('DELETE FROM sessions').run().changes);
+  if(has(copy,'backup_preparations'))preparations=Number(copy.prepare("UPDATE backup_preparations SET state='abandoned' WHERE state='preparing'").run().changes);
+  if(has(copy,'backup_downloads'))tickets=Number(copy.prepare("UPDATE backup_downloads SET state=CASE WHEN state='streaming' THEN 'interrupted' ELSE 'expired' END WHERE state IN ('prepared','streaming')").run().changes);
+  if(has(copy,'backups'))for(const value of ['interrupted','expired']){const ids=[...backupStates.entries()].filter(([,state])=>state===value).map(([id])=>id);for(let start=0;start<ids.length;start+=200){const batch=ids.slice(start,start+200);copy.prepare(`UPDATE backups SET status=? WHERE id IN (${batch.map(()=>'?').join(',')})`).run(value,...batch);}}
+  copy.exec('CREATE TABLE IF NOT EXISTS _repaid_recovery_activation(id INTEGER PRIMARY KEY,source_sha256 TEXT NOT NULL,created_at TEXT NOT NULL,operator_reference TEXT NOT NULL,reason TEXT NOT NULL,sessions_invalidated INTEGER NOT NULL,downloads_invalidated INTEGER NOT NULL,preparations_abandoned INTEGER NOT NULL)');
+  copy.prepare('INSERT INTO _repaid_recovery_activation(source_sha256,created_at,operator_reference,reason,sessions_invalidated,downloads_invalidated,preparations_abandoned) VALUES(?,?,?,?,?,?,?)').run(input.expectedSha256,new Date().toISOString(),os.userInfo().username,input.reason.trim(),sessions,tickets,preparations);
+  if(has(copy,'sessions')&&copy.prepare('SELECT count(*) n FROM sessions').get()?.n!==0)throw new Error('Restored sessions were not fully invalidated');
+  // Compare every original projection; only the declared ephemeral changes are allowed.
+  for(const item of original.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()){
+   const table=String(item.name);if(table==='sessions')continue;const mutable=table==='backups'?'status':['backup_downloads','backup_preparations'].includes(table)?'state':null,fields=original.prepare(`PRAGMA table_info(${quote(table)})`).all().map(row=>String(row.name)).filter(name=>name!==mutable);
+   let maximum:bigint|null|undefined;if(table==='_repaid_recovery_activation'){const statement=original.prepare('SELECT max(id) id FROM _repaid_recovery_activation');statement.setReadBigInts(true);maximum=statement.get()?.id as bigint|null;}
+   const before=sqliteProjectionHash(original,table,fields,maximum),after=sqliteProjectionHash(copy,table,fields,maximum);if(before.rows!==after.rows||before.sha256!==after.sha256)throw new Error('Unexpected recovery mutation: '+table);tables++;
+   if(mutable){const left=original.prepare(`SELECT id,${mutable} value FROM ${quote(table)} ORDER BY id`),right=copy.prepare(`SELECT id,${mutable} value FROM ${quote(table)} ORDER BY id`);left.setReadBigInts(true);right.setReadBigInts(true);const iterator=right.iterate();for(const old of left.iterate()){const current=iterator.next().value,expected=table==='backups'?(backupStates.get(String(old.id))??old.value):table==='backup_preparations'?(old.value==='preparing'?'abandoned':old.value):old.value==='prepared'?'expired':old.value==='streaming'?'interrupted':old.value;if(!current||current.id!==old.id||current.value!==expected)throw new Error('Unexpected recovery artifact transition');}}
+  }
+  if(copy.prepare('PRAGMA foreign_key_check').all().length)throw new Error('Recovery copy foreign key check failed');
+ });}finally{original.close();copy.close();}
+ verifySqliteFile(destination);await verifySnapshotAttachments(destination,input.objectDirectory);if(await fileSha256(source)!==input.expectedSha256)throw new Error('Forensic source changed');
+ return {status:'verified_offline_recovery_copy',source_sha256:input.expectedSha256,destination_sha256:await fileSha256(destination),original_business_tables_verified:tables,sessions_invalidated:sessions,downloads_invalidated:tickets,preparations_abandoned:preparations,objects_verified:objects,forensic_source_unchanged:true,application_encryption_key_verified:false,production_activated:false};
+}

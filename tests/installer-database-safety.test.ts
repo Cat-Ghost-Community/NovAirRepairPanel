@@ -1,0 +1,19 @@
+import {after,it} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+const require=createRequire(path.join(process.cwd(),'package.json'));
+const host=require('./deploy/wizard/host.cjs') as {initialize:(input:Record<string,unknown>)=>unknown};
+const directory=fs.mkdtempSync(path.join(os.tmpdir(),'repaid-secret-recovery-'));
+const nativeAbsolute=(value:string)=>process.platform==='win32'?value.replaceAll('\\','/').replace(/^[A-Za-z]:/,''):value;
+function fixture(name:string){const base=path.join(directory,name),data=path.join(base,'data'),backups=path.join(base,'backups');fs.mkdirSync(data,{recursive:true});fs.mkdirSync(backups);for(const child of ['objects','backup-work','restores'])fs.mkdirSync(path.join(data,child));return {base,data,backups,app:path.join(base,'app.env'),backup:path.join(base,'backup.env')};}
+function initialize(value:ReturnType<typeof fixture>){return host.initialize({...value,data:nativeAbsolute(value.data),backups:nativeAbsolute(value.backups),origin:'https://installer.test.invalid',gid:process.getgid?.()??0});}
+after(()=>{const resolved=fs.realpathSync(directory);assert.equal(path.dirname(resolved),fs.realpathSync(os.tmpdir()));assert.ok(path.basename(resolved).startsWith('repaid-secret-recovery-'));fs.rmSync(resolved,{recursive:true,force:true});});
+it('allows a genuinely fresh data tree containing only empty managed directories',()=>{const value=fixture('fresh');initialize(value);assert.equal(fs.existsSync(value.app),true);assert.equal(fs.existsSync(value.backup),true);});
+it('refuses missing application secrets after a database exists and preserves the backup key',()=>{const value=fixture('missing-app');initialize(value);const retained=fs.readFileSync(value.backup);fs.writeFileSync(path.join(value.data,'repaid.db'),'persistent evidence');fs.unlinkSync(value.app);assert.throws(()=>initialize(value),/original files/);assert.equal(fs.existsSync(value.app),false);assert.deepEqual(fs.readFileSync(value.backup),retained);});
+it('refuses missing backup secrets after a database exists even if local backup storage is empty',()=>{const value=fixture('missing-backup');initialize(value);const retained=fs.readFileSync(value.app);fs.writeFileSync(path.join(value.data,'repaid.db'),'persistent evidence');fs.unlinkSync(value.backup);assert.throws(()=>initialize(value),/original files/);assert.equal(fs.existsSync(value.backup),false);assert.deepEqual(fs.readFileSync(value.app),retained);});
+it('refuses generating replacement keys when retained recovery files or objects exist',()=>{for(const kind of ['backups','objects']){const value=fixture('retained-'+kind);const retained=path.join(kind==='backups'?value.backups:path.join(value.data,'objects'),'retained');fs.writeFileSync(retained,'original encrypted evidence');assert.throws(()=>initialize(value),/original files/);assert.equal(fs.existsSync(value.app),false);assert.equal(fs.existsSync(value.backup),false);assert.equal(fs.readFileSync(retained,'utf8'),'original encrypted evidence');}});
+it('can resume failure before the backup environment was written when no persistent data exists',()=>{const value=fixture('incomplete-fresh');initialize(value);const retained=fs.readFileSync(value.app);fs.unlinkSync(value.backup);initialize(value);assert.deepEqual(fs.readFileSync(value.app),retained);assert.equal(fs.existsSync(value.backup),true);});
+it('refuses an inconsistent missing application environment even before the database exists',()=>{const value=fixture('inconsistent');initialize(value);const retained=fs.readFileSync(value.backup);fs.unlinkSync(value.app);assert.throws(()=>initialize(value),/original files/);assert.equal(fs.existsSync(value.app),false);assert.deepEqual(fs.readFileSync(value.backup),retained);});

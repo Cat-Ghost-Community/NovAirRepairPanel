@@ -1,0 +1,139 @@
+{
+  "files": 523,
+  "findings": [
+    {
+      "file": "src/app/api/messages/dispatch/route.ts",
+      "line": 111,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://api.kavenegar.com",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/app/api/messages/dispatch/route.ts",
+      "line": 113,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://rest.payamak-panel.com",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/app/api/messages/dispatch/route.ts",
+      "line": 116,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://gateway.ghasedak.me",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/app/api/messages/dispatch/route.ts",
+      "line": 129,
+      "kind": "server_transport",
+      "classification": "DOMESTIC_OR_DEPLOYMENT_APPROVED",
+      "destination": "guarded dynamic URL"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 130,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    },
+    {
+      "file": "src/app/outbox/outbox-client.tsx",
+      "line": 110,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "dynamic-or-invalid",
+      "classification": "REFERENCE_REVIEW"
+    },
+    {
+      "file": "src/app/repairs/[id]/workspace-client.tsx",
+      "line": 778,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://tracking.post.ir",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/app/settings/settings-form.tsx",
+      "line": 60,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://example.com",
+      "classification": "REFERENCE_REVIEW"
+    },
+    {
+      "file": "src/app/settings/settings-form.tsx",
+      "line": 65,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://api.example.com",
+      "classification": "REFERENCE_REVIEW"
+    },
+    {
+      "file": "src/app/track/[token]/page.tsx",
+      "line": 155,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://tracking.post.ir",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/lib/postal.ts",
+      "line": 57,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://tracking.post.ir",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/lib/postal.ts",
+      "line": 58,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "https://tracking.post.ir",
+      "classification": "DOMESTIC"
+    },
+    {
+      "file": "src/lib/postal.ts",
+      "line": 64,
+      "kind": "server_transport",
+      "classification": "DOMESTIC_OR_DEPLOYMENT_APPROVED",
+      "destination": "guarded dynamic URL"
+    },
+    {
+      "file": "src/lib/seed.ts",
+      "line": 85,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://localhost:3210",
+      "classification": "REFERENCE_REVIEW"
+    },
+    {
+      "file": "public/file.svg",
+      "line": 1,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    },
+    {
+      "file": "public/globe.svg",
+      "line": 1,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    },
+    {
+      "file": "public/next.svg",
+      "line": 1,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    },
+    {
+      "file": "public/vercel.svg",
+      "line": 1,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    },
+    {
+      "file": "public/window.svg",
+      "line": 1,
+      "kind": "literal_reference_not_necessarily_request",
+      "origin": "http://www.w3.org",
+      "classification": "NAMESPACE_NOT_REQUEST"
+    }
+  ],
+  "violations": []
+}

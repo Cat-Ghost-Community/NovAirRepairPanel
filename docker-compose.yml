@@ -1,0 +1,62 @@
+# اجرای «تعمیرکار» روی سرور با یک فرمان:
+#   docker compose up -d --build
+# دادهٔ SQLite داخل volume پایدار «repaid-data» می‌ماند و با آپدیت ایمیج پاک نمی‌شود.
+services:
+  repaid:
+    build: .
+    image: repaid:latest
+    container_name: repaid
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      TZ: Asia/Tehran
+      PORT: "3000"
+      WEB_CONCURRENCY: "1"
+      HOSTNAME: "0.0.0.0"
+      REPAID_DATA_DIR: /data
+      REPAID_DATABASE_ENGINE: sqlite
+      REPAID_ATTACHMENT_STORAGE: ${REPAID_ATTACHMENT_STORAGE:-database}
+      REPAID_OBJECT_DIR: /data/objects
+      REPAID_BACKUP_WORK_DIR: /backup-work
+      APP_ORIGIN: ${APP_ORIGIN:?Set the canonical HTTPS application origin}
+      REPAID_ENCRYPTION_KEY: ${REPAID_ENCRYPTION_KEY:?Set a private 64-character hexadecimal encryption key}
+      REPAID_OUTBOUND_HOSTS: ${REPAID_OUTBOUND_HOSTS:-}
+      # اگر پشت reverse proxy هستید، سقف اندازهٔ بدنهٔ درخواست (پیوست‌ها) را اینجا تنظیم کنید
+    volumes:
+      - repaid-data:/data
+      - repaid-backup-work:/backup-work
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  backup:
+    profiles: [backup]
+    image: repaid:latest
+    build: .
+    entrypoint: ["node", "database-tools/scheduled.cjs"]
+    environment:
+      NODE_ENV: production
+      REPAID_DEMO_MODE: "0"
+      REPAID_DATABASE_ENGINE: sqlite
+      REPAID_DATA_DIR: /data
+      REPAID_OBJECT_DIR: /data/objects
+      REPAID_BACKUP_DIR: /backups
+      REPAID_BACKUP_WORK_DIR: /backup-work
+      TMPDIR: /backup-work
+      REPAID_BACKUP_KEY: ${REPAID_BACKUP_KEY:-}
+    volumes:
+      - repaid-data:/data
+      - repaid-backups:/backups
+      - repaid-backup-work:/backup-work
+    healthcheck:
+      disable: true
+
+volumes:
+  repaid-data:
+  repaid-backups:
+  repaid-backup-work:

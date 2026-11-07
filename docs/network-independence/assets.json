@@ -1,0 +1,28 @@
+{
+  "family": "Vazirmatn",
+  "version": "33.003",
+  "license": "SIL Open Font License 1.1",
+  "modified": false,
+  "files": [
+    {
+      "name": "Vazirmatn-Regular.woff2",
+      "bytes": 50684,
+      "sha256": "e382101336c6eb32cfb31381c027d02d2e0354bad08f6a395d4088beb3db3d91",
+      "source": "https://raw.githubusercontent.com/rastikerdar/vazirmatn/v33.003/fonts/webfonts/Vazirmatn-Regular.woff2"
+    },
+    {
+      "name": "Vazirmatn-Bold.woff2",
+      "bytes": 51020,
+      "sha256": "836fae7d42d83faa249bc00e0099592be98a1fa260d22d82f269b6091e585627",
+      "source": "https://raw.githubusercontent.com/rastikerdar/vazirmatn/v33.003/fonts/webfonts/Vazirmatn-Bold.woff2"
+    },
+    {
+      "name": "OFL.txt",
+      "bytes": 4390,
+      "sha256": "e6f4ce7b6c830d5a25a4f8ac777c267cd7d3c180bc2a7150ca57cbb9b280c4b7",
+      "source": "https://raw.githubusercontent.com/rastikerdar/vazirmatn/v33.003/OFL.txt",
+      "modified": true,
+      "modification": "One trailing ASCII space removed; license terms unchanged"
+    }
+  ]
+}

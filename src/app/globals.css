@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@source "./**/*.tsx";
+@source "../components/**/*.tsx";
+/* جلوگیری از اسکن دیتابیس SQLite توسط Tailwind (فایل‌های قفل‌شده باعث panic می‌شوند) */
+@source not "../../data";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-vazir: 'Estedad Variable';
+}
+
+@theme {
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #d9e6ff;
+  --color-brand-200: #bcd3ff;
+  --color-brand-300: #8eb5ff;
+  --color-brand-400: #598cff;
+  --color-brand-500: #3563f6;
+  --color-brand-600: #2044eb;
+  --color-brand-700: #1a33d8;
+  --color-brand-800: #1c2daf;
+  --color-brand-900: #1c2d8a;
+  --color-brand-950: #161d54;
+
+  --font-sans: 'Estedad Variable', 'Vazirmatn', var(--font-vazir), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  @apply bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 antialiased;
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  text-rendering: optimizeLegibility;
+}
+
+/* اعداد فارسی در متن — ارقام لاتین در جداول num/monospace LTR می‌مانند */
+/* فاصله‌گذاری بهتر برای متن فارسی */
+p, h1, h2, h3, span, td, th, label, button { letter-spacing: 0; }
+h1, h2, h3 { line-height: 1.45; }
+
+/* اعداد در جداول و مبالغ همیشه LTR بمانند تا درست خوانده شوند */
+.num, input[type="number"], .tabular {
+  font-variant-numeric: tabular-nums;
+}
+.ltr-num { direction: ltr; unicode-bidi: embed; text-align: inherit; }
+
+/* لوگوی کلمه لاتین در محیط RTL */
+.wordmark { direction: ltr; unicode-bidi: isolate; }
+
+/* ---- Component classes ---- */
+@layer components {
+  .card { @apply rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900; }
+  .skeleton { @apply animate-pulse rounded-lg bg-zinc-200/70 dark:bg-zinc-800/70; }
+  .card-pad { @apply p-4 sm:p-5; }
+  .card-title { @apply text-[13px] font-semibold text-zinc-500 dark:text-zinc-400; }
+  .kpi { @apply rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-4 sm:p-5; }
+  .kpi-label { @apply text-[13px] font-medium text-zinc-500 dark:text-zinc-400; }
+  .kpi-value { @apply mt-1 text-2xl font-bold tracking-tight tabular-nums; }
+  .section-title { @apply text-[15px] font-semibold text-zinc-900 dark:text-zinc-100; }
+
+  /* دکمه‌ها ارتفاع قطعی دارند تا در ردیف‌های flex کشیده/فشرده نشوند (متن نمی‌شکند و بلند نمی‌شود) */
+  .btn, .btn-primary, .btn-secondary, .btn-ghost, .btn-danger { @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 text-sm font-medium transition-colors select-none disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500; }
+  .btn-primary { @apply bg-brand-600 text-white hover:bg-brand-700 shadow-sm; }
+  .btn-secondary { @apply border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800; }
+  .btn-ghost { @apply text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800; }
+  .btn-danger { @apply bg-red-600 text-white hover:bg-red-700; }
+  .btn-sm { @apply h-8 rounded-md px-3 text-[13px]; }
+  .btn-lg { @apply h-11 px-5 text-[15px]; }
+  /* دکمهٔ فقط-آیکون: مربع و کمینهٔ ۳۲/۳۶ پیکسل برای لمس راحت */
+  .btn-icon { @apply w-9 px-0; }
+  .btn-sm.btn-icon { @apply w-8; }
+  /* چیپ‌های فیلتر/تب که دستی با کلاس‌های Tailwind ساخته شده‌اند هم ۳۲ پیکسل و هم‌تراز شوند
+     (فقط بالا می‌برد — عناصر بزرگ‌تر دست‌نخورده می‌مانند) */
+  button[class*="rounded-full"][class*="text-xs"],
+  a[class*="rounded-full"][class*="text-xs"],
+  button[class*="rounded-lg"][class*="text-xs"][class*="px-2.5"] {
+    @apply inline-flex min-h-8 items-center;
+  }
+
+  .input { @apply w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500; }
+  .label { @apply block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5; }
+
+  .badge, .badge-gray, .badge-green, .badge-red, .badge-amber, .badge-blue, .badge-purple { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap; }
+  /* برچسب‌هایی که نقش دکمهٔ فیلتر دارند (رنگی + cursor-pointer) باید هدف لمسی حداقل ۳۲ پیکسل داشته باشند
+     — برچسب‌های صرفاً نمایشی دست‌نخورده می‌مانند تا ارتفاع ردیف جدول تغییر نکند */
+  button.badge, a.badge,
+  button[class*="badge-"][class*="cursor-pointer"],
+  a[class*="badge-"][class*="cursor-pointer"] {
+    @apply min-h-8 px-3;
+  }
+  .badge-gray { @apply bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300; }
+  .badge-green { @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400; }
+  .badge-red { @apply bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400; }
+  .badge-amber { @apply bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400; }
+  .badge-blue { @apply bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400; }
+  .badge-purple { @apply bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-400; }
+
+  .th { @apply px-3 py-2 text-right text-xs font-semibold text-zinc-500 dark:text-zinc-400 whitespace-nowrap; }
+  .td { @apply px-3 py-2 text-[13px] text-zinc-700 dark:text-zinc-300 align-middle; }
+  .row-hover { @apply hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors; }
+
+  /* ---- صفحهٔ فهرست: هدر چسبان + چیپ‌های فیلتر ---- */
+  /* هدر و نوار فیلتر هنگام اسکرول لیست‌های بلند بالای صفحه می‌مانند */
+  .page-head { @apply sticky top-0 z-20 -mx-4 mb-3 border-b border-zinc-200/70 bg-zinc-50/85 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 dark:border-zinc-800/70 dark:bg-zinc-950/85; }
+  /* وقتی والد فاصله‌گذاری عمودی (space-y) دارد، حاشیهٔ پایین اضافه نشود */
+  .page-head-flush { @apply mb-0; }
+  .page-title { @apply text-lg font-bold tracking-tight sm:text-xl; }
+  .page-sub { @apply mt-0.5 text-[13px] text-zinc-500 dark:text-zinc-400; }
+  .filter-scroll { @apply -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6; }
+  .filter-chip { @apply inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-colors; }
+  .filter-chip-idle { @apply bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700; }
+  .filter-chip-active { @apply bg-brand-600 text-white hover:bg-brand-700; }
+
+  /* ---- دراپ‌دان واحد: همهٔ select‌های برنامه ظاهر یکسان دارند ---- */
+  .select-wrap { @apply relative inline-flex w-full min-w-0 items-center; }
+  .select { @apply w-full appearance-none rounded-lg border border-zinc-300 bg-white py-2 pr-3 pl-9 text-sm text-zinc-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100; }
+  .select-sm { @apply py-1.5 pr-2.5 pl-8 text-[13px]; }
+  .select-chevron { @apply pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500; }
+  /* بومی: گزینه‌های متن‌محور در حالت تاریک هم خوانا باشند */
+  .select option, .select optgroup { @apply bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100; }
+  /* هر select قدیمی که کلاس input دارد هم همان ظاهر یکدست را بگیرد */
+  select.input {
+    @apply appearance-none pl-9 pr-3;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 0.55rem center;
+    background-size: 16px 16px;
+  }
+
+  /* اکشن‌های متنی درون جدول (مثل «ارسال/لغو/ویرایش») به صورت دکمه هم هدف لمسی حداقل ۳۲ پیکسل بگیرند
+     — لینک‌های متنی درون پاراگراف دست‌نخورده می‌مانند */
+  button[class*="hover:underline"] { @apply inline-flex min-h-8 items-center px-2; }
+
+  /* ---- نوار فیلتر مشترک همهٔ فهرست‌ها ---- */
+  .filter-bar { @apply -mx-4 mb-3 flex flex-wrap items-end gap-2 border-b border-zinc-200/70 bg-zinc-50/70 px-4 py-2.5 sm:-mx-6 sm:px-6 dark:border-zinc-800/70 dark:bg-zinc-950/40; }
+  .filter-field { @apply flex min-w-[9rem] flex-1 flex-col gap-1 sm:max-w-[13rem]; }
+  .filter-label { @apply text-xs font-medium text-zinc-500 dark:text-zinc-400; }
+
+  /* ---- پنل دراپ‌دان (اعلان‌ها، منوی کاربر، جستجو) ---- */
+  .menu-panel { @apply absolute z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white p-1.5 shadow-xl ring-1 ring-black/5 dark:border-zinc-800 dark:bg-zinc-900 dark:ring-white/5; }
+  .menu-head { @apply sticky top-0 z-10 flex items-center justify-between gap-2 rounded-t-lg border-b border-zinc-200 bg-white/95 px-2.5 py-2 text-[13px] font-semibold backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95; }
+  .menu-item { @apply flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-[13px] font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100; }
+  .menu-section { @apply px-2.5 pb-1 pt-2 text-xs font-semibold text-zinc-400 dark:text-zinc-500; }
+
+  /* ---- جدول‌های بلند: اسکرول افقی داخل کارت + سرستون چسبان ---- */
+  .table-wrap { @apply -mx-px overflow-x-auto; }
+  .th-sticky { @apply sticky top-0 z-10 bg-white/95 backdrop-blur dark:bg-zinc-900/95; }
+
+  .nav-item { @apply flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 transition-colors; }
+  .nav-item-active { @apply bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300; }
+
+  .skeleton { @apply animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800; }
+
+  .chip { @apply inline-flex items-center gap-1 rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300; }
+}
+
+/* Scrollbars */
+.search-select-native { position: fixed !important; top: 0 !important; left: 0 !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important; clip-path: inset(50%); white-space: nowrap; opacity: 0; pointer-events: none; }
+.search-select-trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: .5rem; min-width: 0; max-width: 100%; min-height: 2rem; text-align: start; cursor: pointer; background-image: none !important; }
+.search-select-trigger:focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 2px; }
+.search-select-trigger:disabled { cursor: not-allowed; opacity: .5; }
+.search-select-panel { position: fixed; inset: auto; margin: 0; padding: 0; z-index: 100; border: 1px solid var(--color-zinc-200); border-radius: .875rem; background: white; color: var(--color-zinc-900); box-shadow: 0 12px 40px #0003; overflow: hidden; }
+.search-select-panel:popover-open { display: flex; flex-direction: column; }
+.dark .search-select-panel { background: var(--color-zinc-900); color: var(--color-zinc-100); border-color: var(--color-zinc-700); }
+.search-select-option { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.5rem; padding: .5rem .625rem; border-radius: .5rem; text-align: start; font-size: .8125rem; cursor: pointer; }
+.search-select-option:hover { background: var(--color-zinc-100); }
+.dark .search-select-option:hover { background: var(--color-zinc-800); }
+.search-select-option:disabled { opacity: .45; cursor: not-allowed; }
+.tab-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; min-height: 2.75rem; }
+.tab-scroll::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgb(161 161 170 / 0.4); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  /* فاکتور/رسید در چاپ: جریان عادی صفحه (بدون absolute) تا فاکتورهای بلند درست صفحه‌بندی شوند */
+  .print-area { position: static !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
+  .print-area.card { box-shadow: none !important; border: none !important; }
+  /* فاکتورهای چندصفحه‌ای: سرستون جدول در هر صفحه تکرار شود و بلوک جمع‌بندی/امضا نصفه نشود */
+  .print-repeat thead { display: table-header-group; }
+  .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  .print-signatures { break-inside: avoid; page-break-inside: avoid; }
+  @page { size: A4; margin: 12mm; }
+}
+
+/* Recharts tweaks */
+.recharts-tooltip-wrapper { outline: none; }

@@ -1,0 +1,43 @@
+# واحد systemd برای اجرای خودکار «تعمیرکار» روی سرور لینوکسی (بدون داکر)
+# نصب:
+#   sudo cp deploy/repaid.service /etc/systemd/system/repaid.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now repaid
+#   journalctl -u repaid -f        # دیدن لاگ‌ها
+# پیش‌نیاز: Node.js 24، کد در /opt/repaid و `npm ci && npm run build` اجرا شده باشد.
+# کاربر سرویس (repaid) باید مالک مسیر داده باشد: sudo chown -R repaid:repaid /var/lib/repaid
+
+[Unit]
+Description=Repaid — سامانه مدیریت تعمیرگاه (Next.js)
+Documentation=file:///opt/repaid/docs/deploy-server.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=repaid
+Group=repaid
+UMask=0077
+WorkingDirectory=/opt/repaid
+Environment=NODE_ENV=production
+Environment=TZ=Asia/Tehran
+Environment=PORT=3000
+Environment=WEB_CONCURRENCY=1
+Environment=HOSTNAME=127.0.0.1
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=REPAID_DATA_DIR=/var/lib/repaid
+Environment=REPAID_BACKUP_WORK_DIR=/var/lib/repaid/backup-work
+EnvironmentFile=/etc/repaid/repaid.env
+ExecStart=/usr/bin/npm run start -- --hostname 127.0.0.1
+Restart=always
+RestartSec=5
+# سخت‌سازی پایه
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/repaid
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=repaid
+
+[Install]
+WantedBy=multi-user.target

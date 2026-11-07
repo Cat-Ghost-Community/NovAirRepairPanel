@@ -1,0 +1,23 @@
+# Isolated PostgreSQL preparation/test service. Does not switch the application.
+# docker compose -f deploy/postgres-rehearsal.yml up -d
+services:
+  postgres-rehearsal:
+    image: postgres:18.4-bookworm
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      POSTGRES_USER: repaid_test
+      POSTGRES_PASSWORD: ${REPAID_PG_TEST_PASSWORD:?Set a private rehearsal-only password}
+      POSTGRES_DB: postgres
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    command: ["postgres", "-c", "max_connections=40", "-c", "statement_timeout=30000", "-c", "idle_in_transaction_session_timeout=15000", "-c", "lock_timeout=3000"]
+    volumes:
+      - repaid-postgres-rehearsal:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U repaid_test -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  repaid-postgres-rehearsal:

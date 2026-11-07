@@ -1,0 +1,72 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+.netlify/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# داده و لاگ‌های خصوصی سرور؛ ایجاد مالک واقعی فقط از مسیر نصب/راه‌اندازی
+/data
+/.freebuff
+/.database-tools/
+*.zip
+
+# وضعیت/پلن‌های محلی ابزار (state ماشین، نه سورس)
+/.kilo/agent-manager.json
+/.kilo/plans/
+
+# Private operational data and local assistant tooling
+/.agents/
+/.claude/
+/.claude-plugin/
+/.kilo/
+/.codex/
+/imanpng.PNG
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.rpbak
+*.rpset/
+*.key
+*.p12
+*.pfx
+__pycache__/
+*.pyc

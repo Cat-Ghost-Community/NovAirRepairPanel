@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {hashPassword} from '../src/lib/auth';
+import {getDb} from '../src/lib/db/schema';
+import {seedIfEmpty} from '../src/lib/seed';
+const root=fs.realpathSync(process.env.REPAID_NETWORK_TEST_ROOT??''),data=path.resolve(process.env.REPAID_DATA_DIR??''),repo=fs.realpathSync('.');
+if(!/^repaid-network-/.test(path.basename(root))||!data.startsWith(root+path.sep)||root.startsWith(repo+path.sep)||repo.startsWith(root+path.sep)||process.env.NODE_ENV!=='test'||process.env.REPAID_DATABASE_ENGINE!=='sqlite')throw Error('Disposable network fixture required');
+if(fs.existsSync(path.join(data,'repaid.db')))throw Error('Fixture refuses an existing database');
+if(!process.env.REPAID_NETWORK_TEST_PASSWORD)throw Error('Private fixture password required');
+seedIfEmpty();const db=getDb();
+db.prepare('UPDATE users SET password_hash=?').run(hashPassword(process.env.REPAID_NETWORK_TEST_PASSWORD));
+db.prepare("UPDATE settings SET value='none' WHERE key='sms_provider'").run();
+const owner=db.prepare("SELECT id,email FROM users WHERE role='owner' ORDER BY id LIMIT 1").get(),estimate=db.prepare('SELECT id,public_token FROM estimates ORDER BY id LIMIT 1').get(),ticket=db.prepare('SELECT id,number FROM repair_tickets ORDER BY id LIMIT 1').get(),customer=db.prepare('SELECT id FROM customers ORDER BY id LIMIT 1').get(),technician=db.prepare("SELECT id FROM users WHERE role='technician' ORDER BY id LIMIT 1").get(),supplier=db.prepare('SELECT id FROM suppliers ORDER BY id LIMIT 1').get();
+const invoice=db.prepare("SELECT id,customer_id,total,paid,branch_id FROM invoices WHERE status='issued' AND total-paid>=1000 AND branch_id=1 ORDER BY id LIMIT 1").get(),foreign=db.prepare("SELECT id,email FROM users WHERE branch_id=2 AND role IN ('manager','reception') ORDER BY id LIMIT 1").get();
+if(!owner||!estimate||!ticket||!customer||!technician)throw Error('Incomplete disposable fixture');
+fs.writeFileSync(path.join(root,'fixture.json'),JSON.stringify({owner,estimate,ticket,customer,technician,supplier,invoice,foreign}),{mode:0o600});db.close();
