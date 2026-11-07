@@ -76,7 +76,7 @@ sudo REPAID_GITHUB_TOKEN_FILE=/root/repaid-github-token bash "$HOME/novair-setup
 Without a terminal, missing credentials fail explicitly; no hidden prompt or default owner is used. Preserve the credential file for future updates. Existing `repaid` service/data names and `REPAID_*` options remain compatible. SMS, payment and email credentials must be configured through the application's supported private settings.
 
 
-## 3. What gets installed
+## 2. What gets installed
 
 | Item | Default location / behavior |
 |---|---|
@@ -95,12 +95,13 @@ Without a terminal, missing credentials fail explicitly; no hidden prompt or def
 
 Protect encryption and backup keys with separate recovery custody. A same-disk backup does **not** prove off-host recovery.
 
-## 4. Domain/IP and unattended setup
+## 3. Domain/IP and unattended setup
 
-From the reviewed checkout, with repository access configured:
+Advanced SSH examples: run in a root shell (`sudo -i`) from a reviewed checkout, with repository access configured. Set `RELEASE` to its reviewed branch or full commit first.
 
 ```bash
-# Read-only plan.
+# Select a reviewed release, then preview without host changes.
+RELEASE=REVIEWED_BRANCH_OR_COMMIT
 DOMAIN=repairs.example.com ADMIN_EMAIL=ops@example.com bash setup.sh --plan
 
 # Domain: DNS/port 80 must already work.
@@ -122,7 +123,7 @@ REPAID_OWNER_FILE=/root/repaid-owner.json REPAID_SSH_IDENTITY_FILE=/root/.ssh/re
 
 Unattended setup still requires explicit domain/contact or IP settings. Re-running setup preserves users, data, keys and paths and delegates to guarded updating. Unmanaged existing directories are refused rather than overwritten.
 
-## 5. Daily management
+## 4. Daily management
 
 ```bash
 sudo repaid                 # guided panel
@@ -247,3 +248,13 @@ npm run test:postgres:http
 ```
 
 Exact evidence/limitations: [wizard report](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/WIZARD_IMPLEMENTATION_REPORT.md). Also see [deployment/recovery](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/DEPLOYMENT.md), [architecture](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/ARCHITECTURE.md), [financial rules](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/FINANCIAL_RULES.md), [PostgreSQL migration](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/POSTGRES_MIGRATION_MASTER_TRACKER.md) and [network isolation](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/docs/network-independence/TEST_REPORT.md). Synthetic test approvals never authorize disputed historical financial corrections.
+
+## Latest wizard verification
+
+Wizard **1.3.0**, source `dd4b5b029a5f056e2cd03b80feeaebeff2f55ea0`:
+
+- [Application/PostgreSQL and Linux installer checks](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42334758550): 469 application tests, 215 native PostgreSQL tests, 48 HTTP/browser acceptance groups; typecheck/build, real install/update/rollback and recovery passed. Lint has 120 existing warnings, zero errors; dependency audit reported zero vulnerabilities at execution time.
+- [Extended wizard lifecycle](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42334758597): eight acceptance groups passed, including real-terminal hidden-token entry, public/private HTTP Git, credential reuse/permissions/cleanup, cancellation, unattended denial, protected reset, encrypted recovery, test-CA HTTP-01 issuance/renewal and unavailable-CA rollback.
+- [Network isolation](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/actions/runs/42334758567) passed.
+
+These checks used disposable CI hosts and synthetic accounts. No customer data or production services were changed. They do not certify the actual production host or remove the product release blockers above.
