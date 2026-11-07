@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "913959e23ad207aacc72786bfd7207b39b23279cabdcdb1c2deb5857e3fb00f3",
+  "source_tree_sha256": "e0bc8a3fe7c59e9d9a9a621d0d8fb0ef712b03e1ff3549096831e2ed4b942dfe",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -64295,7 +64295,7 @@
       "kind": "command_tool",
       "file": "scripts/network-isolation.cjs",
       "client": false,
-      "runtime_source_sha256": "e8a57dfce891032d09d339d28c6f00577a43bce84e55051718775b5b21154fa5",
+      "runtime_source_sha256": "751bf709a6911009c69fa0e1af09cdc8f2ef7ec938514aa0275298b77cea260f",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/network-isolation.cjs",
@@ -127797,7 +127797,7 @@
     {
       "file": "scripts/network-isolation.cjs",
       "kind": "tool",
-      "sha256": "9eea4bc9a227ca1b379a1cdbaf3e1b4a17f41e9e75d5448697464b2fcc8d9534",
+      "sha256": "c6281a7b2244cc5860ae7b17a7a2f6fc6597ff6d579fa6f51a84e987721017d7",
       "imports": [
         {
           "specifier": "node:fs",

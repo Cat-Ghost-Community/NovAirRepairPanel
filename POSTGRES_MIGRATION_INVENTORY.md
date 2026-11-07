@@ -7,7 +7,7 @@ node scripts/postgres-migration-inventory.cjs
 node scripts/postgres-migration-inventory.cjs --check
 ```
 
-Source-tree digest: `913959e23ad207aacc72786bfd7207b39b23279cabdcdb1c2deb5857e3fb00f3`. Complete machine-readable graph: [docs/postgres-migration-coverage.json](docs/postgres-migration-coverage.json). The generator never loads application modules, opens a database or reads customer data/secrets.
+Source-tree digest: `e0bc8a3fe7c59e9d9a9a621d0d8fb0ef712b03e1ff3549096831e2ed4b942dfe`. Complete machine-readable graph: [docs/postgres-migration-coverage.json](docs/postgres-migration-coverage.json). The generator never loads application modules, opens a database or reads customer data/secrets.
 
 ## Measured footprint
 
