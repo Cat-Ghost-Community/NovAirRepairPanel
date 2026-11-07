@@ -73,3 +73,6 @@ __pycache__/
 
 # Keep Markdown documentation local; exclude from GitHub.
 *.[mM][dD]
+
+# Publish the installation guide; keep other Markdown documents local.
+!/README.md
