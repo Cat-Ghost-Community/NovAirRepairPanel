@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "7d622e9f3cd76cc6becef463766b09be59e4e719dd091c2d6cc9b7fbda632fff",
+  "source_tree_sha256": "ce1db93292742a8f0143e173d816151ce46e7ac67fa79289204e12986403da2d",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -47,7 +47,7 @@
     ]
   },
   "counts": {
-    "input_files": 747,
+    "input_files": 748,
     "api_route_files": 123,
     "api_handlers": 191,
     "pages": 72,
@@ -55,7 +55,7 @@
     "server_actions": 1,
     "command_tools": 26,
     "deployment_scripts": 14,
-    "local_runtime_edges": 3561,
+    "local_runtime_edges": 3562,
     "type_only_edges": 174,
     "unresolved_local_edges": 0,
     "nonliteral_dynamic_expressions": 1,
@@ -3000,28 +3000,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "51688b0bbfe4dfed732336cb5fd307fd2390868a30f236b40bb9c208194ff446",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "password change, session rotation and revocation of old credentials",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "POST"
           ],
@@ -3620,28 +3602,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "0a129c1c0347cc15af40f9ab8edcfcd349080c1c53889ec7b1acd9c0c7254f7b",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "JSON credential login, failed/forged authentication and exact PostgreSQL session persistence",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "POST"
           ],
@@ -4198,28 +4162,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "90987fec0b2022d2ef14aa8a6beb357a03598e3c8c4ff24ba465e9e27483461f",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "safe GET redirect; POST revokes the actual PostgreSQL session",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "GET",
             "POST"
@@ -16584,28 +16530,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "e1eb92417909f15fbc9676d04c14fe936ecd06d2b86a60dbc02cd97c5455b557",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "scoped customer detail only; POST remains blocked/unverified",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "GET",
             "POST"
@@ -18322,28 +18250,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "2341e60b312e8d7d26b8b94cc7633f658a77b86db2f2aac655925b71e6020036",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "scoped list/search and audited create with durable replay, six-request concurrency and rollback",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "GET",
             "POST"
@@ -24195,28 +24105,10 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "5c21bd3a7312004e137c678bdfb5282d61cc4313582d8da96a29203fdd055135",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "actual isolated PostgreSQL website health without SQLite files",
-          "verified_handlers": [],
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
+          "status": "not_verified",
           "evidence_current": false,
+          "evidence": [],
+          "verified_handlers": [],
           "unverified_handlers": [
             "GET"
           ],
@@ -66037,7 +65929,7 @@
       "kind": "command_tool",
       "file": "scripts/load-test.cjs",
       "client": false,
-      "runtime_source_sha256": "156a1e3b12f22ccc0f76b1da21991d4c96d1f8f7a258ed98d5006538838148ec",
+      "runtime_source_sha256": "e91efae8054f8e73f44d7d4b5645860a8852eeda3138b056fd0e9ee78f0bb453",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/load-test.cjs"
@@ -66731,7 +66623,7 @@
       "kind": "command_tool",
       "file": "scripts/postgres-http-acceptance.ts",
       "client": false,
-      "runtime_source_sha256": "43479f4b3db87ccd0a527b2dc01c4d2e50a8c8b0a74c17920e977ec9ad020804",
+      "runtime_source_sha256": "801d996a3a6532a1c104b2e177c26e8c2459c4acec5302587715f12a0067b9f0",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/postgres-appointments-http-scenarios.ts",
@@ -67313,7 +67205,7 @@
       "kind": "command_tool",
       "file": "scripts/profile-database.ts",
       "client": false,
-      "runtime_source_sha256": "b91a5c6f57b0e843836f825f05752fa6d1330098003ab71b2b42cfa3a25a5f24",
+      "runtime_source_sha256": "1c830d5a1a58b0b0bf69b6ac9e99c1e3d9e292ef807df6dab661db397f45c4d0",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/profile-database.ts",
@@ -74007,27 +73899,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "fe6cc004c31d85e3c84da4a8d0a223547a126982bde62593574a710c23744146",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "actual authenticated PostgreSQL SSR shell and branch scope, both themes",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -84046,27 +83920,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "7cc448abb99f2abfe8465a9e9020b039bef051f01fa6b6d859b679fd92329faa",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "actual newly persisted customer profile; no certified financial balance",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -85402,27 +85258,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "48b8d0d705aff45c72a2fb1ca9257a9bdded4cb679821f15e8d78c2b559573ca",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "actual customer creation form in desktop/mobile browser",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -86089,27 +85927,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "51e0440c77fe2d1372af9bafb52d06da3275bd972e1b9d1c67b595c563bff1b7",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "actual scoped PostgreSQL customer list, manager/staff visibility",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -97616,27 +97436,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "02690e1f544ff72d09ba86b5ce76ea4c453a7b92336cc39476588bf094dd5b31",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "rendered login form and session-aware navigation",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -127630,27 +127432,9 @@
       "postgres": {
         "implementation": "mixed_dependency_code_present_unverified",
         "acceptance": {
-          "status": "evidence_source_changed",
-          "runtime_source_sha256": "02690e1f544ff72d09ba86b5ce76ea4c453a7b92336cc39476588bf094dd5b31",
-          "verified_commit": "74e76ed140a6daebb090cd0874811298f9b4f665",
-          "scope": "real Next server-action login to the PostgreSQL session lifecycle",
-          "evidence": [
-            {
-              "url": "https://github.com/Cat-Ghost-Community/1beng/actions/runs/42119920640",
-              "job": "postgres-acceptance",
-              "native_tests_passed": 66,
-              "http_browser_check_groups_passed": 13,
-              "commands": [
-                "npm run test:postgres",
-                "PG_HTTP_BROWSER=1 npm run test:postgres:http"
-              ]
-            }
-          ],
-          "limits": [
-            "Only the explicit loopback disposable integration database/schema and gated routes were accepted.",
-            "No customer-data cutover, financial-module migration or customer-target deployment is certified."
-          ],
-          "evidence_current": false
+          "status": "not_verified",
+          "evidence_current": false,
+          "evidence": []
         },
         "production_ready": false
       },
@@ -128490,7 +128274,7 @@
     {
       "file": "scripts/accounting-browser-fixture.ts",
       "kind": "tool",
-      "sha256": "8ce16534f6f2922b80afef99288d066c6e319b8b0ae12572f8e70831a6b5bbb1",
+      "sha256": "cae698ad48d0e566766680fc6b350b6e2ab2aa3ee7bd4fc3a8b960231e371091",
       "imports": [
         {
           "specifier": "node:path",
@@ -128558,7 +128342,7 @@
     {
       "file": "scripts/accounting-browser.cjs",
       "kind": "tool",
-      "sha256": "6564e1d278554ccf2ceca48af5e779054e43c301231d3f8a41e2d759a6a10843",
+      "sha256": "5bb4dd5f26cc5a06fbe23d9c4f92c2af87fcb855fd4c10a5003dcdda051b0cbd",
       "imports": [
         {
           "specifier": "node:fs",
@@ -128731,7 +128515,7 @@
     {
       "file": "scripts/accounting-cutover-browser.cjs",
       "kind": "tool",
-      "sha256": "6391e9e345e10f6be40afadd27157742b4eec71847f61efc79e8b21cbfc4f645",
+      "sha256": "d37e63f1498cf13dbc2661f0dff223164ecbb02c079c7b59736034116530bc0e",
       "imports": [
         {
           "specifier": "node:fs",
@@ -128960,7 +128744,7 @@
     {
       "file": "scripts/backup-failure-browser.cjs",
       "kind": "tool",
-      "sha256": "a0b2e95c9287a689142f1cfc4984c5078305b510a213dd9d49a86fccf15916c6",
+      "sha256": "3654a9e68d541e1d60828b84c3eaf99599c20c88096ff483fcdd186f3ab94406",
       "imports": [
         {
           "specifier": "node:fs",
@@ -129126,7 +128910,7 @@
     {
       "file": "scripts/bank-browser.cjs",
       "kind": "tool",
-      "sha256": "621d8ab99bf279d83d6a9dd0b676f93a6c092c0c550fbfb518e8696338a4d6c5",
+      "sha256": "327d8fa1da18a90093b91168f375f7ab33d683d649aca359ab73c2f60707dc46",
       "imports": [
         {
           "specifier": "node:fs",
@@ -129242,7 +129026,7 @@
     {
       "file": "scripts/branch-chat-browser.cjs",
       "kind": "tool",
-      "sha256": "0f7f4157fe79a4c445f5e728e8e9638dfd4e3afd62415bc499b84aa4d025c604",
+      "sha256": "1d71d61f20eb666ca70fcd7897f806a58e2cda0e50e91dc890dc7224681c40ab",
       "imports": [
         {
           "specifier": "./browser-select.cjs",
@@ -129327,7 +129111,7 @@
     {
       "file": "scripts/branch-ownership-rehearsal.ts",
       "kind": "tool",
-      "sha256": "1da25f72e58c3f98f758f7e0d11cb4d274c93cb793691a84f5d8d4581de7f36e",
+      "sha256": "636d96ce2f78f35603c60808956e514e6a15a0a1d34421b02c0110284a34d555",
       "imports": [
         {
           "specifier": "node:fs",
@@ -129465,7 +129249,7 @@
     {
       "file": "scripts/browser-interactions.cjs",
       "kind": "tool",
-      "sha256": "c1a6510dc98fc5d915badc307cc08270c121342eb18685a6f6ebeb175efd7983",
+      "sha256": "97444b54b067f49d038c6ff57a621e9d5b3f19aa46e6fcd53ff33d3482cae646",
       "imports": [
         {
           "specifier": "node:fs",
@@ -129666,7 +129450,7 @@
     {
       "file": "scripts/database-infrastructure-browser.cjs",
       "kind": "tool",
-      "sha256": "4dfd51eb0673a29f50f91760d88cae83f76e16a8bf6df8e1c868958dde7f4996",
+      "sha256": "20cf337d2ada9c09d60b952f3a4222dd165ee0a81045331fc8962cbaae02f428",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130103,7 +129887,7 @@
     {
       "file": "scripts/financial-browser.cjs",
       "kind": "tool",
-      "sha256": "d07a63c3d6dc6fb3e856d8a8f31601649366e1a0059bec0707636cfef1a0a20f",
+      "sha256": "8732f13a05ac803c8e8775f70dd81d806e9e5ff68b540bf6d7d3ca921dd9ead6",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130293,7 +130077,7 @@
     {
       "file": "scripts/financial-completion-browser.cjs",
       "kind": "tool",
-      "sha256": "e9d5214b09c0e1f18e31b98e243e66fbc7aff9311729ac97e45bf3bcac9e0f1f",
+      "sha256": "d3aff304eb8414653f533e1412dbc7cc4d4da49baa4c3b6e00e10d29b7d04782",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130569,7 +130353,7 @@
     {
       "file": "scripts/financial-http-fixture.ts",
       "kind": "tool",
-      "sha256": "893cda8f898431d4da5a403fe0f85547795e5d38cf2d994e0d8c399d98f92fe1",
+      "sha256": "e29ffc909167ea33ac6dd3dd5e5f25559ed651ca2ec600664c6c00d3a7c2ff73",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130653,7 +130437,7 @@
     {
       "file": "scripts/financial-http-load.ts",
       "kind": "tool",
-      "sha256": "0e79c04a77e564438fd8142e21994e4b6a877f30c1e1f829c65c3a50dc6cc67e",
+      "sha256": "c571e40e9f9ae656af9ba7f878ef0a7a7049b4ccc04600c7a53321857ad21118",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130794,7 +130578,7 @@
     {
       "file": "scripts/financial-mixed-load.ts",
       "kind": "tool",
-      "sha256": "7afa184897ae519f0166226a2bd565a805c72dc06770c3bbb13bb952be5046df",
+      "sha256": "60e6b6c45ce295543e62bd41dafaa26c2eee6be738db69f697cc24f6bb869b8c",
       "imports": [
         {
           "specifier": "node:fs",
@@ -130887,7 +130671,7 @@
     {
       "file": "scripts/group-receipt-browser.cjs",
       "kind": "tool",
-      "sha256": "8b9e54ad4c2105b8b807f224fa3c53f6a9a2bbfed2dec6bcf1c868d9fcda2fef",
+      "sha256": "97ca8b4386342f874c4feb8438527bcafd559462e655a28541be1da05e420619",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131110,7 +130894,7 @@
     {
       "file": "scripts/installment-original-check.cjs",
       "kind": "tool",
-      "sha256": "f0b0505881cf9b8a7abcdbf1ee5a87cfd76246a39cfd2ea9d00cb6583f8a168d",
+      "sha256": "c57f22d1f2f709e03f4b585932c74afa96cca03dc66bdbbfa8ca884ac8e3c64c",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131204,7 +130988,7 @@
     {
       "file": "scripts/installment-schema-rehearsal.cjs",
       "kind": "tool",
-      "sha256": "9c7b067aef67692b357a05a314f7f9fa0cf6d80e7b359d0f80031fb95c37889b",
+      "sha256": "b5d2eb137e391f990e924542c7b3b14bb5a877022e4987e02b13d640ba403b14",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131320,7 +131104,7 @@
     {
       "file": "scripts/installments-browser-fixture.ts",
       "kind": "tool",
-      "sha256": "23cf981f4297b95e4a60672d4fc723ea89571d5c75dabe01d5d06cc1f01f7b11",
+      "sha256": "901eaf51f6753a4d5a02720235856fb631cdec59b406d2bdab5180dcb0a2bcaf",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131377,7 +131161,7 @@
     {
       "file": "scripts/installments-browser.cjs",
       "kind": "tool",
-      "sha256": "153b3d8ec93c0309047111cdd73c02e5751a3d5c13f7ef8340ec3460d74efb89",
+      "sha256": "d398d86d97415a6b1d4a40e3aa6af0d8cfccc98b7642ad66836a0b08f52534bb",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131523,7 +131307,7 @@
     {
       "file": "scripts/inventory-original-check.cjs",
       "kind": "tool",
-      "sha256": "d084652b380633dac0f100141b0b0faea5944dbfb2dbacd5cb403f5d2f3bc7c6",
+      "sha256": "f7b64243ec8d94cbcdc4bafb050fd97390ccd3030480f023488bde1d0c0fac80",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131627,7 +131411,7 @@
     {
       "file": "scripts/inventory-schema-rehearsal.cjs",
       "kind": "tool",
-      "sha256": "8dc8b48cba5c6c2e8a219b1c69e26dc5265837b5664b923da639d6fdbc1d98ae",
+      "sha256": "e12a625f7b6db11c08a271c303136d7e290f8a2b519f7f5a066ea2ba1a46be82",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131743,7 +131527,7 @@
     {
       "file": "scripts/inventory-v8-browser.cjs",
       "kind": "tool",
-      "sha256": "8465c0617b0bc0c21738de4934293c24e6be668a602148a5ed06f8766d8e0ad4",
+      "sha256": "39382a92233fdbbf49005113cf71b0742220df7080d95ec321790326b31f5bb9",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131864,7 +131648,7 @@
     {
       "file": "scripts/inventory-v8-fixture.ts",
       "kind": "tool",
-      "sha256": "a347925b6d6f8c515bd23e674033850438d510e6a3bed66ccaa9f6382e599a3e",
+      "sha256": "6310a9d7c5a48e3aaf9864e123b7d4648d2ba09959401f47d699d8b46703f533",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131956,7 +131740,7 @@
     {
       "file": "scripts/lab-performance.cjs",
       "kind": "tool",
-      "sha256": "e4caf41105316745d3701b058e5065870c3dcf6f372f065138d19b16bdde50d9",
+      "sha256": "c21b4178a23c3bdc7a5e92a3f07d87c3050bededbfd03823ba20472516831c84",
       "imports": [
         {
           "specifier": "node:fs",
@@ -131987,7 +131771,7 @@
     {
       "file": "scripts/legacy-money-browser.cjs",
       "kind": "tool",
-      "sha256": "51fd1b8c911e88e8f62ec727b36d46c9bccd490f60470e7c5cd2b99de6408bd3",
+      "sha256": "74ee8c1f45580081c60b8476702efc7284623e031e4116fc59e1fea5c4b6ba03",
       "imports": [
         {
           "specifier": "node:fs",
@@ -132062,7 +131846,7 @@
     {
       "file": "scripts/load-test.cjs",
       "kind": "tool",
-      "sha256": "caab2392f4262713e115b9856c9b8ce911e28dba21552a5a3419bb08743d443f",
+      "sha256": "ae9647bd0f7b8ff81be4875366d6e1ed06b0b554e266fa2503c70f4ceae56a44",
       "imports": [
         {
           "specifier": "node:fs",
@@ -133015,7 +132799,7 @@
     {
       "file": "scripts/postgres-http-acceptance.ts",
       "kind": "tool",
-      "sha256": "ee86c6f6059b5a26e151c7ec90bb62a614577802b29a0dc7331d068d424d5fbf",
+      "sha256": "077f8c3b84af799dabe82b9d08b218d2b383e617e5b5d9a14c9982c73048e5f4",
       "imports": [
         {
           "specifier": "node:module",
@@ -133322,7 +133106,7 @@
     {
       "file": "scripts/postgres-migration-inventory.cjs",
       "kind": "tool",
-      "sha256": "362953e334ada74bcf141aea5aaab78505ad56d77ab74c17fa65f2c7f29c8130",
+      "sha256": "16036c82aea92fbe860d1b1d32f3c3918837f0a1a413bbb56d97ee95444e4a3d",
       "imports": [
         {
           "specifier": "node:fs",
@@ -133357,14 +133141,7 @@
       "actions": [],
       "client": false,
       "module_server": false,
-      "http_references": [
-        "/api/auth/change-password/route.ts",
-        "/api/auth/login/route.ts",
-        "/api/auth/logout/route.ts",
-        "/api/customers/[id]/route.ts",
-        "/api/customers/route.ts",
-        "/api/health/route.ts"
-      ],
+      "http_references": [],
       "dynamic_expressions": [],
       "storage_signals": [],
       "transaction_signals": []
@@ -134024,7 +133801,7 @@
     {
       "file": "scripts/profile-database.ts",
       "kind": "tool",
-      "sha256": "e806447c3fd600c003ee098076484f4151a478d1e8e9ba233d8dd172e153d2e4",
+      "sha256": "83310a45dbc6f08f77ce5aca8e5724bfaf290718a5de64063cf1c741470d4aa7",
       "imports": [
         {
           "specifier": "node:fs",
@@ -134458,7 +134235,7 @@
     {
       "file": "scripts/repair-workflow-browser.cjs",
       "kind": "tool",
-      "sha256": "529fb1389d84e13d935a66ce5fbebc28953930f3f69d682469c193244750b83a",
+      "sha256": "0f7d2076edd92396662234c547e6bc88f5c391fbb22c7690eb587fac8c73da28",
       "imports": [
         {
           "specifier": "./browser-select.cjs",
@@ -134535,7 +134312,7 @@
     {
       "file": "scripts/repair-workflow-original-check.cjs",
       "kind": "tool",
-      "sha256": "ea7569a0656c3ff39b0f2a78b4770c3e19bcbde76e5a1b7ed34ac4081d1ff7e0",
+      "sha256": "17d32e2dc8fdb94741cbe8dd5cb36adce6fd7700e0fa4b779706c7947130b343",
       "imports": [
         {
           "specifier": "node:fs",
@@ -134639,7 +134416,7 @@
     {
       "file": "scripts/repair-workflow-schema-rehearsal.ts",
       "kind": "tool",
-      "sha256": "d4be93e7240179ef241e7534719f7f72c034ca80805a74332d28af864353dbc6",
+      "sha256": "9c93fa5a57ab8130f93e48217b699d5c8d774ed0aaa1b72e872af1cc562780ec",
       "imports": [
         {
           "specifier": "node:fs",
@@ -134801,7 +134578,7 @@
     {
       "file": "scripts/returns-browser-fixture.ts",
       "kind": "tool",
-      "sha256": "51820fd1ae75b5bd2b2ef9497a070ee54c845bc52630d9a4613d568c25c443bd",
+      "sha256": "f9b2e8266c64028370a3a275212e51e34520bdcb244a2062308bedfd06dd9432",
       "imports": [
         {
           "specifier": "node:fs",
@@ -134900,7 +134677,7 @@
     {
       "file": "scripts/returns-browser.cjs",
       "kind": "tool",
-      "sha256": "3214dede565e8b1fe26319d0ed537ee3066d5bad2e0f8d108fc865dca1c67e05",
+      "sha256": "e998c82380b42c9b53229d31a17ef119c59d32af3e96f049b19fcbec03657c02",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135005,7 +134782,7 @@
     {
       "file": "scripts/returns-v6-browser.cjs",
       "kind": "tool",
-      "sha256": "126c692b68c88b20cea6fc7e819e5828123de4355bd1961e283527b5c8e74e26",
+      "sha256": "a37601a0bb5725acef363c924a007c25c99cdd3d8e97d2a61cc3b8b464d9dbff",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135324,7 +135101,7 @@
     {
       "file": "scripts/signature-workspace-browser.cjs",
       "kind": "tool",
-      "sha256": "283a23ddc13a4f90692fcf95cb543681df2c80d923a8cb69648f57b28fe79730",
+      "sha256": "400212d2461fc1be1a9f9c426191c870e4f33dea23f5ac6169bd2c950021507e",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135451,7 +135228,7 @@
     {
       "file": "scripts/test-fixture.ts",
       "kind": "tool",
-      "sha256": "7fb9a3f5bc9fce3a5d9798f0bb2b317cf60d432e628f9a08332d7126ab499a19",
+      "sha256": "15ed0426a9a630a469ecc3c3375ef6902e842b3fe2479f0629bbba3a5331d96a",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135568,7 +135345,7 @@
     {
       "file": "scripts/test-server.cjs",
       "kind": "tool",
-      "sha256": "506038f1d489d87e248e32a8e62eccb181a1a8b81be6a3a9e0dbfe33f1d8cbde",
+      "sha256": "21b683feb976c06690b66b3034a2e7dd8eb4e7567ddb0028feb5376b37a0f682",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135604,7 +135381,7 @@
     {
       "file": "scripts/ui-refinement-browser.cjs",
       "kind": "tool",
-      "sha256": "1d6676e05ed4198ebdcac801954556f43178ad6baa2a134769e6e89301b67e67",
+      "sha256": "e7174d493efd5fda0d940047536ef7040eb518dcc12468988b26e20430f60a2d",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135750,7 +135527,7 @@
     {
       "file": "scripts/verify-branch-checkpoint.cjs",
       "kind": "tool",
-      "sha256": "ece06a1b802efe3a5715f96df49af8aca12598b942dcc418cf26b3e66a01b7bd",
+      "sha256": "10490bc83617e0e5a1d00ed0da8eefb1746472ebe1c849557bbcdf1c0c45400a",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135849,7 +135626,7 @@
     {
       "file": "scripts/verify-legacy-credit-candidate.ts",
       "kind": "tool",
-      "sha256": "4ad9693c2ea8ec55251ad245fec674650f71d7ea9aa88b2ef6088378e7869af0",
+      "sha256": "67616b2862885e70182d8a9232b921f69f2c039764d6d5794c1256313600c518",
       "imports": [
         {
           "specifier": "node:fs",
@@ -177797,7 +177574,7 @@
     {
       "file": "src/lib/db/postgres-opening-backup.ts",
       "kind": "library",
-      "sha256": "af820ee9e46534f7707fdb8284be091ce2729cfcca4a626c1426aee49d5a6bbd",
+      "sha256": "76ffdb129b55f6370c88d68dbf5503bbb4c6f6568e34ea628d1c9e94a81b7925",
       "imports": [
         {
           "specifier": "node:fs",
@@ -177878,7 +177655,7 @@
         },
         {
           "name": "rehearsePostgresOpeningBackup",
-          "line": 44,
+          "line": 41,
           "kind": "function"
         }
       ],
@@ -177891,27 +177668,27 @@
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 48
+          "line": 45
         },
         {
           "engine": "postgres",
           "kind": "createPostgresDatabase",
-          "line": 54
+          "line": 51
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 64
+          "line": 61
         },
         {
           "engine": "postgres",
           "kind": "createPostgresDatabase",
-          "line": 68
+          "line": 65
         },
         {
           "engine": "postgres",
           "kind": "typed_async_query",
-          "line": 82
+          "line": 79
         }
       ],
       "transaction_signals": []
@@ -181491,7 +181268,7 @@
     {
       "file": "src/lib/legacy-credit-migration.ts",
       "kind": "library",
-      "sha256": "d152dd4898e6415d251f8b99e2b4ec36c64dc7781a1ba08084e5ba1247713d34",
+      "sha256": "e884c917ee1428b23b5ee93ea1fbfc9f373f33efb2673f0c6fb5f1aa0b36937e",
       "imports": [
         {
           "specifier": "node:sqlite",
@@ -193437,6 +193214,70 @@
         "/api/customers/route",
         "/api/customers/route.ts"
       ],
+      "dynamic_expressions": [],
+      "storage_signals": [],
+      "transaction_signals": []
+    },
+    {
+      "file": "tests/postgres-opening-backup-boundary.test.ts",
+      "kind": "test",
+      "sha256": "d08b1557c2791c67201ff1f439e543831d8f4b0d64e4197bc833d86be7806282",
+      "imports": [
+        {
+          "specifier": "node:test",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "external": "node:test"
+        },
+        {
+          "specifier": "node:assert/strict",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "external": "node:assert/strict"
+        },
+        {
+          "specifier": "node:fs",
+          "kind": "import",
+          "line": 3,
+          "type_only": false,
+          "external": "node:fs"
+        },
+        {
+          "specifier": "node:os",
+          "kind": "import",
+          "line": 4,
+          "type_only": false,
+          "external": "node:os"
+        },
+        {
+          "specifier": "node:path",
+          "kind": "import",
+          "line": 5,
+          "type_only": false,
+          "external": "node:path"
+        },
+        {
+          "specifier": "node:crypto",
+          "kind": "import",
+          "line": 6,
+          "type_only": false,
+          "external": "node:crypto"
+        },
+        {
+          "specifier": "../src/lib/db/postgres-opening-backup",
+          "kind": "import",
+          "line": 7,
+          "type_only": false,
+          "target": "src/lib/db/postgres-opening-backup.ts"
+        }
+      ],
+      "exports": [],
+      "actions": [],
+      "client": false,
+      "module_server": false,
+      "http_references": [],
       "dynamic_expressions": [],
       "storage_signals": [],
       "transaction_signals": []

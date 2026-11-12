@@ -13,7 +13,7 @@ const base=process.env.BASE_URL||'http://127.0.0.1:3001';
     await page.getByRole('heading',{level:1}).first().waitFor();
     const header=await page.locator('header').first().evaluate(element=>Array.from(element.querySelectorAll('button')).map(button=>{const rect=button.getBoundingClientRect();return {label:button.getAttribute('aria-label')||button.textContent?.trim().slice(0,40),left:rect.left,right:rect.right,width:rect.width,height:rect.height,visible:rect.width>0&&rect.height>0};}));
     results.push({check:'mobile header targets',pass:header.filter(button=>button.visible).every(button=>button.left>=0&&button.right<=321&&button.width>=32&&button.height>=32),buttons:header});
-    fs.writeFileSync('.freebuff/browser-interactions.json',JSON.stringify(results,null,2)+'\n');
+    fs.writeFileSync('.qa-work/browser-interactions.json',JSON.stringify(results,null,2)+'\n');
     await page.getByRole('button',{name:'باز کردن منو',exact:true}).click({timeout:5000});
     results.push({check:'mobile navigation opens',pass:await page.locator('aside').last().isVisible()});
     await page.keyboard.press('Tab');
@@ -61,7 +61,7 @@ const base=process.env.BASE_URL||'http://127.0.0.1:3001';
     results.push({check:'outbox network failure is visible and retryable',pass:await page.getByRole('button',{name:'تلاش مجدد',exact:true}).isVisible()});
     await page.goto(base+'/missing-audit-page',{waitUntil:'load'});
     results.push({check:'missing page is Persian',pass:await page.getByRole('heading',{name:'صفحه در دسترس نیست',exact:true}).isVisible()});
-    fs.writeFileSync('.freebuff/browser-interactions.json',JSON.stringify(results,null,2)+'\n');
+    fs.writeFileSync('.qa-work/browser-interactions.json',JSON.stringify(results,null,2)+'\n');
     console.log(JSON.stringify(results));
     if(results.some(result=>!result.pass))process.exitCode=1;
   } finally {await browser.close();}

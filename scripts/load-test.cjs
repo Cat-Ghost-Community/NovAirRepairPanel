@@ -23,6 +23,6 @@ const routes=['/api/health','/api/repairs?limit=50','/api/customers?q=test','/ap
   const percentile=p=>sorted[Math.min(sorted.length-1,Math.ceil(p*sorted.length)-1)];
   const errors=samples.filter(s=>s.status<200||s.status>=300);
   const result={timestamp:new Date().toISOString(),base,registeredUsers:process.env.LOAD_REGISTERED_USERS?Number(process.env.LOAD_REGISTERED_USERS):'not measured',concurrency,requests,elapsedMs,requestsPerSecond:requests/(elapsedMs/1000),p50Ms:percentile(.50),p95Ms:percentile(.95),p99Ms:percentile(.99),errors:errors.length,errorRate:errors.length/requests,byStatus:samples.reduce((counts,s)=>(counts[s.status]=(counts[s.status]||0)+1,counts),{}),serverCpuMemory:'not instrumented; no production capacity claim'};
-  fs.mkdirSync('.freebuff',{recursive:true});fs.writeFileSync(process.env.LOAD_OUTPUT||'.freebuff/load-results.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
+  fs.mkdirSync('.qa-work',{recursive:true});fs.writeFileSync(process.env.LOAD_OUTPUT||'.qa-work/load-results.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
   if(errors.length) process.exitCode=1;
 })().catch(error=>{console.error(error.message);process.exitCode=1;});

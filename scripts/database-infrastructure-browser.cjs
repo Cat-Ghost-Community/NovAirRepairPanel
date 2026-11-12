@@ -1,8 +1,8 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const {DatabaseSync}=require('node:sqlite'),{chromium}=require('playwright-core');
-const fixture=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
-if(process.env.REPAID_DATABASE_BROWSER_QA!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('Explicit disposable infrastructure browser fixture required');
-const db=new DatabaseSync(path.join(directory,'repaid.db'),{readOnly:true}),BASE='http://127.0.0.1:3002',out='.freebuff/database-browser';fs.mkdirSync(out,{recursive:true});const checks=[],errors=[],captures=[];
+const fixture=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
+if(process.env.REPAID_DATABASE_BROWSER_QA!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('Explicit disposable infrastructure browser fixture required');
+const db=new DatabaseSync(path.join(directory,'repaid.db'),{readOnly:true}),BASE='http://127.0.0.1:3002',out='.qa-work/database-browser';fs.mkdirSync(out,{recursive:true});const checks=[],errors=[],captures=[];
 const check=(name,value)=>{assert.ok(value,name);checks.push(name);};
 const financial=()=>Object.fromEntries(['invoices','payments','refunds','inventory_stock','inventory_movements','accounting_journals','accounting_lines'].map(table=>[table,crypto.createHash('sha256').update(JSON.stringify(db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all())).digest('hex')]));const before=financial();let browser;
 (async()=>{try{

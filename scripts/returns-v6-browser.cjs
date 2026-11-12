@@ -1,9 +1,9 @@
 const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
 const {DatabaseSync}=require('node:sqlite'),{chromium}=require('playwright-core');
 const base=process.env.BASE_URL||'http://127.0.0.1:3002',filename=path.resolve(process.env.E2E_DB||'');
-if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit disposable localhost database required');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.qa-work')+path.sep))throw new Error('Explicit disposable localhost database required');
 const prepared=spawnSync(process.execPath,['--import','tsx','scripts/returns-browser-fixture.ts'],{env:{...process.env,V6_RETURN_BROWSER:'1'},encoding:'utf8',windowsHide:true});if(prepared.status!==0)throw new Error(prepared.stderr);
-const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf8'));
+const f=JSON.parse(fs.readFileSync('.qa-work/returns-browser-fixture.json','utf8'));
 (async()=>{
  const db=new DatabaseSync(filename,{readOnly:true}),browser=await chromium.launch({channel:'chrome',headless:true}),evidence={checks:[],captures:[],errors:[]};
  const check=(name,pass)=>{evidence.checks.push({name,pass});if(!pass)throw new Error(name);};
@@ -12,7 +12,7 @@ const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf
   const owner=await login('owner@repaid.local','demo1234'),approver=await login(f.email,'fixture-return-approval-2026'),page=await owner.newPage(),review=await approver.newPage();
   for(const p of [page,review])p.on('pageerror',e=>evidence.errors.push(e.message));
   const act=async(p,label,action)=>{const pending=p.waitForResponse(r=>new URL(r.url()).pathname==='/api/returns'&&r.request().method()==='POST'&&r.request().postDataJSON().action===action);await p.getByRole('button',{name:label,exact:true}).click();const response=await pending,data=await response.json();if(!response.ok())throw new Error(`${action}: ${data.error}`);await p.waitForLoadState('networkidle');return data;};
-  const capture=async(label)=>{await page.waitForTimeout(3500);for(const theme of ['light','dark'])for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);await page.getByRole('button',{name:'صورتحساب طرف معامله در این شعبه',exact:true}).scrollIntoViewIfNeeded();check(`${label} ${theme} ${width} no document overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));const file=`.freebuff/v6-${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.captures.push(file);}await page.setViewportSize({width:1440,height:1000});};
+  const capture=async(label)=>{await page.waitForTimeout(3500);for(const theme of ['light','dark'])for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);await page.getByRole('button',{name:'صورتحساب طرف معامله در این شعبه',exact:true}).scrollIntoViewIfNeeded();check(`${label} ${theme} ${width} no document overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));const file=`.qa-work/v6-${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.captures.push(file);}await page.setViewportSize({width:1440,height:1000});};
   const physical=async(source,qty,label)=>{
    await page.goto(`${base}/returns?invoice_id=${source.id}`,{waitUntil:'networkidle'});
    if(label==='fraction-0'){
@@ -58,7 +58,7 @@ const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf
   await page.goto(base+'/parts/new',{waitUntil:'networkidle'});await page.locator('#part-quantity-precision').selectOption('2');
   for(const theme of ['light','dark'])for(const width of [320,375,390,430,768,1024,1280,1440,1920]){
    await page.setViewportSize({width,height:1000});await page.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);await page.waitForTimeout(300);
-   check(`precision ${theme} ${width} no document overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));const file=`.freebuff/v6-precision-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.captures.push(file);
+   check(`precision ${theme} ${width} no document overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));const file=`.qa-work/v6-precision-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.captures.push(file);
   }
   await page.locator('#nm').fill(`کالای دقت‌دار ${f.nonce}`);await page.locator('#pp').fill('100');await page.getByLabel(/قیمت فروش/).fill('100');
   const saved=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/parts'&&r.request().method()==='POST');await page.getByRole('button',{name:'ایجاد کالا',exact:true}).click();const response=await saved,created=await response.json();check('real item creation succeeds',response.ok());await page.waitForURL(`**/parts/${created.id}`);
@@ -66,6 +66,6 @@ const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf
   const invalidName=`Invalid precision ${f.nonce}`,invalid=await owner.request.post(base+'/api/parts',{headers:{origin:base,'idempotency-key':crypto.randomUUID()},data:{name:invalidName,quantity_precision:2,opening_qty:0.001,purchase_price:100,price:100}});
   check('invalid opening precision is rejected without a partial product',invalid.status()===400&&db.prepare('SELECT COUNT(*) n FROM parts WHERE name=?').get(invalidName).n===0);
   check('no browser runtime errors',evidence.errors.length===0);
- }finally{fs.writeFileSync('.freebuff/v6-returns-browser.json',JSON.stringify(evidence,null,2));db.close();await browser.close();}
+ }finally{fs.writeFileSync('.qa-work/v6-returns-browser.json',JSON.stringify(evidence,null,2));db.close();await browser.close();}
  console.log(`V6 return checks ${evidence.checks.length}; captures ${evidence.captures.length}`);
 })().catch(e=>{console.error(e);process.exitCode=1;});

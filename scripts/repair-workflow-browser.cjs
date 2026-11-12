@@ -3,8 +3,8 @@ const {choose}=require('./browser-select.cjs');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright-core');
 const BASE=process.env.WORKFLOW_QA_BASE||'http://127.0.0.1:3002';
-const fixture=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=path.resolve(fixture.directory);
-if(process.env.WORKFLOW_QA_MODE!=='1'||!directory.startsWith(path.resolve('.freebuff/fixtures')+path.sep)||!/^http:\/\/127\.0\.0\.1:(?!3000\b)\d+$/.test(BASE))throw Error('Disposable local fixture and WORKFLOW_QA_MODE=1 required');
+const fixture=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=path.resolve(fixture.directory);
+if(process.env.WORKFLOW_QA_MODE!=='1'||!directory.startsWith(path.resolve('.qa-work/fixtures')+path.sep)||!/^http:\/\/127\.0\.0\.1:(?!3000\b)\d+$/.test(BASE))throw Error('Disposable local fixture and WORKFLOW_QA_MODE=1 required');
 process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 const {getDb}=require('../src/lib/db/schema.ts');const {hashPassword}=require('../src/lib/auth.ts');
 const db=getDb(),actors={},sources={},password='workflow-fixture-2026';
@@ -13,7 +13,7 @@ db.exec('BEGIN IMMEDIATE');try{
  for(const [key,name,role,branch] of [['manager','مدیر مسیر اول','manager',1],['tech','تکنسین مسیر اول','technician',1],['tech2','تکنسین جایگزین','technician',1],['supervisor','سرپرست آزمون','technician',1],['foreign','تکنسین شعبه دوم','technician',2],['reception','پذیرش مسیر اول','reception',1]]){const id=Number(db.prepare('INSERT INTO users(name,email,password_hash,role,branch_id) VALUES(?,?,?,?,?)').run(name,'workflow-'+key+'@test.local',hashPassword(password),role,branch).lastInsertRowid);actors[key]={id,name,email:'workflow-'+key+'@test.local',password};}
  const owner=db.prepare("SELECT id,name,email FROM users WHERE role='owner' AND is_active=1 ORDER BY id LIMIT 1").get();actors.owner={...owner,password:'demo1234'};db.exec('COMMIT');
 }catch(e){db.exec('ROLLBACK');throw e;}
-const results=[],captures=[],errors=[],out=path.resolve('.freebuff/workflow-browser');fs.mkdirSync(out,{recursive:true});
+const results=[],captures=[],errors=[],out=path.resolve('.qa-work/workflow-browser');fs.mkdirSync(out,{recursive:true});
 function check(name,ok,detail=''){results.push({name,ok:!!ok,detail:ok?'':String(detail)});if(!ok)console.log('FAIL '+name+' '+detail);}
 function chrome(){const cache=path.join(process.env.LOCALAPPDATA||'','ms-playwright');if(fs.existsSync(cache))for(const folder of fs.readdirSync(cache).filter(n=>n.startsWith('chromium-')).sort().reverse())for(const rel of ['chrome-win64/chrome.exe','chrome-win/chrome.exe']){const file=path.join(cache,folder,rel);if(fs.existsSync(file))return file;}for(const file of ['C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'])if(fs.existsSync(file))return file;throw Error('Browser missing');}
 async function login(browser,key){const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();page.on('pageerror',e=>errors.push({actor:key,error:e.message}));page.on('response',r=>{if(r.status()>=500)errors.push({actor:key,status:r.status(),url:new URL(r.url()).pathname});});const response=await context.request.post(BASE+'/api/auth/login',{data:{email:actors[key].email,password:actors[key].password},headers:{origin:BASE}});check(key+': login',response.status()===200,response.status());if(!response.ok())throw Error(key+' login failed');await context.addCookies([{name:'repaid_branch',value:'all',url:BASE}]);return {context,page};}

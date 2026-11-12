@@ -7,8 +7,8 @@ async function main(){
  if(process.env.FINANCIAL_HTTP_QA!=='1')throw Error('Explicit financial HTTP fixture mode required');
  const count=Number(process.env.LOAD_REGISTERED_USERS??20);
  if(![20,200,3000].includes(count))throw Error('Unsupported registered-user fixture');
- const filename=path.resolve(`.freebuff/fixture-${count}.json`),manifest=JSON.parse(fs.readFileSync(filename,'utf8'));
- const directory=fs.realpathSync(manifest.directory),root=fs.realpathSync('.freebuff/fixtures');
+ const filename=path.resolve(`.qa-work/fixture-${count}.json`),manifest=JSON.parse(fs.readFileSync(filename,'utf8'));
+ const directory=fs.realpathSync(manifest.directory),root=fs.realpathSync('.qa-work/fixtures');
  if(!directory.startsWith(root+path.sep))throw Error('Disposable fixture directory required');
  process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
  const {getDb,DB_PATH}=await import('../src/lib/db/schema');

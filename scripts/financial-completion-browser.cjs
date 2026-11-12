@@ -10,15 +10,15 @@ const choose=async(page,label,value)=>{
  await popup.locator('input[type="search"]').fill(text.split(' · ')[0]);
  await popup.getByRole('option',{name:text,exact:true}).click();
 };
-const manifest=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=fs.realpathSync(manifest.directory);
-if(process.env.FINANCIAL_COMPLETION_QA!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('Explicit disposable finance fixture required');
+const manifest=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=fs.realpathSync(manifest.directory);
+if(process.env.FINANCIAL_COMPLETION_QA!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('Explicit disposable finance fixture required');
 // Opening rehearsal creates local snapshots too. Keep the real disk reserve;
 // use the same private test disk as the automated suite before importing services.
 require('./test-environment.cjs');
 process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 const {getDb}=require('../src/lib/db/schema.ts'),{hashPassword}=require('../src/lib/auth.ts'),ledger=require('../src/lib/accounting.ts'),opening=require('../src/lib/accounting-opening.ts'),policy=require('../src/lib/accounting-policy.ts');
 const {createCustomerReceipt}=require('../src/lib/customer-payments.ts'),{createInvoice}=require('../src/lib/invoice.ts'),{atomic}=require('../src/lib/db/transaction.ts'),events=require('../src/lib/accounting-events.ts'),commissions=require('../src/lib/commission-settlement.ts');
-const db=getDb(),BASE='http://127.0.0.1:3002',out='.freebuff/financial-completion-browser',checks=[],captures=[],errors=[],date=new Date().toISOString().slice(0,10);fs.mkdirSync(out,{recursive:true});
+const db=getDb(),BASE='http://127.0.0.1:3002',out='.qa-work/financial-completion-browser',checks=[],captures=[],errors=[],date=new Date().toISOString().slice(0,10);fs.mkdirSync(out,{recursive:true});
 let browser,owner,approver,branch,customer,payment,invoice,run,technician,serviceInvoice,serviceReceipt;
 const check=(name,value)=>{assert.ok(value,name);checks.push(name);};
 const stored=(sql,...params)=>db.prepare(sql).get(...params);

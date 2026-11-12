@@ -1,9 +1,9 @@
 // Compiled UI acceptance. Explicit disposable fixture only; never business data.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{chromium}=require('playwright-core'),{choose}=require('./browser-select.cjs');
-const fixture=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
-if(process.env.LEGACY_MONEY_QA!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('Explicit disposable monetary UI fixture required');
+const fixture=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
+if(process.env.LEGACY_MONEY_QA!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('Explicit disposable monetary UI fixture required');
 require('./test-environment.cjs');process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
-const {getDb,DB_PATH}=require('../src/lib/db/schema.ts');assert.equal(DB_PATH,path.join(directory,'repaid.db'));const db=getDb(),BASE='http://127.0.0.1:3002',out='.freebuff/legacy-money-browser',checks=[],captures=[],errors=[];
+const {getDb,DB_PATH}=require('../src/lib/db/schema.ts');assert.equal(DB_PATH,path.join(directory,'repaid.db'));const db=getDb(),BASE='http://127.0.0.1:3002',out='.qa-work/legacy-money-browser',checks=[],captures=[],errors=[];
 fs.mkdirSync(out,{recursive:true});const check=(name,value)=>{assert.ok(value,name);checks.push(name);};
 let browser;
 (async()=>{try{

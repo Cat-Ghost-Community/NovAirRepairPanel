@@ -13,7 +13,7 @@ import type { Session } from "../src/lib/auth";
 async function main() {
   if (process.env.FINANCIAL_LOAD_MODE !== "1") throw new Error("Set FINANCIAL_LOAD_MODE=1 for disposable fixtures only");
   if (process.argv[2] === "worker") {
-    const dataRoot=fs.realpathSync(process.env.REPAID_DATA_DIR??''),fixtureRoot=fs.realpathSync('.freebuff/fixtures');if(!dataRoot.startsWith(fixtureRoot+path.sep))throw new Error('Load workers require an isolated fixture directory');
+    const dataRoot=fs.realpathSync(process.env.REPAID_DATA_DIR??''),fixtureRoot=fs.realpathSync('.qa-work/fixtures');if(!dataRoot.startsWith(fixtureRoot+path.sep))throw new Error('Load workers require an isolated fixture directory');
     const db = getDb();
     const worker = Number(process.argv[3]);
     const operations = Number(process.argv[4]);
@@ -65,7 +65,7 @@ async function main() {
     const prepared = spawnSync(process.execPath, ["--import", "tsx", "scripts/test-fixture.ts"], {
       env: { ...process.env, LOAD_TEST_MODE: "1", LOAD_REGISTERED_USERS: String(registered) }, encoding: "utf8", windowsHide: true });
     if (prepared.status !== 0) throw new Error(prepared.stderr);
-    const fixture = JSON.parse(fs.readFileSync(`.freebuff/fixture-${registered}.json`, "utf8"));
+    const fixture = JSON.parse(fs.readFileSync(`.qa-work/fixture-${registered}.json`, "utf8"));
     const start = performance.now();
     const workers = await Promise.all(Array.from({ length: concurrency }, (_, worker) => new Promise<{
       latencies: number[]; errors: number; errorCodes:Record<string,number>;failures:Array<{operation:number;kind:string;code:string;ms:number;origin:string}>;writes: number; retries: number; consistent: boolean;branch:number;durationSeconds:number;cpu:{user:number;system:number};peakRssBytes:number;peakWalBytes:number;

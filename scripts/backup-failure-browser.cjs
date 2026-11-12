@@ -1,8 +1,8 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {DatabaseSync}=require('node:sqlite'),{chromium}=require('playwright-core');
-const fixture=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
-if(process.env.REPAID_BACKUP_FAILURE_QA!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('Explicit isolated backup failure fixture required');
-const db=new DatabaseSync(path.join(directory,'repaid.db'),{readOnly:true}),BASE='http://127.0.0.1:3002',out='.freebuff/backup-failure-browser';fs.mkdirSync(out,{recursive:true});
+const fixture=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory);
+if(process.env.REPAID_BACKUP_FAILURE_QA!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('Explicit isolated backup failure fixture required');
+const db=new DatabaseSync(path.join(directory,'repaid.db'),{readOnly:true}),BASE='http://127.0.0.1:3002',out='.qa-work/backup-failure-browser';fs.mkdirSync(out,{recursive:true});
 const tables=['invoices','payments','refunds','inventory_stock','inventory_movements','accounting_journals','accounting_lines','accounting_events'],financial=()=>crypto.createHash('sha256').update(JSON.stringify(tables.map(table=>db.prepare('SELECT * FROM '+table+' ORDER BY rowid').all()))).digest('hex'),checks=[],captures=[],errors=[];
 function check(label,value){assert.ok(value,label);checks.push(label);}
 (async()=>{const before=financial(),backups=db.prepare('SELECT count(*) n FROM backups').get().n;let browser;

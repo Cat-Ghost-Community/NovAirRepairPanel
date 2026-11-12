@@ -14,10 +14,7 @@ function backupRoot(){const root=backupDirectory();fs.mkdirSync(root,{recursive:
 async function fileHash(filename:string){const hash=createHash('sha256');for await(const chunk of fs.createReadStream(filename))hash.update(chunk);return hash.digest('hex');}
 export async function verifyPostgresOpeningBackup(filename:string,expectedHash:string){
  if(typeof filename!=='string'||!/^[a-f0-9]{64}$/.test(expectedHash))throw Error('Invalid opening backup evidence');
- // Previously recorded evidence remains readable by its explicit path. Never
- // create or search the retired legacy workspace to discover backups.
- const legacy=path.resolve('.freebuff','pg-opening-backups'),selected=path.dirname(path.resolve(filename))===legacy?legacy:backupDirectory();
- const root=fs.realpathSync(selected),actual=fs.realpathSync(filename),stat=fs.lstatSync(filename);
+ const root=fs.realpathSync(backupDirectory()),actual=fs.realpathSync(filename),stat=fs.lstatSync(filename);
  if(path.dirname(actual)!==root||stat.isSymbolicLink()||!stat.isFile()||stat.size===0||!/^opening-\d+-[a-f0-9]{24}\.dump$/.test(path.basename(actual)))throw Error('Opening backup is outside its private evidence boundary');
  protectPrivateStorage(actual,'file');if(await fileHash(actual)!==expectedHash)throw Error('Opening backup changed or is incomplete');return true;
 }

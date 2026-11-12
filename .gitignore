@@ -43,7 +43,7 @@ next-env.d.ts
 
 # داده و لاگ‌های خصوصی سرور؛ ایجاد مالک واقعی فقط از مسیر نصب/راه‌اندازی
 /data
-/.freebuff
+/.qa-work/
 /.database-tools/
 *.zip
 

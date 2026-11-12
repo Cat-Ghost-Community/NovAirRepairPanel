@@ -1,10 +1,10 @@
 // Real compiled banking form acceptance; disposable fixture and explicit mode only.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{chromium}=require('playwright-core'),{choose}=require('./browser-select.cjs');
-const fixture=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory),phase=process.env.BANK_QA_PHASE==='baseline'?'baseline':'after';
-if(process.env.BANK_QA_MODE!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('Explicit isolated bank fixture required');
+const fixture=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8')),directory=fs.realpathSync(fixture.directory),phase=process.env.BANK_QA_PHASE==='baseline'?'baseline':'after';
+if(process.env.BANK_QA_MODE!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('Explicit isolated bank fixture required');
 require('./test-environment.cjs');process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 const {getDb,DB_PATH}=require('../src/lib/db/schema.ts');assert.equal(DB_PATH,path.join(directory,'repaid.db'));
-const db=getDb(),out='.freebuff/bank-browser',BASE='http://127.0.0.1:3002',MAX=Number.MAX_SAFE_INTEGER,AMOUNT=9007199254740987,checks=[],captures=[],errors=[];fs.mkdirSync(out,{recursive:true});
+const db=getDb(),out='.qa-work/bank-browser',BASE='http://127.0.0.1:3002',MAX=Number.MAX_SAFE_INTEGER,AMOUNT=9007199254740987,checks=[],captures=[],errors=[];fs.mkdirSync(out,{recursive:true});
 const record=path.join(out,'fixture.json');let accounts;
 if(phase==='baseline'){
  db.exec('BEGIN IMMEDIATE');try{db.prepare("INSERT INTO settings(key,value) VALUES('currency_unit','toman') ON CONFLICT(key) DO UPDATE SET value=excluded.value").run();db.exec('UPDATE bank_accounts SET is_active=0');

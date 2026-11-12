@@ -1,7 +1,7 @@
 // Real compiled browser/SQLite/ledger acceptance; explicit disposable data only.
 const fs = require('node:fs'), path = require('node:path'), assert = require('node:assert/strict'), { chromium } = require('playwright-core');
-const fixture = JSON.parse(fs.readFileSync('.freebuff/fixture-20.json', 'utf8')), directory = fs.realpathSync(fixture.directory);
-if (process.env.GROUP_RECEIPT_QA !== '1' || !directory.startsWith(fs.realpathSync('.freebuff/fixtures') + path.sep))
+const fixture = JSON.parse(fs.readFileSync('.qa-work/fixture-20.json', 'utf8')), directory = fs.realpathSync(fixture.directory);
+if (process.env.GROUP_RECEIPT_QA !== '1' || !directory.startsWith(fs.realpathSync('.qa-work/fixtures') + path.sep))
     throw Error('Disposable group receipt fixture required');
 require('./test-environment.cjs');
 process.env.REPAID_DATA_DIR = directory;
@@ -9,7 +9,7 @@ process.env.REPAID_DEMO_MODE = '0';
 const { getDb, DB_PATH } = require('../src/lib/db/schema.ts');
 assert.equal(DB_PATH, path.join(directory, 'repaid.db'));
 const db = getDb(), auth = require('../src/lib/auth.ts'), ledger = require('../src/lib/accounting.ts'), opening = require('../src/lib/accounting-opening.ts'), policies = require('../src/lib/accounting-policy.ts');
-const BASE = 'http://127.0.0.1:3002', out = '.freebuff/group-receipt-browser', checks = [], captures = [], errors = [], stamp = String(Date.now()), date = new Date().toISOString().slice(0,10);
+const BASE = 'http://127.0.0.1:3002', out = '.qa-work/group-receipt-browser', checks = [], captures = [], errors = [], stamp = String(Date.now()), date = new Date().toISOString().slice(0,10);
 fs.mkdirSync(out, { recursive: true });
 const check = (name, value) => { assert.ok(value, name); checks.push(name); }, row = (sql, ...p) => db.prepare(sql).get(...p), count = (table) => row('SELECT COUNT(*) n FROM ' + table).n;
 let browser;

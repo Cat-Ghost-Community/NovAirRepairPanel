@@ -1,8 +1,8 @@
 const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process'),{DatabaseSync}=require('node:sqlite'),{chromium}=require('playwright-core');
 const base=process.env.BASE_URL||'http://127.0.0.1:3002',filename=path.resolve(process.env.E2E_DB||'');
-if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit isolated local fixture required');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.qa-work')+path.sep))throw new Error('Explicit isolated local fixture required');
 const prepared=spawnSync(process.execPath,['--import','tsx','scripts/accounting-browser-fixture.ts'],{env:process.env,encoding:'utf8',windowsHide:true});if(prepared.status!==0)throw new Error(prepared.stderr);
-const fixture=JSON.parse(fs.readFileSync('.freebuff/accounting-browser-fixture.json','utf8'));
+const fixture=JSON.parse(fs.readFileSync('.qa-work/accounting-browser-fixture.json','utf8'));
 (async()=>{
  const db=new DatabaseSync(filename),nonce=Date.now().toString(36),branch=Number(db.prepare("INSERT INTO branches(name,code) VALUES(?,?)").run('شعبهٔ مستقل افتتاحیه',`V4-${nonce}`).lastInsertRowid),customer=Number(db.prepare('INSERT INTO customers(first_name,branch_id) VALUES(?,?)').run('مشتری مستقل افتتاحیه',branch).lastInsertRowid);
  const browser=await chromium.launch({channel:'chrome',headless:true}),evidence={checks:[],screenshots:[],errors:[]};
@@ -17,8 +17,8 @@ const fixture=JSON.parse(fs.readFileSync('.freebuff/accounting-browser-fixture.j
   const page=await context.newPage(),other=await approving.newPage();for(const p of [page,other])p.on('pageerror',e=>evidence.errors.push(e.message));
   const visit=async p=>{await p.goto(base+'/finance/accounting',{waitUntil:'networkidle'});await p.getByRole('button',{name:'افتتاحیه و سیاست‌ها',exact:true}).click();await p.getByText('در حال دریافت افتتاحیه و سیاست‌ها…',{exact:true}).waitFor({state:'hidden'});};
   const act=async(p,button,action)=>{const pending=p.waitForResponse(r=>new URL(r.url()).pathname==='/api/accounting'&&r.request().method()==='POST'&&r.request().postDataJSON().action===action);await button.click();const response=await pending,result=await response.json();if(!response.ok())throw new Error(result.error);await p.getByText('در حال دریافت افتتاحیه و سیاست‌ها…',{exact:true}).waitFor({state:'hidden'});await p.waitForTimeout(150);return result;};
-  fs.mkdirSync('.freebuff/cutover-visual',{recursive:true});
-  const capture=async label=>{for(const theme of ['light','dark']){await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(60);const state=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,rtl:document.documentElement.lang==='fa'&&getComputedStyle(document.documentElement).direction==='rtl'}));const file=`.freebuff/cutover-visual/${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.screenshots.push({label,theme,width,...state,file});}}};
+  fs.mkdirSync('.qa-work/cutover-visual',{recursive:true});
+  const capture=async label=>{for(const theme of ['light','dark']){await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(60);const state=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,rtl:document.documentElement.lang==='fa'&&getComputedStyle(document.documentElement).direction==='rtl'}));const file=`.qa-work/cutover-visual/${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.screenshots.push({label,theme,width,...state,file});}}};
   await visit(page);await page.locator('#opening-mode').selectOption('new_business');await page.getByRole('checkbox').check();await page.locator('#opening-memo').fill('افتتاحیهٔ واقعاً صفر، بررسی‌شده با مدارک مستقل');await page.locator('#opening-evidence').fill('مرجع مستقل صورت افتتاحیهٔ آزمون');
   for(const code of ['1000','1020','1100','1110','2000','2010','2030']){await page.locator(`#opening-control-${code}`).fill('0');await page.locator(`#opening-reference-${code}`).fill('صفر واقعی؛ تأیید صورت مستقل');}
   await capture('prepared-zero-opening');
@@ -37,6 +37,6 @@ const fixture=JSON.parse(fs.readFileSync('.freebuff/accounting-browser-fixture.j
   check('every posted test journal exactly balances',db.prepare('SELECT j.id FROM accounting_journals j JOIN accounting_lines l ON l.journal_id=j.id WHERE j.branch_id=? GROUP BY j.id HAVING SUM(l.debit)!=SUM(l.credit)').all(branch).length===0);
   await visit(page);await capture('posted-opening-policies');await page.getByRole('button',{name:'تراز آزمایشی',exact:true}).click();await capture('automatic-trial');
   check('all captured widths fit and retain Persian RTL',evidence.screenshots.every(s=>!s.overflow&&s.rtl));check('no browser runtime errors',evidence.errors.length===0);
- }finally{fs.writeFileSync('.freebuff/cutover-browser.json',JSON.stringify(evidence,null,2));await browser.close();db.close();}
+ }finally{fs.writeFileSync('.qa-work/cutover-browser.json',JSON.stringify(evidence,null,2));await browser.close();db.close();}
  console.log(JSON.stringify({checks:evidence.checks,screenshots:evidence.screenshots.length,errors:evidence.errors},null,2));
 })().catch(e=>{console.error(e);process.exitCode=1;});

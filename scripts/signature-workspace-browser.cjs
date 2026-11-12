@@ -2,12 +2,12 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {chromium}=require('playwright-core');
 const {choose}=require('./browser-select.cjs');
-const BASE='http://127.0.0.1:3002',manifest=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8'));
+const BASE='http://127.0.0.1:3002',manifest=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8'));
 const directory=fs.realpathSync(manifest.directory);
-if(process.env.SIGNATURE_QA_MODE!=='1'||!directory.startsWith(fs.realpathSync('.freebuff/fixtures')+path.sep))throw Error('SIGNATURE_QA_MODE=1 and disposable fixture required');
+if(process.env.SIGNATURE_QA_MODE!=='1'||!directory.startsWith(fs.realpathSync('.qa-work/fixtures')+path.sep))throw Error('SIGNATURE_QA_MODE=1 and disposable fixture required');
 process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 const {getDb}=require('../src/lib/db/schema.ts'),{hashPassword}=require('../src/lib/auth.ts'),{issueTrackingToken}=require('../src/lib/tracking.ts');
-const db=getDb(),out='.freebuff/signature-workspace/after',checks=[],errors=[],captures=[];fs.mkdirSync(out,{recursive:true});
+const db=getDb(),out='.qa-work/signature-workspace/after',checks=[],errors=[],captures=[];fs.mkdirSync(out,{recursive:true});
 const token=crypto.randomBytes(32).toString('hex');
 const owner=db.prepare("SELECT id FROM users WHERE role='owner' ORDER BY id LIMIT 1").get().id;
 let customer,device,delivery,estimate,estimateTicket,foreign;

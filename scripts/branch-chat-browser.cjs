@@ -3,8 +3,8 @@ const {choose}=require('./browser-select.cjs');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright-core');
 const BASE=process.env.BRANCH_QA_BASE||'http://127.0.0.1:3002';
-const manifest=JSON.parse(fs.readFileSync('.freebuff/fixture-20.json','utf8'));
-const directory=path.resolve(manifest.directory),root=path.resolve('.freebuff/fixtures')+path.sep;
+const manifest=JSON.parse(fs.readFileSync('.qa-work/fixture-20.json','utf8'));
+const directory=path.resolve(manifest.directory),root=path.resolve('.qa-work/fixtures')+path.sep;
 if(process.env.BRANCH_QA_MODE!=='1'||!directory.startsWith(root)||!/^http:\/\/127\.0\.0\.1:(?!3000\b)\d+$/.test(BASE))throw Error('Disposable local fixture and BRANCH_QA_MODE=1 required');
 process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 const {getDb}=require('../src/lib/db/schema.ts');
@@ -52,7 +52,7 @@ function chrome(){
   throw Error('No local browser');
 }
 const results=[],errors=[],captures=[];
-const out=path.resolve('.freebuff/tonight-browser');fs.mkdirSync(out,{recursive:true});
+const out=path.resolve('.qa-work/tonight-browser');fs.mkdirSync(out,{recursive:true});
 function check(name,condition,detail=''){results.push({name,ok:!!condition,detail:condition?'':String(detail)});if(!condition)console.log('FAIL '+name+' '+detail);}
 const pages=['/','/appointments','/audit','/bank','/calendar','/chat','/checks','/communication','/complaints','/customers','/customers/new','/daily-report','/devices','/devices/new','/estimates','/expenses','/expenses/new','/finance','/finance/accounting','/installments','/inventory-tools','/invoices','/invoices/new','/labels','/outbox','/parts','/parts/new','/payments','/payments/new','/payroll','/pos','/purchase-orders','/purchase-orders/new','/repairs','/repairs/assignment','/repairs/board','/repairs/bulk','/repairs/new','/repairs/queue','/repairs/quick','/report-builder','/reports','/reports/iran','/reports/vat','/returns','/serials','/settings','/suppliers','/suppliers/new','/team','/warranty'];
 async function login(browser,key,viaUi=false){

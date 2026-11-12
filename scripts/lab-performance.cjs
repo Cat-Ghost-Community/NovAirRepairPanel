@@ -28,6 +28,6 @@ const base=process.env.BASE_URL||'http://127.0.0.1:3001';
       await context.close();
     }
     const report={base,timestamp:new Date().toISOString(),environment:'Local production build, desktop Chrome, 1440x900, no network/CPU throttling, fresh browser contexts, warm application server',samples,inp:'not measured; no real-user interaction population'};
-    fs.writeFileSync('.freebuff/lab-performance.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
+    fs.writeFileSync('.qa-work/lab-performance.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
   } finally {await browser.close();}
 })().catch(error=>{console.error(error.message);process.exitCode=1;});

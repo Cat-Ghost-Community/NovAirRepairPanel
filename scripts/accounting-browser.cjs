@@ -4,10 +4,10 @@ const {spawnSync}=require('node:child_process');
 const {DatabaseSync}=require('node:sqlite');
 const {chromium}=require('playwright-core');
 const base=process.env.BASE_URL||'http://127.0.0.1:3002',filename=path.resolve(process.env.E2E_DB||'');
-if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit local isolated DB required');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.qa-work')+path.sep))throw new Error('Explicit local isolated DB required');
 const prepared=spawnSync(process.execPath,['--import','tsx','scripts/accounting-browser-fixture.ts'],{env:process.env,encoding:'utf8',windowsHide:true});
 if(prepared.status!==0)throw new Error(prepared.stderr);
-const fixture=JSON.parse(fs.readFileSync('.freebuff/accounting-browser-fixture.json','utf8'));
+const fixture=JSON.parse(fs.readFileSync('.qa-work/accounting-browser-fixture.json','utf8'));
 const fa=value=>Number(value).toLocaleString('en-US').replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
 (async()=>{
   const db=new DatabaseSync(filename,{readOnly:true}),browser=await chromium.launch({channel:'chrome',headless:true});
@@ -107,13 +107,13 @@ const fa=value=>Number(value).toLocaleString('en-US').replace(/\d/g,d=>'۰۱۲۳
     const payoutResponse=page.waitForResponse(r=>r.url()===base+'/api/payroll'&&r.request().method()==='POST');
     await page.getByRole('button',{name:'ثبت قطعی سند پرداخت',exact:true}).click();check('partial commission payout persists exact rial conversion',(await payoutResponse).ok()&&db.prepare('SELECT SUM(amount) n FROM commission_payments WHERE run_id=?').get(fixture.run)?.n===400&&db.prepare('SELECT status FROM payroll_runs WHERE id=?').get(fixture.run)?.status==='partially_paid');
     await page.getByRole('dialog').waitFor({state:'hidden'});
-    fs.mkdirSync('.freebuff/accounting-visual',{recursive:true});
+    fs.mkdirSync('.qa-work/accounting-visual',{recursive:true});
     const widths=[320,375,390,430,768,1024,1280,1440,1920];
     const capture=async(label)=>{
       for(const theme of ['light','dark']){await page.evaluate(theme=>{document.documentElement.classList.toggle('dark',theme==='dark');localStorage.setItem('repaid-theme',theme);},theme);
         for(const width of widths){await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(70);
           const layout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,rtl:document.documentElement.lang==='fa'&&getComputedStyle(document.documentElement).direction==='rtl'}));
-          const file=`.freebuff/accounting-visual/${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.screenshots.push({label,theme,width,...layout,file});
+          const file=`.qa-work/accounting-visual/${label}-${theme}-${width}.png`;await page.screenshot({path:file,fullPage:true});evidence.screenshots.push({label,theme,width,...layout,file});
         }
       }
     };
@@ -125,6 +125,6 @@ const fa=value=>Number(value).toLocaleString('en-US').replace(/\d/g,d=>'۰۱۲۳
     check('all new accounting/payroll states fit tested viewports',evidence.screenshots.every(s=>!s.overflow));
     check('Persian RTL maintained',evidence.screenshots.every(s=>s.rtl));check('no browser runtime errors',evidence.browserErrors.length===0);
     await context.close();
-  }finally{fs.writeFileSync('.freebuff/accounting-browser.json',JSON.stringify(evidence,null,2));await browser.close();db.close();}
+  }finally{fs.writeFileSync('.qa-work/accounting-browser.json',JSON.stringify(evidence,null,2));await browser.close();db.close();}
   console.log(JSON.stringify({checks:evidence.checks,screenshots:evidence.screenshots.length,errors:evidence.browserErrors.length},null,2));
 })().catch(error=>{console.error(error);process.exitCode=1;});

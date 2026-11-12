@@ -5,8 +5,8 @@ import assert from "node:assert/strict";
 import {DatabaseSync} from "node:sqlite";
 
 async function main(){
-  const source=path.resolve(process.env.BRANCH_REHEARSAL_INPUT??".freebuff/tonight-before-branch-ownership.db");
-  const privateRoot=path.resolve(".freebuff")+path.sep;
+  const source=path.resolve(process.env.BRANCH_REHEARSAL_INPUT??".qa-work/tonight-before-branch-ownership.db");
+  const privateRoot=path.resolve(".qa-work")+path.sep;
   if(!source.startsWith(privateRoot)||!fs.existsSync(source))throw new Error("A verified private backup is required; original databases are never migration targets.");
   const directory=fs.mkdtempSync(path.join(privateRoot,"tonight-ownership-rehearsal-"));
   const restoredFile=path.join(directory,"repaid.db");

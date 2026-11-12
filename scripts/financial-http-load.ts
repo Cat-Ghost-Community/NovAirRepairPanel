@@ -11,7 +11,7 @@ async function main(){
  if(process.env.FINANCIAL_HTTP_QA!=='1')throw Error('Explicit disposable financial HTTP mode required');
  const requested=Number(process.env.LOAD_REGISTERED_USERS??20),seconds=Number(process.env.HTTP_LOAD_SECONDS??120),concurrency=Number(process.env.HTTP_LOAD_CONCURRENCY??12),thinkMs=100;
  if(![20,200,3000].includes(requested)||!Number.isSafeInteger(seconds)||seconds<10||seconds>1800||!Number.isSafeInteger(concurrency)||concurrency<2||concurrency>16)throw Error('Invalid bounded HTTP workload');
- const manifest=JSON.parse(fs.readFileSync(`.freebuff/fixture-${requested}.json`,'utf8')),directory=fs.realpathSync(manifest.directory),root=fs.realpathSync('.freebuff/fixtures'),server=JSON.parse(fs.readFileSync('.freebuff/database-delivery-qa-session.json','utf8'));
+ const manifest=JSON.parse(fs.readFileSync(`.qa-work/fixture-${requested}.json`,'utf8')),directory=fs.realpathSync(manifest.directory),root=fs.realpathSync('.qa-work/fixtures'),server=JSON.parse(fs.readFileSync('.qa-work/database-delivery-qa-session.json','utf8'));
  if(!directory.startsWith(root+path.sep)||server.failure||fs.realpathSync(server.directory)!==directory||!manifest.http)throw Error('A matching prepared financial QA server is required');
  process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
  const db=new DatabaseSync(path.join(directory,'repaid.db'),{readOnly:true}),BASE='http://127.0.0.1:3002',run=randomBytes(8).toString('hex');
@@ -98,7 +98,7 @@ async function main(){
   const sorted=samples.map(s=>s.ms).sort((a,b)=>a-b),percentile=(p:number)=>sorted[Math.max(0,Math.ceil(sorted.length*p)-1)];
   const errors=errorCount;
   const result={profile:'one compiled web process; two independently scoped financial branches; posted service invoices and cash receipts; real online backup',registeredUsers:sources.registeredUsers,existingRepairs:Number(db.prepare('SELECT COUNT(*) n FROM repair_tickets').get()!.n),concurrency,thinkMs,durationSeconds:seconds,elapsedSeconds:elapsed,requests:samples.length,requestsPerSecond:samples.length/elapsed,writes,replays,errors,failures,p50Ms:percentile(.5),p95Ms:percentile(.95),p99Ms:percentile(.99),resourcesBefore,resourcesAfter,checks,backupIndependentlyVerified:true,productionCapacityCertified:false};
-  fs.writeFileSync(`.freebuff/database-http-load-${requested}.json`,JSON.stringify(result,null,2),{mode:0o600});console.log(JSON.stringify(result));
+  fs.writeFileSync(`.qa-work/database-http-load-${requested}.json`,JSON.stringify(result,null,2),{mode:0o600});console.log(JSON.stringify(result));
   if(errors||result.p95Ms>1000||result.p99Ms>2000)process.exitCode=1;
  }finally{db.close();}
 }

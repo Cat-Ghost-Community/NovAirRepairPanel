@@ -5,7 +5,7 @@ async function main() {
   if(process.env.LOAD_TEST_MODE!=="1") throw new Error("Test fixtures require LOAD_TEST_MODE=1.");
   const employees=Number(process.env.LOAD_REGISTERED_USERS||20);
   if(![20,200,3000].includes(employees)) throw new Error("Supported registered employee counts: 20, 200, 3000");
-  const root=path.resolve(".freebuff/fixtures");
+  const root=path.resolve(".qa-work/fixtures");
   fs.mkdirSync(root,{recursive:true});
   const directory=fs.mkdtempSync(path.join(root,`${employees}-`));
   process.env.REPAID_DATA_DIR=directory;
@@ -37,7 +37,7 @@ async function main() {
     });
     const counts=Object.fromEntries(["users","customers","devices","repair_tickets","invoices"].map(table=>[table,Number(db.prepare(`SELECT COUNT(*) n FROM ${table}`).get()?.n)]));
     const manifest={directory,employees,counts};
-    fs.writeFileSync(`.freebuff/fixture-${employees}.json`,JSON.stringify(manifest,null,2)+'\n');
+    fs.writeFileSync(`.qa-work/fixture-${employees}.json`,JSON.stringify(manifest,null,2)+'\n');
     console.log(JSON.stringify(manifest));
   } finally {db.close();}
 }

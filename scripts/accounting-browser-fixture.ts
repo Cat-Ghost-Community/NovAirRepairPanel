@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 async function main(){
   const filename=path.resolve(process.env.E2E_DB??"");
-  if(process.env.FINANCIAL_BROWSER_MUTATIONS!=="1"||!filename.startsWith(path.resolve(".freebuff")+path.sep))throw new Error("Isolated browser fixture required");
+  if(process.env.FINANCIAL_BROWSER_MUTATIONS!=="1"||!filename.startsWith(path.resolve(".qa-work")+path.sep))throw new Error("Isolated browser fixture required");
   process.env.REPAID_DATA_DIR=path.dirname(filename);
   const {getDb,DB_PATH}=await import("../src/lib/db/schema");
   if(DB_PATH!==filename)throw new Error("Fixture path mismatch");
@@ -27,7 +27,7 @@ async function main(){
       const correctionInvoice=Number(db.prepare("INSERT INTO invoices(number,type,branch_id,customer_id,total,paid,status) VALUES(?,'sale',?,?,1000,300,'cancelled')").run(`BROWSER-CACHE-${nonce}`,branch,customer).lastInsertRowid);
       return {filename,approver,email,run,technician,technicianName:`تکنسین ${nonce}`,correctionInvoice,customer,nonce};
     });
-    fs.writeFileSync(".freebuff/accounting-browser-fixture.json",JSON.stringify(setup,null,2));
+    fs.writeFileSync(".qa-work/accounting-browser-fixture.json",JSON.stringify(setup,null,2));
     console.log("Isolated accounting actors and source documents prepared");
   }finally{db.close();}
 }

@@ -3,10 +3,10 @@ const {spawnSync}=require('node:child_process');
 const {DatabaseSync}=require('node:sqlite');
 const {chromium}=require('playwright-core');
 const base=process.env.BASE_URL||'http://127.0.0.1:3002',filename=path.resolve(process.env.E2E_DB||'');
-if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit disposable localhost database required');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!['127.0.0.1','localhost'].includes(new URL(base).hostname)||!filename.startsWith(path.resolve('.qa-work')+path.sep))throw new Error('Explicit disposable localhost database required');
 const prepared=spawnSync(process.execPath,['--import','tsx','scripts/returns-browser-fixture.ts'],{env:process.env,encoding:'utf8',windowsHide:true});
 if(prepared.status!==0)throw new Error(prepared.stderr);
-const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf8'));
+const f=JSON.parse(fs.readFileSync('.qa-work/returns-browser-fixture.json','utf8'));
 (async()=>{
  const db=new DatabaseSync(filename,{readOnly:true}),browser=await chromium.launch({channel:'chrome',headless:true});
  const evidence={checks:[],captures:[],errors:[],fixture:f.nonce};
@@ -17,7 +17,7 @@ const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf
   const page=await owner.newPage(),reviewer=await approver.newPage();
   for(const p of [page,reviewer])p.on('pageerror',error=>evidence.errors.push(error.message));
   const act=async(p,name,action)=>{const response=p.waitForResponse(r=>new URL(r.url()).pathname==='/api/returns'&&r.request().method()==='POST'&&r.request().postDataJSON().action===action);await p.getByRole('button',{name,exact:true}).click();const r=await response,data=await r.json();if(!r.ok())throw new Error(`${action}: ${data.error}`);await p.waitForLoadState('networkidle');return data;};
-  const capture=async(label,focus)=>{await page.waitForTimeout(3500);for(const theme of ['light','dark'])for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);if(focus)await page.locator(focus).scrollIntoViewIfNeeded();await page.waitForTimeout(300);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);check(`${label} ${theme} ${width}px no document overflow`,!overflow);const target=`.freebuff/returns-${label}-${theme}-${width}.png`;await page.screenshot({path:target,fullPage:true});evidence.captures.push(target);}await page.setViewportSize({width:1440,height:1000});};
+  const capture=async(label,focus)=>{await page.waitForTimeout(3500);for(const theme of ['light','dark'])for(const width of [320,375,390,430,768,1024,1280,1440,1920]){await page.setViewportSize({width,height:1000});await page.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);if(focus)await page.locator(focus).scrollIntoViewIfNeeded();await page.waitForTimeout(300);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);check(`${label} ${theme} ${width}px no document overflow`,!overflow);const target=`.qa-work/returns-${label}-${theme}-${width}.png`;await page.screenshot({path:target,fullPage:true});evidence.captures.push(target);}await page.setViewportSize({width:1440,height:1000});};
   const workflow=async(source,disposition,amount,refund,label)=>{
    await page.goto(`${base}/returns?invoice_id=${source.id}`,{waitUntil:'networkidle'});
    await page.locator(`#return-quantity-${source.line}`).fill('1');await page.locator('#return-delivery').fill('رسید تحویل واقعی سناریوی مستقل');await page.locator('#return-reason').fill('درخواست مستند برگشت کالا در آزمون مستقل');
@@ -61,6 +61,6 @@ const f=JSON.parse(fs.readFileSync('.freebuff/returns-browser-fixture.json','utf
    if(type==='ar_ap')check('customer owes 300 and supplier owes zero',data.debtors.find(r=>r.id===f.customer)?.balance===300&&!data.supplier_debts.some(r=>r.id===f.supplier));
   }
   check('no browser runtime errors',evidence.errors.length===0);
- }finally{fs.writeFileSync('.freebuff/returns-browser-evidence.json',JSON.stringify(evidence,null,2));db.close();await browser.close();}
+ }finally{fs.writeFileSync('.qa-work/returns-browser-evidence.json',JSON.stringify(evidence,null,2));db.close();await browser.close();}
  console.log(`Returns browser checks: ${evidence.checks.length}; screenshots: ${evidence.captures.length}`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

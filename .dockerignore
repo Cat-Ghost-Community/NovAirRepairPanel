@@ -2,7 +2,7 @@ node_modules
 .next
 .git
 .gitignore
-.freebuff
+.qa-work
 .database-tools
 data
 docs

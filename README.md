@@ -148,7 +148,7 @@ Updates pin the fetched commit, build before downtime, verify every privileged m
 
 For an older management version already using this repository, use the new **reviewed root-owned checkout**: `bash /root/repaid-source/manage.sh --smart-update --ref REVIEWED_SHA`. Afterwards `sudo repaid` follows the active release automatically.
 
-An existing installation configured for the legacy `1beng` repository needs a separately reviewed repository handover, with backup and original keys preserved. Its guard intentionally rejects a silent repository change. Do not run a fresh installation over that data; follow [deployment handover guidance](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/DEPLOYMENT.md).
+This project uses its own repository: [Cat-Ghost-Community/NovAirRepairPanel](https://github.com/Cat-Ghost-Community/NovAirRepairPanel). Moving an existing installation from another repository requires a separately reviewed handover with backups and original keys preserved. The repository guard intentionally rejects silent repository changes; do not run a fresh installation over existing business data.
 
 Rollback preserves **current business data** and rejects incompatible schema rollback. It never silently restores an older database over newer transactions. Keys, owner credentials and provider settings are retained. Source installation/build needs prepared package/Git access; an uncached offline build is not promised. See [prepared offline releases](https://github.com/Cat-Ghost-Community/NovAirRepairPanel/blob/8f713549ba7584edb301f31082b111a44ca8c901/docs/network-independence/DEPLOYMENT.md).
 

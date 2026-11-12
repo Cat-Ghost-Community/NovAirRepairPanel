@@ -5,7 +5,7 @@ const { chromium } = require('playwright-core');
 const base = process.env.BASE_URL || 'http://127.0.0.1:3002';
 const filename = path.resolve(process.env.E2E_DB || '');
 if (process.env.FINANCIAL_BROWSER_MUTATIONS !== '1' || !['127.0.0.1', 'localhost'].includes(new URL(base).hostname)
-    || !filename.startsWith(path.resolve('.freebuff') + path.sep)) throw new Error('Explicit local isolated financial browser fixture required');
+    || !filename.startsWith(path.resolve('.qa-work') + path.sep)) throw new Error('Explicit local isolated financial browser fixture required');
 
 (async () => {
   const db = new DatabaseSync(filename, { readOnly: true });
@@ -141,7 +141,7 @@ if (process.env.FINANCIAL_BROWSER_MUTATIONS !== '1' || !['127.0.0.1', 'localhost
     const transfer = await transferResult.json();
     check('browser transfer conserves total stock and creates exactly two paired movements', transferResult.ok() && newStock() === 4 && db.prepare("SELECT COUNT(*) n FROM inventory_movements WHERE ref_type='inventory_transfer' AND ref_id=?").get(transfer.id)?.n === 2);
 
-    fs.mkdirSync('.freebuff/financial-visual', { recursive: true });
+    fs.mkdirSync('.qa-work/financial-visual', { recursive: true });
     const repairId = db.prepare('SELECT id FROM repair_tickets WHERE branch_id=1 ORDER BY id LIMIT 1').get().id;
     const routes = ['/payments/new', '/expenses/new', '/checks', '/bank', '/finance', `/invoices/${invoice.id}`,
       '/pos', '/purchase-orders/new', `/purchase-orders/${poId}`, `/invoices/new?type=purchase&po=${poId}`,
@@ -160,7 +160,7 @@ if (process.env.FINANCIAL_BROWSER_MUTATIONS !== '1' || !['127.0.0.1', 'localhost
           const layout = await page.evaluate(() => ({ width: document.documentElement.clientWidth, content: document.documentElement.scrollWidth,
             clippedValues: Array.from(document.querySelectorAll('.kpi-value')).filter(e => e.scrollWidth > e.clientWidth + 1).length,
             lang: document.documentElement.lang, direction: getComputedStyle(document.documentElement).direction }));
-          const file = `.freebuff/financial-visual/${route.replace(/[^a-z0-9]/gi, '_')}-${theme}-${width}.png`;
+          const file = `.qa-work/financial-visual/${route.replace(/[^a-z0-9]/gi, '_')}-${theme}-${width}.png`;
           await page.screenshot({ path: file, fullPage: true });
           evidence.screenshots.push({ route, theme, width, overflow: layout.content > layout.width + 1, clippedValues: layout.clippedValues, rtl: layout.lang === 'fa' && layout.direction === 'rtl', file });
         }
@@ -171,7 +171,7 @@ if (process.env.FINANCIAL_BROWSER_MUTATIONS !== '1' || !['127.0.0.1', 'localhost
     check('Persian RTL on all captures', evidence.screenshots.every(s => s.rtl));
     check('no browser runtime errors', evidence.browserErrors.length === 0);
   } finally {
-    fs.writeFileSync('.freebuff/financial-browser.json', JSON.stringify(evidence, null, 2));
+    fs.writeFileSync('.qa-work/financial-browser.json', JSON.stringify(evidence, null, 2));
     await browser.close(); db.close();
   }
   console.log(JSON.stringify({ checks: evidence.checks, screenshots: evidence.screenshots.length, errors: evidence.browserErrors.length }, null, 2));

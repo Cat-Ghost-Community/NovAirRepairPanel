@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Session } from '../src/lib/auth';
 const filename=path.resolve(process.env.E2E_DB??'');
-if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!filename.startsWith(path.resolve('.freebuff')+path.sep))throw new Error('Explicit disposable financial browser fixture required');
+if(process.env.FINANCIAL_BROWSER_MUTATIONS!=='1'||!filename.startsWith(path.resolve('.qa-work')+path.sep))throw new Error('Explicit disposable financial browser fixture required');
 process.env.REPAID_DATA_DIR=path.dirname(filename);
 async function main(){
  const schema=await import('../src/lib/db/schema');if(schema.DB_PATH!==filename)throw new Error('Isolated DB mismatch');const db=schema.getDb();
@@ -40,7 +40,7 @@ async function main(){
   const foreignBranch=Number(db.prepare('INSERT INTO branches(name,code) VALUES(?,?)').run('شعبهٔ خارج از محدودهٔ آزمون',`OTHER-${nonce}`).lastInsertRowid);
   const foreignInvoice=createInvoice(owner,{type:'sale',customer_id:customer,confirm:true,date,items:[{kind:'labor',name:'خدمت خارج از شعبهٔ انتخابی',qty:1,unit_price:777}]},String(foreignBranch));
   const foreignNumber=String(db.prepare('SELECT number FROM invoices WHERE id=?').get(foreignInvoice.id)!.number);
-  fs.writeFileSync('.freebuff/returns-browser-fixture.json',JSON.stringify({filename,branch,customer,supplier,approver:approverId,email,location,part,full,partial,damaged,foreignInvoice:foreignInvoice.id,foreignNumber,purchase:{id:purchase.id,line:Number(db.prepare('SELECT id FROM invoice_items WHERE invoice_id=?').get(purchase.id)!.id),payment:supplierPayment.id},nonce},null,2));
+  fs.writeFileSync('.qa-work/returns-browser-fixture.json',JSON.stringify({filename,branch,customer,supplier,approver:approverId,email,location,part,full,partial,damaged,foreignInvoice:foreignInvoice.id,foreignNumber,purchase:{id:purchase.id,line:Number(db.prepare('SELECT id FROM invoice_items WHERE invoice_id=?').get(purchase.id)!.id),payment:supplierPayment.id},nonce},null,2));
   console.log('Isolated return source documents, actual journals and independent approvals prepared');
  }finally{db.close();}
 }
