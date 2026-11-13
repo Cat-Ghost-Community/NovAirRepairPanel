@@ -18,8 +18,8 @@ export function creditDataFingerprint(db:DatabaseSync,projection=creditProjectio
 /** SQLite's documented create/copy/drop/rename procedure, on a restored copy
  * ONLY. Never called by startup, an HTTP handler, or against customer originals. */
 export function migrateLegacyCreditsOnCopy(db:DatabaseSync,checkpoint?:(phase:'copied'|'rebuilt')=>void){
- const filename=path.resolve(String(db.prepare('PRAGMA database_list').get()!.file)),privateRoot=path.resolve('.qa-work')+path.sep,tempRoot=path.resolve(os.tmpdir())+path.sep;
- if(!((filename.startsWith(privateRoot)&&filename.includes(path.sep+'credit-migration-'))||(filename.startsWith(tempRoot)&&filename.includes(path.sep+'repaid-credit-migration-'))))throw new Error('Migration may run only on an explicitly restored private credit-migration copy');
+ const filename=path.resolve(String(db.prepare('PRAGMA database_list').get()!.file)),tempRoot=path.resolve(os.tmpdir())+path.sep;
+ if(!(filename.startsWith(tempRoot)&&filename.includes(path.sep+'repaid-credit-migration-')))throw new Error('Migration may run only on an explicitly restored private credit-migration copy');
  if(db.isTransaction)throw new Error('Offline credit migration requires its own transaction');
  const needed=legacyCreditUniqueness(db)||db.prepare("PRAGMA index_list('credit_note_lines')").all().some(i=>obsolete(db,'credit_note_lines',String(i.name)));if(!needed)return {changed:false,fingerprint:creditDataFingerprint(db)};
  if(db.prepare('PRAGMA integrity_check').get()!.integrity_check!=='ok'||db.prepare('PRAGMA foreign_key_check').all().length)throw new Error('Pre-existing integrity or foreign-key defects require reviewed correction first');

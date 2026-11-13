@@ -38,8 +38,6 @@ const eslintConfig = defineConfig([
     ".agents/**",
     ".claude/**",
     ".claude-plugin/**",
-    // اسکریپت‌های QA محلی (gitignore شده) بخشی از سورس برنامه نیستند
-    ".qa-work/**",
   ]),
 ]);
 

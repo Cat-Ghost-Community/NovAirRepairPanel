@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "source_tree_sha256": "ce1db93292742a8f0143e173d816151ce46e7ac67fa79289204e12986403da2d",
+  "source_tree_sha256": "8bfde41a3d45b085038246afae20adc545829785b4148805eeabfea61ddcb6ee",
   "configuration_files": [
     {
       "file": "tsconfig.json",
@@ -47,7 +47,7 @@
     ]
   },
   "counts": {
-    "input_files": 748,
+    "input_files": 713,
     "api_route_files": 123,
     "api_handlers": 191,
     "pages": 72,
@@ -55,8 +55,8 @@
     "server_actions": 1,
     "command_tools": 26,
     "deployment_scripts": 14,
-    "local_runtime_edges": 3562,
-    "type_only_edges": 174,
+    "local_runtime_edges": 3482,
+    "type_only_edges": 169,
     "unresolved_local_edges": 0,
     "nonliteral_dynamic_expressions": 1,
     "reviewed_entrypoint_acceptances": 0,
@@ -573,10 +573,6 @@
           "tests/accounting.test.ts"
         ],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/accounting-cutover-browser.cjs",
-          "scripts/bank-browser.cjs",
-          "scripts/financial-completion-browser.cjs",
           "tests/accounting.test.ts",
           "tests/postgres-application-gate.test.ts"
         ]
@@ -3575,28 +3571,11 @@
         "direct_source": [],
         "transitive_source": [],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/accounting-cutover-browser.cjs",
-          "scripts/backup-failure-browser.cjs",
-          "scripts/bank-browser.cjs",
-          "scripts/branch-chat-browser.cjs",
-          "scripts/browser-interactions.cjs",
-          "scripts/database-infrastructure-browser.cjs",
-          "scripts/financial-browser.cjs",
-          "scripts/financial-completion-browser.cjs",
-          "scripts/group-receipt-browser.cjs",
-          "scripts/installments-browser.cjs",
-          "scripts/inventory-v8-browser.cjs",
-          "scripts/legacy-money-browser.cjs",
           "scripts/load-test.cjs",
           "scripts/postgres-http-acceptance.ts",
-          "scripts/repair-workflow-browser.cjs",
-          "scripts/returns-browser.cjs",
-          "scripts/returns-v6-browser.cjs",
           "scripts/server-smoke.cjs",
-          "scripts/signature-workspace-browser.cjs",
-          "scripts/ui-refinement-browser.cjs",
-          "scripts/ui-smoke.cjs"
+          "scripts/ui-smoke.cjs",
+          "tests/load-test-output.test.ts"
         ]
       },
       "postgres": {
@@ -4555,7 +4534,6 @@
           "tests/database-infrastructure-api.test.ts"
         ],
         "literal_http": [
-          "scripts/backup-failure-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/database-infrastructure-api.test.ts"
         ]
@@ -5239,7 +5217,6 @@
           "tests/legacy-financial-paths.test.ts"
         ],
         "literal_http": [
-          "scripts/bank-browser.cjs",
           "tests/financial-integrity.test.ts",
           "tests/legacy-financial-paths.test.ts",
           "tests/postgres-application-gate.test.ts"
@@ -8901,7 +8878,6 @@
           "tests/branch-chat.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/branch-chat.test.ts",
           "tests/postgres-application-gate.test.ts"
@@ -13992,9 +13968,7 @@
       "test_references": {
         "direct_source": [],
         "transitive_source": [],
-        "literal_http": [
-          "scripts/financial-completion-browser.cjs"
-        ]
+        "literal_http": []
       },
       "postgres": {
         "implementation": "sqlite_dependency_unported_or_unverified",
@@ -15845,8 +15819,6 @@
         "direct_source": [],
         "transitive_source": [],
         "literal_http": [
-          "scripts/financial-completion-browser.cjs",
-          "scripts/group-receipt-browser.cjs",
           "tests/postgres-application-gate.test.ts"
         ]
       },
@@ -16520,7 +16492,6 @@
           "tests/installments.test.ts"
         ],
         "literal_http": [
-          "scripts/group-receipt-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/branch-chat.test.ts",
           "tests/postgres-application-gate.test.ts",
@@ -16900,7 +16871,6 @@
           "tests/branch-chat.test.ts"
         ],
         "literal_http": [
-          "scripts/group-receipt-browser.cjs",
           "scripts/server-smoke.cjs"
         ]
       },
@@ -18234,8 +18204,6 @@
           "tests/branch-chat.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
-          "scripts/financial-browser.cjs",
           "scripts/load-test.cjs",
           "scripts/postgres-http-acceptance.ts",
           "scripts/server-smoke.cjs",
@@ -18637,8 +18605,6 @@
         ],
         "literal_http": [
           "scripts/server-smoke.cjs",
-          "scripts/signature-workspace-browser.cjs",
-          "scripts/ui-refinement-browser.cjs",
           "tests/branch-chat.test.ts",
           "tests/deep-review-fixes.test.ts"
         ]
@@ -24778,7 +24744,6 @@
           "tests/installments.test.ts"
         ],
         "literal_http": [
-          "scripts/installments-browser.cjs",
           "tests/installments.test.ts",
           "tests/postgres-application-gate.test.ts"
         ]
@@ -25167,7 +25132,6 @@
         "direct_source": [],
         "transitive_source": [],
         "literal_http": [
-          "scripts/repair-workflow-browser.cjs",
           "scripts/server-smoke.cjs"
         ]
       },
@@ -26023,8 +25987,6 @@
           "tests/inventory-valuation.test.ts"
         ],
         "literal_http": [
-          "scripts/financial-browser.cjs",
-          "scripts/inventory-v8-browser.cjs",
           "tests/financial-integrity.test.ts",
           "tests/inventory-valuation.test.ts"
         ]
@@ -30219,9 +30181,6 @@
           "tests/financial-integrity.test.ts"
         ],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/accounting-cutover-browser.cjs",
-          "scripts/financial-browser.cjs",
           "scripts/load-test.cjs",
           "scripts/server-smoke.cjs",
           "tests/financial-integrity.test.ts",
@@ -30980,7 +30939,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/browser-interactions.cjs",
           "tests/workflows.test.ts"
         ]
       },
@@ -31943,7 +31901,6 @@
           "tests/branch-chat.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/branch-chat.test.ts",
           "tests/postgres-application-gate.test.ts"
@@ -33265,8 +33222,6 @@
           "tests/operation-identity.test.ts"
         ],
         "literal_http": [
-          "scripts/financial-browser.cjs",
-          "scripts/returns-v6-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/financial-integrity.test.ts",
           "tests/operation-identity.test.ts"
@@ -35006,10 +34961,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/accounting-cutover-browser.cjs",
-          "scripts/financial-browser.cjs",
-          "scripts/installments-browser.cjs",
           "tests/deep-review-fixes.test.ts",
           "tests/financial-integrity.test.ts",
           "tests/postgres-application-gate.test.ts",
@@ -35497,8 +35448,6 @@
           "tests/accounting.test.ts"
         ],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/financial-completion-browser.cjs",
           "scripts/postgres-http-acceptance.ts",
           "scripts/server-smoke.cjs",
           "tests/accounting.test.ts",
@@ -37346,8 +37295,6 @@
           "tests/financial-integrity.test.ts"
         ],
         "literal_http": [
-          "scripts/financial-browser.cjs",
-          "scripts/legacy-money-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/financial-integrity.test.ts",
           "tests/inventory-valuation.test.ts",
@@ -48405,8 +48352,6 @@
           "tests/repair-workflow.test.ts"
         ],
         "literal_http": [
-          "scripts/repair-workflow-browser.cjs",
-          "scripts/signature-workspace-browser.cjs",
           "tests/postgres-application-gate.test.ts",
           "tests/repair-workflow.test.ts"
         ]
@@ -49089,7 +49034,6 @@
         ],
         "literal_http": [
           "scripts/server-smoke.cjs",
-          "scripts/ui-refinement-browser.cjs",
           "tests/postgres-application-gate.test.ts",
           "tests/repair-workflow.test.ts"
         ]
@@ -50262,8 +50206,6 @@
           "tests/repair-workflow.test.ts"
         ],
         "literal_http": [
-          "scripts/group-receipt-browser.cjs",
-          "scripts/legacy-money-browser.cjs",
           "tests/legacy-financial-paths.test.ts",
           "tests/repair-group-receipt.test.ts",
           "tests/repair-workflow.test.ts"
@@ -50862,7 +50804,6 @@
           "tests/repair-workflow.test.ts"
         ],
         "literal_http": [
-          "scripts/repair-workflow-browser.cjs",
           "tests/postgres-application-gate.test.ts",
           "tests/repair-workflow-race-worker.ts",
           "tests/repair-workflow.test.ts"
@@ -52219,12 +52160,8 @@
           "tests/repair-workflow.test.ts"
         ],
         "literal_http": [
-          "scripts/inventory-v8-browser.cjs",
           "scripts/load-test.cjs",
-          "scripts/repair-workflow-browser.cjs",
           "scripts/server-smoke.cjs",
-          "scripts/signature-workspace-browser.cjs",
-          "scripts/ui-refinement-browser.cjs",
           "tests/inventory-valuation.test.ts",
           "tests/postgres-application-gate.test.ts",
           "tests/repair-workflow.test.ts",
@@ -54856,8 +54793,6 @@
           "tests/returns.test.ts"
         ],
         "literal_http": [
-          "scripts/returns-browser.cjs",
-          "scripts/returns-v6-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/returns.test.ts"
         ]
@@ -55348,10 +55283,6 @@
           "tests/returns.test.ts"
         ],
         "literal_http": [
-          "scripts/installments-browser.cjs",
-          "scripts/inventory-v8-browser.cjs",
-          "scripts/returns-browser.cjs",
-          "scripts/returns-v6-browser.cjs",
           "tests/postgres-application-gate.test.ts",
           "tests/returns.test.ts"
         ]
@@ -56205,7 +56136,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/financial-browser.cjs",
           "tests/financial-integrity.test.ts",
           "tests/legacy-financial-paths.test.ts",
           "tests/workflows.test.ts"
@@ -56974,7 +56904,6 @@
           "tests/legacy-financial-paths.test.ts"
         ],
         "literal_http": [
-          "scripts/legacy-money-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/legacy-financial-paths.test.ts"
         ]
@@ -57458,9 +57387,7 @@
       "test_references": {
         "direct_source": [],
         "transitive_source": [],
-        "literal_http": [
-          "scripts/financial-completion-browser.cjs"
-        ]
+        "literal_http": []
       },
       "postgres": {
         "implementation": "sqlite_dependency_unported_or_unverified",
@@ -58821,7 +58748,6 @@
         "direct_source": [],
         "transitive_source": [],
         "literal_http": [
-          "scripts/repair-workflow-browser.cjs",
           "tests/postgres-application-gate.test.ts"
         ]
       },
@@ -59204,8 +59130,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/accounting-browser.cjs",
-          "scripts/accounting-cutover-browser.cjs",
           "scripts/server-smoke.cjs",
           "tests/postgres-application-gate.test.ts",
           "tests/workflows.test.ts"
@@ -61769,7 +61693,6 @@
           "tests/database-infrastructure-api.test.ts"
         ],
         "literal_http": [
-          "scripts/database-infrastructure-browser.cjs",
           "tests/database-infrastructure-api.test.ts"
         ]
       },
@@ -62630,7 +62553,6 @@
           "tests/deep-review-fixes.test.ts"
         ],
         "literal_http": [
-          "scripts/signature-workspace-browser.cjs",
           "tests/deep-review-fixes.test.ts"
         ]
       },
@@ -62902,7 +62824,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
           "tests/branch-chat.test.ts",
           "tests/workflows.test.ts"
         ]
@@ -63284,7 +63205,6 @@
           "tests/workflows.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
           "tests/workflows.test.ts"
         ]
       },
@@ -64043,8 +63963,6 @@
           "tests/security.test.ts"
         ],
         "literal_http": [
-          "scripts/branch-chat-browser.cjs",
-          "scripts/browser-interactions.cjs",
           "tests/branch-chat.test.ts",
           "tests/security.test.ts"
         ]
@@ -65929,7 +65847,7 @@
       "kind": "command_tool",
       "file": "scripts/load-test.cjs",
       "client": false,
-      "runtime_source_sha256": "e91efae8054f8e73f44d7d4b5645860a8852eeda3138b056fd0e9ee78f0bb453",
+      "runtime_source_sha256": "7fe8a6b974387caf64f6e70113221c041bce8117fdbe9712dabffc8a55e15ec6",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/load-test.cjs"
@@ -66623,7 +66541,7 @@
       "kind": "command_tool",
       "file": "scripts/postgres-http-acceptance.ts",
       "client": false,
-      "runtime_source_sha256": "801d996a3a6532a1c104b2e177c26e8c2459c4acec5302587715f12a0067b9f0",
+      "runtime_source_sha256": "85ba56f2e0ba18da35fa49328e4f99ac088117735aa3daf84c73848209bc8033",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/postgres-appointments-http-scenarios.ts",
@@ -67205,7 +67123,7 @@
       "kind": "command_tool",
       "file": "scripts/profile-database.ts",
       "client": false,
-      "runtime_source_sha256": "1c830d5a1a58b0b0bf69b6ac9e99c1e3d9e292ef807df6dab661db397f45c4d0",
+      "runtime_source_sha256": "4d81544a53d91736ffd2fa1ee3fce452f50754705d1c95e8b12e90322fcacf61",
       "implicit_framework_dependencies": [],
       "runtime_dependencies": [
         "scripts/profile-database.ts",
@@ -68064,17 +67982,8 @@
       "postgres_dependencies": [],
       "dynamic_or_unresolved": [],
       "test_references": {
-        "direct_source": [
-          "scripts/bank-browser.cjs",
-          "scripts/financial-completion-browser.cjs",
-          "scripts/group-receipt-browser.cjs",
-          "scripts/legacy-money-browser.cjs"
-        ],
+        "direct_source": [],
         "transitive_source": [
-          "scripts/bank-browser.cjs",
-          "scripts/financial-completion-browser.cjs",
-          "scripts/group-receipt-browser.cjs",
-          "scripts/legacy-money-browser.cjs",
           "scripts/test-environment.cjs"
         ],
         "literal_http": []
@@ -128272,379 +128181,6 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/accounting-browser-fixture.ts",
-      "kind": "tool",
-      "sha256": "cae698ad48d0e566766680fc6b350b6e2ab2aa3ee7bd4fc3a8b960231e371091",
-      "imports": [
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 3,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "dynamic_import",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/transaction",
-          "kind": "dynamic_import",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/db/transaction.ts"
-        },
-        {
-          "specifier": "../src/lib/payroll",
-          "kind": "dynamic_import",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/payroll.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 12
-        }
-      ],
-      "transaction_signals": [
-        {
-          "name": "atomic",
-          "line": 14
-        }
-      ]
-    },
-    {
-      "file": "scripts/accounting-browser.cjs",
-      "kind": "tool",
-      "sha256": "5bb4dd5f26cc5a06fbe23d9c4f92c2af87fcb855fd4c10a5003dcdda051b0cbd",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 5,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/accounting",
-        "/api/auth/login",
-        "/api/invoices",
-        "/api/payments",
-        "/api/payroll",
-        "/api/settings"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 4
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 32
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 38
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 38
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 48
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 54
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 54
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 57
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 57
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 64
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 80
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 81
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 82
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 82
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 90
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 95
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 97
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 97
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 97
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 108
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 108
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/accounting-cutover-browser.cjs",
-      "kind": "tool",
-      "sha256": "d37e63f1498cf13dbc2661f0dff223164ecbb02c079c7b59736034116530bc0e",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/accounting",
-        "/api/auth/login",
-        "/api/invoices",
-        "/api/payments",
-        "/api/settings"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 15
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 25
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 28
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 29
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 29
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 31
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 33
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 35
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 35
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 37
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/audit-network-dependencies.cjs",
       "kind": "tool",
       "sha256": "1db9002db45624b2a89a000937f7f1d95cb1b65dd6f0b9eb5cfd4368d8aa32c0",
@@ -128742,97 +128278,6 @@
       ]
     },
     {
-      "file": "scripts/backup-failure-browser.cjs",
-      "kind": "tool",
-      "sha256": "3654a9e68d541e1d60828b84c3eaf99599c20c88096ff483fcdd186f3ab94406",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/backup"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 8
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/backup.ts",
       "kind": "tool",
       "sha256": "1d7bc4ea1e946f1284654b11c80b4b854b3cacd8b97c8dfc2b1fd6d454e9110a",
@@ -128908,80 +128353,6 @@
       ]
     },
     {
-      "file": "scripts/bank-browser.cjs",
-      "kind": "tool",
-      "sha256": "327d8fa1da18a90093b91168f375f7ab33d683d649aca359ab73c2f60707dc46",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "./test-environment.cjs",
-          "kind": "require",
-          "line": 5,
-          "type_only": false,
-          "target": "scripts/test-environment.cjs"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 6,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/accounting",
-        "/api/auth/login",
-        "/api/bank"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 7
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/bootstrap.ts",
       "kind": "tool",
       "sha256": "dc3409ead42977c218ef4e3480a852a8070fb1069f6c4b8a98657adb2fadf169",
@@ -129021,262 +128392,6 @@
           "line": 15
         }
       ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/branch-chat-browser.cjs",
-      "kind": "tool",
-      "sha256": "1d71d61f20eb666ca70fcd7897f806a58e2cda0e50e91dc890dc7224681c40ab",
-      "imports": [
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth.ts",
-          "kind": "require",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/page-permissions.ts",
-          "kind": "require",
-          "line": 12,
-          "type_only": false,
-          "target": "src/lib/page-permissions.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/chat/conversations",
-        "/api/customers",
-        "/api/notifications",
-        "/api/track/message",
-        "/api/track/verify",
-        "/api/users"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 13
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/branch-ownership-rehearsal.ts",
-      "kind": "tool",
-      "sha256": "636d96ce2f78f35603c60808956e514e6a15a0a1d34421b02c0110284a34d555",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "import",
-          "line": 3,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "import",
-          "line": 4,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "import",
-          "line": 5,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 29,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 17
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 21
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 22
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 23
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 24
-        },
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 30
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 32
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 33
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 35
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 40
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 42
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 45
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 46
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 47
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 48
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/browser-interactions.cjs",
-      "kind": "tool",
-      "sha256": "97444b54b067f49d038c6ff57a621e9d5b3f19aa46e6fcd53ff33d3482cae646",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/messages/dispatch",
-        "/api/users"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [],
       "transaction_signals": []
     },
     {
@@ -129443,114 +128558,6 @@
           "engine": "sqlite",
           "kind": "getDb",
           "line": 6
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/database-infrastructure-browser.cjs",
-      "kind": "tool",
-      "sha256": "20cf337d2ada9c09d60b952f3a4222dd165ee0a81045331fc8962cbaae02f428",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/files",
-        "/api/noop",
-        "/api/system/database"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 18
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 18
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 18
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 20
         }
       ],
       "transaction_signals": []
@@ -129885,149 +128892,6 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/financial-browser.cjs",
-      "kind": "tool",
-      "sha256": "8732f13a05ac803c8e8775f70dd81d806e9e5ff68b540bf6d7d3ca921dd9ead6",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/customers",
-        "/api/inventory/tools",
-        "/api/invoices",
-        "/api/parts",
-        "/api/payments",
-        "/api/purchase-orders",
-        "/api/sales"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 3
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 28
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 44
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 50
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 59
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 66
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 68
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 70
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 78
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 91
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 93
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 104
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 105
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 116
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 117
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 142
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 145
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/financial-cases.ts",
       "kind": "tool",
       "sha256": "651d77a1d8134ea8a71468cc58de15d28dba9013fab0f5b76c2e4f7ccd0f1c73",
@@ -130073,151 +128937,6 @@
         }
       ],
       "transaction_signals": []
-    },
-    {
-      "file": "scripts/financial-completion-browser.cjs",
-      "kind": "tool",
-      "sha256": "d3aff304eb8414653f533e1412dbc7cc4d4da49baa4c3b6e00e10d29b7d04782",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "./test-environment.cjs",
-          "kind": "require",
-          "line": 17,
-          "type_only": false,
-          "target": "scripts/test-environment.cjs"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 19,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth.ts",
-          "kind": "require",
-          "line": 19,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting.ts",
-          "kind": "require",
-          "line": 19,
-          "type_only": false,
-          "target": "src/lib/accounting.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-opening.ts",
-          "kind": "require",
-          "line": 19,
-          "type_only": false,
-          "target": "src/lib/accounting-opening.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy.ts",
-          "kind": "require",
-          "line": 19,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/customer-payments.ts",
-          "kind": "require",
-          "line": 20,
-          "type_only": false,
-          "target": "src/lib/customer-payments.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice.ts",
-          "kind": "require",
-          "line": 20,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        },
-        {
-          "specifier": "../src/lib/db/transaction.ts",
-          "kind": "require",
-          "line": 20,
-          "type_only": false,
-          "target": "src/lib/db/transaction.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-events.ts",
-          "kind": "require",
-          "line": 20,
-          "type_only": false,
-          "target": "src/lib/accounting-events.ts"
-        },
-        {
-          "specifier": "../src/lib/commission-settlement.ts",
-          "kind": "require",
-          "line": 20,
-          "type_only": false,
-          "target": "src/lib/commission-settlement.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/accounting",
-        "/api/auth/login",
-        "/api/commission-corrections",
-        "/api/customer-credit",
-        "/api/payroll",
-        "/api/service-credits"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 21
-        }
-      ],
-      "transaction_signals": [
-        {
-          "name": "atomic",
-          "line": 44
-        }
-      ]
     },
     {
       "file": "scripts/financial-contention-worker.ts",
@@ -130351,434 +129070,6 @@
       ]
     },
     {
-      "file": "scripts/financial-http-fixture.ts",
-      "kind": "tool",
-      "sha256": "e29ffc909167ea33ac6dd3dd5e5f25559ed651ca2ec600664c6c00d3a7c2ff73",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 3,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "import",
-          "line": 4,
-          "type_only": true,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 14,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/accounting.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-opening",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/accounting-opening.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 16
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/financial-http-load.ts",
-      "kind": "tool",
-      "sha256": "c571e40e9f9ae656af9ba7f878ef0a7a7049b4ccc04600c7a53321857ad21118",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 3,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 4,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "import",
-          "line": 5,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:perf_hooks",
-          "kind": "import",
-          "line": 6,
-          "type_only": false,
-          "external": "node:perf_hooks"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "import",
-          "line": 7,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "import",
-          "line": 8,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "../src/lib/private-storage",
-          "kind": "dynamic_import",
-          "line": 47,
-          "type_only": false,
-          "target": "src/lib/private-storage.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting",
-          "kind": "dynamic_import",
-          "line": 75,
-          "type_only": false,
-          "target": "src/lib/accounting.ts"
-        },
-        {
-          "specifier": "../src/lib/backup",
-          "kind": "dynamic_import",
-          "line": 75,
-          "type_only": false,
-          "target": "src/lib/backup.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/accounting",
-        "/api/auth/login",
-        "/api/backup",
-        "/api/customers",
-        "/api/payments",
-        "/api/repairs"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 17
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 39
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 76
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 79
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 80
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 82
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 88
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 91
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 97
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 100
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/financial-mixed-load.ts",
-      "kind": "tool",
-      "sha256": "60e6b6c45ce295543e62bd41dafaa26c2eee6be738db69f697cc24f6bb869b8c",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 3,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 4,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "import",
-          "line": 5,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:perf_hooks",
-          "kind": "import",
-          "line": 6,
-          "type_only": false,
-          "external": "node:perf_hooks"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "import",
-          "line": 7,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/idempotency",
-          "kind": "import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/idempotency.ts"
-        },
-        {
-          "specifier": "../src/lib/customer-payments",
-          "kind": "import",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/customer-payments.ts"
-        },
-        {
-          "specifier": "../src/lib/financial-report",
-          "kind": "import",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/financial-report.ts"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "import",
-          "line": 11,
-          "type_only": true,
-          "target": "src/lib/auth.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 17
-        }
-      ],
-      "transaction_signals": [
-        {
-          "name": "durableOperation",
-          "line": 39
-        },
-        {
-          "name": "durableOperation",
-          "line": 42
-        }
-      ]
-    },
-    {
-      "file": "scripts/group-receipt-browser.cjs",
-      "kind": "tool",
-      "sha256": "97ca8b4386342f874c4feb8438527bcafd559462e655a28541be1da05e420619",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "./test-environment.cjs",
-          "kind": "require",
-          "line": 6,
-          "type_only": false,
-          "target": "scripts/test-environment.cjs"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth.ts",
-          "kind": "require",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting.ts",
-          "kind": "require",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/accounting.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-opening.ts",
-          "kind": "require",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/accounting-opening.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy.ts",
-          "kind": "require",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice.ts",
-          "kind": "require",
-          "line": 51,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        },
-        {
-          "specifier": "../src/lib/customer-credit.ts",
-          "kind": "require",
-          "line": 163,
-          "type_only": false,
-          "target": "src/lib/customer-credit.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/customer-credit",
-        "/api/customers/lookup",
-        "/api/repairs/bulk"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 11
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/group-receipt-worker.ts",
       "kind": "tool",
       "sha256": "54df41476f2a9145f10a289239fc9e8366ffd298a93197fef1afcee3bd5eb4b8",
@@ -130892,961 +129183,9 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/installment-original-check.cjs",
-      "kind": "tool",
-      "sha256": "c57f22d1f2f709e03f4b585932c74afa96cca03dc66bdbbfa8ca884ac8e3c64c",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 4
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/installment-schema-rehearsal.cjs",
-      "kind": "tool",
-      "sha256": "b5d2eb137e391f990e924542c7b3b14bb5a877022e4987e02b13d640ba403b14",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:child_process"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 4
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/installments-browser-fixture.ts",
-      "kind": "tool",
-      "sha256": "901eaf51f6753a4d5a02720235856fb631cdec59b406d2bdab5180dcb0a2bcaf",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "import",
-          "line": 3,
-          "type_only": true,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy",
-          "kind": "dynamic_import",
-          "line": 13,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice",
-          "kind": "dynamic_import",
-          "line": 13,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/installments-browser.cjs",
-      "kind": "tool",
-      "sha256": "d398d86d97415a6b1d4a40e3aa6af0d8cfccc98b7642ad66836a0b08f52534bb",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/installments",
-        "/api/payments",
-        "/api/returns"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 18
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 27
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 28
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 28
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 30
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 30
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 30
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 32
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 34
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 35
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 37
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 40
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/inventory-original-check.cjs",
-      "kind": "tool",
-      "sha256": "f7b64243ec8d94cbcdc4bafb050fd97390ccd3030480f023488bde1d0c0fac80",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 4
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 8
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/inventory-schema-rehearsal.cjs",
-      "kind": "tool",
-      "sha256": "e12a625f7b6db11c08a271c303136d7e290f8a2b519f7f5a066ea2ba1a46be82",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:child_process"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 4
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/inventory-v8-browser.cjs",
-      "kind": "tool",
-      "sha256": "39382a92233fdbbf49005113cf71b0742220df7080d95ec321790326b31f5bb9",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/inventory/tools",
-        "/api/repairs",
-        "/api/returns"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 5
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 15
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 15
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/inventory-v8-fixture.ts",
-      "kind": "tool",
-      "sha256": "6310a9d7c5a48e3aaf9864e123b7d4648d2ba09959401f47d699d8b46703f533",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "import",
-          "line": 1,
-          "type_only": true,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 3,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy",
-          "kind": "dynamic_import",
-          "line": 5,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-opening",
-          "kind": "dynamic_import",
-          "line": 6,
-          "type_only": false,
-          "target": "src/lib/accounting-opening.ts"
-        },
-        {
-          "specifier": "../src/lib/inventory",
-          "kind": "dynamic_import",
-          "line": 7,
-          "type_only": false,
-          "target": "src/lib/inventory.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice",
-          "kind": "dynamic_import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-events",
-          "kind": "dynamic_import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/accounting-events.ts"
-        },
-        {
-          "specifier": "../src/lib/repair",
-          "kind": "dynamic_import",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/repair.ts"
-        },
-        {
-          "specifier": "../src/lib/customer-payments",
-          "kind": "dynamic_import",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/customer-payments.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/lab-performance.cjs",
-      "kind": "tool",
-      "sha256": "c21b4178a23c3bdc7a5e92a3f07d87c3050bededbfd03823ba20472516831c84",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/legacy-money-browser.cjs",
-      "kind": "tool",
-      "sha256": "74ee8c1f45580081c60b8476702efc7284623e031e4116fc59e1fea5c4b6ba03",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "./test-environment.cjs",
-          "kind": "require",
-          "line": 5,
-          "type_only": false,
-          "target": "scripts/test-environment.cjs"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 6,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/purchase-orders",
-        "/api/repairs/bulk",
-        "/api/serials"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 6
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/load-test.cjs",
       "kind": "tool",
-      "sha256": "ae9647bd0f7b8ff81be4875366d6e1ed06b0b554e266fa2503c70f4ceae56a44",
+      "sha256": "ad6405fced49472bdbea97451aad9b5fff0540ca8b0d46a1d94404d9bb2e9729",
       "imports": [
         {
           "specifier": "node:fs",
@@ -132799,7 +130138,7 @@
     {
       "file": "scripts/postgres-http-acceptance.ts",
       "kind": "tool",
-      "sha256": "077f8c3b84af799dabe82b9d08b218d2b383e617e5b5d9a14c9982c73048e5f4",
+      "sha256": "427a96e03f408988b9a48b0b795f2ebf097c0ecaeee4e1a5eb7365877bec0b9d",
       "imports": [
         {
           "specifier": "node:module",
@@ -133801,7 +131140,7 @@
     {
       "file": "scripts/profile-database.ts",
       "kind": "tool",
-      "sha256": "83310a45dbc6f08f77ce5aca8e5724bfaf290718a5de64063cf1c741470d4aa7",
+      "sha256": "f764274c510a31fd14dc3622b960b1c663da823b9e6c4d771edb95c2fc0da849",
       "imports": [
         {
           "specifier": "node:fs",
@@ -134233,288 +131572,6 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/repair-workflow-browser.cjs",
-      "kind": "tool",
-      "sha256": "0f7d2076edd92396662234c547e6bc88f5c391fbb22c7690eb587fac8c73da28",
-      "imports": [
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/intake-questions",
-        "/api/repairs",
-        "/api/repairs/assign",
-        "/api/repairs/claim",
-        "/api/settings/repair-workflow"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 10
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/repair-workflow-original-check.cjs",
-      "kind": "tool",
-      "sha256": "17d32e2dc8fdb94741cbe8dd5cb36adce6fd7700e0fa4b779706c7947130b343",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:sqlite"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 3
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 10
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/repair-workflow-schema-rehearsal.ts",
-      "kind": "tool",
-      "sha256": "9c93fa5a57ab8130f93e48217b699d5c8d774ed0aaa1b72e872af1cc562780ec",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 1
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 9
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 12
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 12
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 12
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 13
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/restore-backup.ts",
       "kind": "tool",
       "sha256": "41e502e3b95c2a0d80f52a2ca06ec304d03dd49788d4bbc90b4540a0c9b1e3bc",
@@ -134573,351 +131630,6 @@
       ],
       "dynamic_expressions": [],
       "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/returns-browser-fixture.ts",
-      "kind": "tool",
-      "sha256": "f9b2e8266c64028370a3a275212e51e34520bdcb244a2062308bedfd06dd9432",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "import",
-          "line": 3,
-          "type_only": true,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 8,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "dynamic_import",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting",
-          "kind": "dynamic_import",
-          "line": 10,
-          "type_only": false,
-          "target": "src/lib/accounting.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-opening",
-          "kind": "dynamic_import",
-          "line": 11,
-          "type_only": false,
-          "target": "src/lib/accounting-opening.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-policy",
-          "kind": "dynamic_import",
-          "line": 12,
-          "type_only": false,
-          "target": "src/lib/accounting-policy.ts"
-        },
-        {
-          "specifier": "../src/lib/invoice",
-          "kind": "dynamic_import",
-          "line": 13,
-          "type_only": false,
-          "target": "src/lib/invoice.ts"
-        },
-        {
-          "specifier": "../src/lib/customer-payments",
-          "kind": "dynamic_import",
-          "line": 13,
-          "type_only": false,
-          "target": "src/lib/customer-payments.ts"
-        },
-        {
-          "specifier": "../src/lib/inventory",
-          "kind": "dynamic_import",
-          "line": 14,
-          "type_only": false,
-          "target": "src/lib/inventory.ts"
-        },
-        {
-          "specifier": "../src/lib/accounting-events",
-          "kind": "dynamic_import",
-          "line": 14,
-          "type_only": false,
-          "target": "src/lib/accounting-events.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/returns-browser.cjs",
-      "kind": "tool",
-      "sha256": "e998c82380b42c9b53229d31a17ef119c59d32af3e96f049b19fcbec03657c02",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/reports/iran",
-        "/api/returns"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 3
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 11
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 29
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 41
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 42
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 43
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 46
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 50
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 52
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 53
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/returns-v6-browser.cjs",
-      "kind": "tool",
-      "sha256": "a37601a0bb5725acef363c924a007c25c99cdd3d8e97d2a61cc3b8b464d9dbff",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 1,
-          "type_only": false,
-          "external": "node:child_process"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/parts",
-        "/api/reports/iran",
-        "/api/returns"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 2
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 8
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 21
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 26
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 36
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 38
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 41
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 41
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 43
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 45
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 45
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 46
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 47
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 50
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 55
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 65
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 67
-        }
-      ],
       "transaction_signals": []
     },
     {
@@ -135099,97 +131811,6 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/signature-workspace-browser.cjs",
-      "kind": "tool",
-      "sha256": "400212d2461fc1be1a9f9c426191c870e4f33dea23f5ac6169bd2c950021507e",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "playwright-core"
-        },
-        {
-          "specifier": "./browser-select.cjs",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "target": "scripts/browser-select.cjs"
-        },
-        {
-          "specifier": "../src/lib/db/schema.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/tracking.ts",
-          "kind": "require",
-          "line": 9,
-          "type_only": false,
-          "target": "src/lib/tracking.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/daily-reports",
-        "/api/estimates",
-        "/api/repairs",
-        "/api/repairs/assign",
-        "/api/track/estimate"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 10
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/test-environment.cjs",
       "kind": "tool",
       "sha256": "622dd8d0b08ca71cc5cd2924ab7ddb02f823bbb49d98a178cded9f814b9fbe09",
@@ -135224,74 +131845,6 @@
       "dynamic_expressions": [],
       "storage_signals": [],
       "transaction_signals": []
-    },
-    {
-      "file": "scripts/test-fixture.ts",
-      "kind": "tool",
-      "sha256": "15ed0426a9a630a469ecc3c3375ef6902e842b3fe2479f0629bbba3a5331d96a",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "import",
-          "line": 1,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "import",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "../src/lib/seed",
-          "kind": "dynamic_import",
-          "line": 15,
-          "type_only": false,
-          "target": "src/lib/seed.ts"
-        },
-        {
-          "specifier": "../src/lib/db/schema",
-          "kind": "dynamic_import",
-          "line": 16,
-          "type_only": false,
-          "target": "src/lib/db/schema.ts"
-        },
-        {
-          "specifier": "../src/lib/auth",
-          "kind": "dynamic_import",
-          "line": 17,
-          "type_only": false,
-          "target": "src/lib/auth.ts"
-        },
-        {
-          "specifier": "../src/lib/db/transaction",
-          "kind": "dynamic_import",
-          "line": 18,
-          "type_only": false,
-          "target": "src/lib/db/transaction.ts"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "getDb",
-          "line": 20
-        }
-      ],
-      "transaction_signals": [
-        {
-          "name": "atomic",
-          "line": 23
-        }
-      ]
     },
     {
       "file": "scripts/test-postgres.ts",
@@ -135343,150 +131896,6 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/test-server.cjs",
-      "kind": "tool",
-      "sha256": "21b683feb976c06690b66b3034a2e7dd8eb4e7567ddb0028feb5376b37a0f682",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:child_process",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "node:child_process"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [],
-      "transaction_signals": []
-    },
-    {
-      "file": "scripts/ui-refinement-browser.cjs",
-      "kind": "tool",
-      "sha256": "e7174d493efd5fda0d940047536ef7040eb518dcc12468988b26e20430f60a2d",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:assert/strict",
-          "kind": "require",
-          "line": 4,
-          "type_only": false,
-          "external": "node:assert/strict"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 5,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 6,
-          "type_only": false,
-          "external": "node:sqlite"
-        },
-        {
-          "specifier": "playwright-core",
-          "kind": "require",
-          "line": 7,
-          "type_only": false,
-          "external": "playwright-core"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [
-        "/api/auth/login",
-        "/api/daily-reports",
-        "/api/repairs",
-        "/api/repairs/assignment"
-      ],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 6
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 13
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 128
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 131
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 134
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 139
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 140
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 159
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/ui-smoke.cjs",
       "kind": "tool",
       "sha256": "f617718025794b9504a5b70574988f31338a90839ad3cfb031ec4a5a3527b949",
@@ -135525,108 +131934,9 @@
       "transaction_signals": []
     },
     {
-      "file": "scripts/verify-branch-checkpoint.cjs",
-      "kind": "tool",
-      "sha256": "10490bc83617e0e5a1d00ed0da8eefb1746472ebe1c849557bbcdf1c0c45400a",
-      "imports": [
-        {
-          "specifier": "node:fs",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:fs"
-        },
-        {
-          "specifier": "node:path",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:path"
-        },
-        {
-          "specifier": "node:crypto",
-          "kind": "require",
-          "line": 2,
-          "type_only": false,
-          "external": "node:crypto"
-        },
-        {
-          "specifier": "node:sqlite",
-          "kind": "require",
-          "line": 3,
-          "type_only": false,
-          "external": "node:sqlite"
-        }
-      ],
-      "exports": [],
-      "actions": [],
-      "client": false,
-      "module_server": false,
-      "http_references": [],
-      "dynamic_expressions": [],
-      "storage_signals": [
-        {
-          "engine": "sqlite",
-          "kind": "native_import",
-          "line": 3
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "DatabaseSync",
-          "line": 7
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 12
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 14
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 16
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 17
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 17
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 19
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 19
-        }
-      ],
-      "transaction_signals": []
-    },
-    {
       "file": "scripts/verify-legacy-credit-candidate.ts",
       "kind": "tool",
-      "sha256": "67616b2862885e70182d8a9232b921f69f2c039764d6d5794c1256313600c518",
+      "sha256": "edbcf922bc164468304424ad937dda619ff59522cd3f385dcafe633e19966c89",
       "imports": [
         {
           "specifier": "node:fs",
@@ -135641,6 +131951,13 @@
           "line": 1,
           "type_only": false,
           "external": "node:path"
+        },
+        {
+          "specifier": "node:os",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "external": "node:os"
         },
         {
           "specifier": "node:sqlite",
@@ -181268,7 +177585,7 @@
     {
       "file": "src/lib/legacy-credit-migration.ts",
       "kind": "library",
-      "sha256": "e884c917ee1428b23b5ee93ea1fbfc9f373f33efb2673f0c6fb5f1aa0b36937e",
+      "sha256": "2e7b74627a1f3f56edf1a7dd687a382766a9f9e6c7486774ee20aa2f1f0734f2",
       "imports": [
         {
           "specifier": "node:sqlite",
@@ -191877,7 +188194,7 @@
     {
       "file": "tests/legacy-credit-migration.test.ts",
       "kind": "test",
-      "sha256": "fcb0bc8158f5d3edffb8d47f1aceba1e2382ce67dca47dcc4ca1f71ec1819072",
+      "sha256": "54ce5b5eedd4b3e5844a864f954653a53a9cf9750de64f51907b75b8c59f1ece",
       "imports": [
         {
           "specifier": "node:test",
@@ -192029,14 +188346,14 @@
         {
           "specifier": "../src/lib/credit-reissue-schema",
           "kind": "dynamic_import",
-          "line": 20,
+          "line": 25,
           "type_only": false,
           "target": "src/lib/credit-reissue-schema.ts"
         },
         {
           "specifier": "../src/lib/accounting",
           "kind": "dynamic_import",
-          "line": 30,
+          "line": 37,
           "type_only": false,
           "target": "src/lib/accounting.ts"
         }
@@ -192095,48 +188412,23 @@
         },
         {
           "engine": "sqlite",
+          "kind": "DatabaseSync",
+          "line": 25
+        },
+        {
+          "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 20
+          "line": 25
         },
         {
           "engine": "sqlite",
           "kind": "DatabaseSync",
-          "line": 21
+          "line": 28
         },
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 21
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 22
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 23
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 23
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 23
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 26
-        },
-        {
-          "engine": "sqlite",
-          "kind": "typed_sync_prepare",
-          "line": 26
+          "line": 28
         },
         {
           "engine": "sqlite",
@@ -192146,17 +188438,47 @@
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 29
+          "line": 30
         },
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 29
+          "line": 30
         },
         {
           "engine": "sqlite",
           "kind": "typed_sync_prepare",
-          "line": 29
+          "line": 30
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 33
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 33
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 36
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 36
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 36
+        },
+        {
+          "engine": "sqlite",
+          "kind": "typed_sync_prepare",
+          "line": 36
         }
       ],
       "transaction_signals": []
@@ -192292,6 +188614,79 @@
         "/api/sales/route",
         "/api/serials",
         "/api/serials/route"
+      ],
+      "dynamic_expressions": [],
+      "storage_signals": [],
+      "transaction_signals": []
+    },
+    {
+      "file": "tests/load-test-output.test.ts",
+      "kind": "test",
+      "sha256": "4d384e1666d23760b1b930a437c96528f9db449c51f78a05e8c0aedc78f53096",
+      "imports": [
+        {
+          "specifier": "node:test",
+          "kind": "import",
+          "line": 1,
+          "type_only": false,
+          "external": "node:test"
+        },
+        {
+          "specifier": "node:assert/strict",
+          "kind": "import",
+          "line": 2,
+          "type_only": false,
+          "external": "node:assert/strict"
+        },
+        {
+          "specifier": "node:fs",
+          "kind": "import",
+          "line": 3,
+          "type_only": false,
+          "external": "node:fs"
+        },
+        {
+          "specifier": "node:os",
+          "kind": "import",
+          "line": 4,
+          "type_only": false,
+          "external": "node:os"
+        },
+        {
+          "specifier": "node:path",
+          "kind": "import",
+          "line": 5,
+          "type_only": false,
+          "external": "node:path"
+        },
+        {
+          "specifier": "node:http",
+          "kind": "import",
+          "line": 6,
+          "type_only": false,
+          "external": "node:http"
+        },
+        {
+          "specifier": "node:child_process",
+          "kind": "import",
+          "line": 7,
+          "type_only": false,
+          "external": "node:child_process"
+        },
+        {
+          "specifier": "node:events",
+          "kind": "import",
+          "line": 8,
+          "type_only": false,
+          "external": "node:events"
+        }
+      ],
+      "exports": [],
+      "actions": [],
+      "client": false,
+      "module_server": false,
+      "http_references": [
+        "/api/auth/login"
       ],
       "dynamic_expressions": [],
       "storage_signals": [],
