@@ -183,7 +183,7 @@ export function canManageConversation(session: Session, member: ChatMemberRow, c
 
 export function canPostIn(conv: ChatConversationRow, member: ChatMemberRow, session: Session,db:DatabaseSync): boolean {
   if(conv.type==='direct' && db.prepare(`SELECT 1 FROM chat_members m JOIN users u ON u.id=m.user_id
-    WHERE m.conversation_id=? AND u.role NOT IN ('owner','admin') AND (u.is_active!=1 OR u.branch_id IS NOT ? OR NOT EXISTS(SELECT 1 FROM branches b WHERE b.id=u.branch_id AND b.is_active=1)) LIMIT 1`).get(conv.id,conv.branch_id))return false;
+    WHERE m.conversation_id=? AND u.role NOT IN ('owner','admin') AND (u.is_active!=1 OR NOT EXISTS(SELECT 1 FROM branches b WHERE b.id=u.branch_id AND b.is_active=1)) LIMIT 1`).get(conv.id))return false;
   if (conv.type !== "channel") return true;
   if (member.role === "owner" || member.role === "admin") return true;
   return canForUser(session.user.role, "chat.channel.post", session.user.id);
@@ -233,11 +233,10 @@ export function canAccessTicket(db: DatabaseSync, session: Session, ticketId: nu
 
 /** محدودهٔ افزودن عضو: مدیران همه؛ بقیه فقط هم‌شعبه یا کاربران بدون شعبه */
 export function userInScope(session: Session, target: { branch_id: number | null; id: number; role?: string }): boolean {
-  if (["owner", "admin"].includes(session.user.role)) return true;
-  if (target.id === session.user.id) return true;
-  if (target.role === "owner" || target.role === "admin") return true;
-  if (target.branch_id == null || session.user.branch_id == null) return false;
-  return target.branch_id === session.user.branch_id;
+  const db=getDb();
+  const actor=db.prepare('SELECT role,branch_id,is_active FROM users WHERE id=?').get(session.user.id);
+  if(!actor||actor.is_active!==1||actor.role!==session.user.role||actor.branch_id!==session.user.branch_id)return false;
+  return !!db.prepare("SELECT 1 FROM users u LEFT JOIN branches b ON b.id=u.branch_id WHERE u.id=? AND u.is_active=1 AND (u.role IN ('owner','admin') OR b.is_active=1)").get(target.id);
 }
 
 /** Internal employees only. Recheck current employment on every read/write, not just joining.
@@ -245,20 +244,9 @@ export function userInScope(session: Session, target: { branch_id: number | null
  * Linked customer/repair threads are retained as historical evidence, unavailable this release.
  */
 function internalChatPredicate(actorIdExpression="?"):string {
-  return `c.is_active=1 AND c.entity_type IS NULL AND EXISTS(
-    SELECT 1 FROM users actor WHERE actor.id=${actorIdExpression} AND actor.is_active=1 AND (
-      actor.role IN ('owner','admin') OR (
-        actor.branch_id IS NOT NULL AND EXISTS(SELECT 1 FROM branches b WHERE b.id=actor.branch_id AND b.is_active=1)
-        AND (c.branch_id=actor.branch_id OR (c.branch_id IS NULL AND (
-          EXISTS(SELECT 1 FROM users creator WHERE creator.id=c.created_by AND creator.role IN ('owner','admin')) AND c.type!='direct'
-        )))
-        AND (c.type!='direct' OR NOT EXISTS(
-          SELECT 1 FROM chat_members other JOIN users u ON u.id=other.user_id
-          WHERE other.conversation_id=c.id AND u.id!=actor.id AND u.role NOT IN ('owner','admin')
-          AND (u.is_active!=1 OR u.branch_id IS NULL OR u.branch_id!=actor.branch_id)
-        ))
-      )
-    ))`;
+  return `c.is_active=1 AND c.entity_type IS NULL AND c.entity_id IS NULL AND EXISTS(
+    SELECT 1 FROM users actor WHERE actor.id=${actorIdExpression} AND actor.is_active=1
+    AND (actor.role IN ('owner','admin') OR EXISTS(SELECT 1 FROM branches b WHERE b.id=actor.branch_id AND b.is_active=1)))`;
 }
 
 export function internalChatAccess(userId: number): { sql: string; params: number[] } {
@@ -294,13 +282,13 @@ export function pushEvent(db: DatabaseSync, convId: number, type: string, payloa
   );
 }
 
-export function notifyChat(db: DatabaseSync, userId: number, opts: { title: string; body: string; link: string; priority?: string;branchId:number|null }) {
-  db.prepare("INSERT INTO notifications(user_id, title, body, priority, link,branch_id) VALUES(?,?,?,?,?,?)").run(
+export function notifyChat(db: DatabaseSync, userId: number, opts: { title: string; body: string; link: string; priority?: string;branchId:number|null;messageId:number }) {
+  db.prepare("INSERT INTO notifications(user_id, title, body, priority, link,branch_id,chat_message_id) VALUES(?,?,?,?,?,?,?)").run(
     userId,
     opts.title,
     opts.body,
     opts.priority ?? "normal",
-    opts.link,opts.branchId
+    opts.link,opts.branchId,opts.messageId
   );
 }
 
@@ -730,14 +718,13 @@ export function ensureDirectConversation(db: DatabaseSync, session: Session, oth
   if (otherUserId === me) throw new HttpError(400, "گفت‌وگو با خودتان ممکن نیست.");
   const other = db.prepare("SELECT id, name, role, branch_id, is_active FROM users WHERE id = ?").get(otherUserId) as any;
   if (!other || !Number(other.is_active)) throw new HttpError(404, "کاربر موردنظر یافت نشد.");
-  const companyActor=["owner","admin"].includes(session.user.role),companyPeer=["owner","admin"].includes(other.role);
+  const companyPeer=["owner","admin"].includes(other.role);
   if(!companyPeer && !db.prepare("SELECT 1 FROM branches WHERE id=? AND is_active=1").get(other.branch_id))throw new HttpError(404,"کاربر در شعبهٔ فعال شاغل نیست.");
   if (!userInScope(session, other)) throw new HttpError(403, "امکان شروع گفت‌وگو با کاربر شعبهٔ دیگر برای شما وجود ندارد.");
-  const branch=companyActor?(companyPeer?null:Number(other.branch_id)):session.user.branch_id;
-  const legacyKey = `d:${Math.min(me, otherUserId)}:${Math.max(me, otherUserId)}`;
+  const branch=null;
   const dmKey=`d:${branch??"company"}:${Math.min(me,otherUserId)}:${Math.max(me,otherUserId)}`;
   const existing = (db.prepare("SELECT id FROM chat_conversations WHERE dm_key = ?").get(dmKey)
-    ??db.prepare("SELECT id FROM chat_conversations WHERE dm_key=? AND branch_id IS ?").get(legacyKey,branch)) as {id:number}|undefined;
+    ??db.prepare("SELECT c.id FROM chat_conversations c WHERE c.type='direct' AND c.entity_type IS NULL AND c.is_active=1 AND EXISTS(SELECT 1 FROM chat_members WHERE conversation_id=c.id AND user_id=?) AND EXISTS(SELECT 1 FROM chat_members WHERE conversation_id=c.id AND user_id=?) AND (SELECT COUNT(*) FROM chat_members WHERE conversation_id=c.id)=2 ORDER BY c.id LIMIT 1").get(me,otherUserId)) as {id:number}|undefined;
   if (existing) {
     const id = Number(existing.id);
     const access = internalChatAccess(me);
@@ -799,7 +786,7 @@ export function createGroupConversation(
   }
   const res = db
     .prepare("INSERT INTO chat_conversations(type, title, description, avatar_color, created_by, branch_id, last_message_at) VALUES(?,?,?,?,?,?,datetime('now'))")
-    .run(input.type, title, (input.description ?? "").trim() || null, input.avatar_color ?? null, me, ["owner","admin"].includes(session.user.role) ? null : session.user.branch_id);
+    .run(input.type, title, (input.description ?? "").trim() || null, input.avatar_color ?? null, me, null);
   const convId = Number(res.lastInsertRowid);
   db.prepare("INSERT INTO chat_members(conversation_id, user_id, role, last_read_message_id) VALUES(?,?,'owner',0)").run(convId, me);
   for (const uid of ids) {
@@ -927,6 +914,7 @@ export function postMessage(
         link: `/chat?c=${conv.id}`,
         priority: mentioned ? "high" : "normal",
         branchId:conv.branch_id,
+        messageId,
       });
     }
   }
@@ -1006,7 +994,7 @@ export function markRead(db: DatabaseSync, session: Session, convId: number, las
       session.user.id
     );
     pushEvent(db, convId, "read", { user_id: session.user.id, last_read_message_id: target }, session.user.id);
-    db.prepare("UPDATE notifications SET read = 1 WHERE user_id = ? AND link = ?").run(session.user.id, `/chat?c=${convId}`);
+    db.prepare("UPDATE notifications SET read = 1 WHERE user_id = ? AND link = ? AND (chat_message_id IS NULL OR chat_message_id<=?)").run(session.user.id, `/chat?c=${convId}`,target);
   }
   return target;
 }
@@ -1064,13 +1052,15 @@ export function fetchEvents(
   db: DatabaseSync,
   session: Session,
   cursor: number,
-  activeConvId: number | null
+  activeConvId: number | null,
+  bootstrap=false
 ): { cursor: number; events: any[]; typing: any[]; presence: any[]; unread_total: number } {
   const me = session.user.id;
   const access = internalChatAccess(me);
   if (activeConvId != null) requireConversation(db, activeConvId, me);
   touchPresence(me);
   cleanupEphemeral(db);
+  if(bootstrap)cursor=Number(db.prepare(`SELECT COALESCE(MAX(e.id),0) id FROM chat_events e JOIN chat_members m ON m.conversation_id=e.conversation_id AND m.user_id=? AND m.left_at IS NULL JOIN chat_conversations c ON c.id=e.conversation_id WHERE ${access.sql}`).get(me,...access.params)!.id);
   if (activeConvId != null) {
     try {
       db.prepare("DELETE FROM chat_typing WHERE conversation_id = ? AND user_id = ?").run(activeConvId, me);

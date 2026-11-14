@@ -6,6 +6,7 @@ import { SearchableSelect } from "@/components/searchable-select";
 import { useState } from "react";
 import { toEnDigits } from "@/lib/format";
 import { CUSTOMER_TYPES, CUSTOMER_TYPE_FA } from "@/lib/customer-type";
+import {CUSTOMER_TITLES} from '@/lib/customer-identity';
 
 const REFERRAL_SOURCES = ["حضوری", "معرف", "اینستاگرام", "تلگرام", "تبلیغات محیطی", "جستجوی گوگل", "سایت", "تلفن زرد", "مشتری قبلی", "سایر"];
 
@@ -22,7 +23,7 @@ export function isValidNationalId(input: string): boolean {
 }
 
 export const EMPTY_CUSTOMER_FORM = {
-  first_name: "", last_name: "", mobile: "", email: "", company: "", address: "", city: "تهران",
+  salutation: "", first_name: "", last_name: "", mobile: "", email: "", company: "", address: "", city: "تهران",
   notes: "", national_id: "", job: "", referral_source: "حضوری", nickname: "", postal_code: "",
   customer_type: "regular", organization_name: "",
 };
@@ -51,9 +52,10 @@ export function CustomerForm({
 
   return (
     <div className="grid sm:grid-cols-2 gap-3">
-      <div><label className="label" htmlFor="fn">نام *</label><input id="fn" required className="input" value={form.first_name} onChange={(e) => set({ first_name: e.target.value })} /></div>
+      <div><label className="label" htmlFor="customer-salutation">عنوان</label><SearchableSelect id="customer-salutation" className="input" value={form.salutation??''} onChange={event=>set({salutation:event.target.value})}><option value="">بدون عنوان</option>{Object.entries(CUSTOMER_TITLES).map(([value,label])=><option key={value} value={value}>{label}</option>)}</SearchableSelect></div>
+      <div><label className="label" htmlFor="fn">نام (اختیاری)</label><input id="fn" maxLength={60} className="input" value={form.first_name??''} onChange={(e) => set({ first_name: e.target.value })} /></div>
       <div><label className="label" htmlFor="ln">نام خانوادگی *</label><input id="ln" required className="input" value={form.last_name} onChange={(e) => set({ last_name: e.target.value })} /></div>
-      <div><label className="label" htmlFor="mob">موبایل *</label><input id="mob" className="input" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" value={form.mobile} onChange={(e) => set({ mobile: e.target.value })} /></div>
+      <div><label className="label" htmlFor="mob">موبایل (برای پیگیری اینترنتی)</label><input id="mob" className="input" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" value={form.mobile} onChange={(e) => set({ mobile: e.target.value })} /></div>
       <div>
         <label className="label" htmlFor="nid">کد ملی</label>
         <input

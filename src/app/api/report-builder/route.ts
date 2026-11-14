@@ -29,7 +29,7 @@ const SOURCES: Source[] = [
   {
     key: "repairs",
     label: "پذیرش‌ها",
-    sql: `SELECT t.number AS 'شماره', c.first_name || ' ' || c.last_name AS 'مشتری', d.brand || ' ' || d.model AS 'دستگاه',
+    sql: `SELECT t.number AS 'شماره', COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') AS 'مشتری', d.brand || ' ' || d.model AS 'دستگاه',
       s.name AS 'وضعیت', u.name AS 'تعمیرکار', t.problem AS 'ایراد', t.created_at AS 'تاریخ', t.estimated_completion AS 'تحویل تخمینی',
       b.name AS 'شعبه'
       FROM repair_tickets t
@@ -44,7 +44,7 @@ const SOURCES: Source[] = [
       { key: "ایراد" }, { key: "تاریخ", type: "date" }, { key: "تحویل تخمینی", type: "date" }, { key: "شعبه" },
     ],
     filters: [
-      { key: "customer", label: "مشتری", type: "text", col: "c.first_name || ' ' || c.last_name" },
+      { key: "customer", label: "مشتری", type: "text", col: "COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')" },
       { key: "status", label: "وضعیت", type: "text", col: "s.name" },
       { key: "device", label: "دستگاه", type: "text", col: "d.brand || ' ' || d.model" },
     ],
@@ -53,7 +53,7 @@ const SOURCES: Source[] = [
   {
     key: "invoices",
     label: "فاکتورها",
-    sql: `SELECT i.number AS 'شماره', c.first_name || ' ' || c.last_name AS 'مشتری', i.status AS 'وضعیت',
+    sql: `SELECT i.number AS 'شماره', COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') AS 'مشتری', i.status AS 'وضعیت',
       i.total AS 'مبلغ کل', i.paid AS 'پرداخت‌شده', (i.total - i.paid) AS 'مانده', i.date AS 'تاریخ', i.due_date AS 'موعد'
       FROM effective_invoices i JOIN customers c ON c.id = i.customer_id
       WHERE date(i.date) BETWEEN @from AND @to`,
@@ -62,7 +62,7 @@ const SOURCES: Source[] = [
       { key: "پرداخت‌شده", type: "money" }, { key: "مانده", type: "money" }, { key: "تاریخ", type: "date" }, { key: "موعد", type: "date" },
     ],
     filters: [
-      { key: "customer", label: "مشتری", type: "text", col: "c.first_name || ' ' || c.last_name" },
+      { key: "customer", label: "مشتری", type: "text", col: "COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')" },
       { key: "status", label: "وضعیت", type: "text", col: "i.status" },
     ],
     defaultSort: "تاریخ",
@@ -70,7 +70,7 @@ const SOURCES: Source[] = [
   {
     key: "sales",
     label: "فروش‌ها",
-    sql: `SELECT sa.number AS 'شماره', c.first_name || ' ' || c.last_name AS 'مشتری', sa.total AS 'مبلغ',
+    sql: `SELECT sa.number AS 'شماره', COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') AS 'مشتری', sa.total AS 'مبلغ',
       sa.status AS 'وضعیت', date(sa.created_at) AS 'تاریخ', u.name AS 'فروشنده'
       FROM sales sa
       LEFT JOIN customers c ON c.id = sa.customer_id
@@ -80,13 +80,13 @@ const SOURCES: Source[] = [
       { key: "شماره" }, { key: "مشتری" }, { key: "مبلغ", type: "money" }, { key: "وضعیت" },
       { key: "تاریخ", type: "date" }, { key: "فروشنده" },
     ],
-    filters: [{ key: "customer", label: "مشتری", type: "text", col: "c.first_name || ' ' || c.last_name" }],
+    filters: [{ key: "customer", label: "مشتری", type: "text", col: "COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')" }],
     defaultSort: "تاریخ",
   },
   {
     key: "payments",
     label: "دریافت‌ها و پرداخت‌ها",
-    sql: `SELECT p.number AS 'شماره سند', c.first_name || ' ' || c.last_name AS 'شخص', p.amount AS 'مبلغ',
+    sql: `SELECT p.number AS 'شماره سند', COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') AS 'شخص', p.amount AS 'مبلغ',
       p.method AS 'روش', p.direction AS 'نوع', p.created_at AS 'تاریخ', u.name AS 'کاربر'
       FROM payments p
       LEFT JOIN customers c ON c.id = p.customer_id
@@ -96,7 +96,7 @@ const SOURCES: Source[] = [
       { key: "شماره سند" }, { key: "شخص" }, { key: "مبلغ", type: "money" }, { key: "روش" },
       { key: "نوع" }, { key: "تاریخ", type: "date" }, { key: "کاربر" },
     ],
-    filters: [{ key: "person", label: "شخص", type: "text", col: "c.first_name || ' ' || c.last_name" }],
+    filters: [{ key: "person", label: "شخص", type: "text", col: "COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')" }],
     defaultSort: "تاریخ",
   },
   {
@@ -115,7 +115,7 @@ const SOURCES: Source[] = [
   {
     key: "customers",
     label: "مشتریان",
-    sql: `SELECT c.first_name || ' ' || c.last_name AS 'نام', c.mobile AS 'موبایل', c.city AS 'شهر',
+    sql: `SELECT COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') AS 'نام', c.mobile AS 'موبایل', c.city AS 'شهر',
       (SELECT COUNT(*) FROM repair_tickets t WHERE t.customer_id = c.id AND (@branch IS NULL OR t.branch_id=@branch)) AS 'تعداد پذیرش',
       (SELECT COALESCE(SUM(e.amount),0) FROM party_balance_events e WHERE e.kind='customer' AND e.party_id=c.id AND (@branch IS NULL OR e.branch_id=@branch)) AS 'مانده حساب',
       c.created_at AS 'تاریخ عضویت'
@@ -125,7 +125,7 @@ const SOURCES: Source[] = [
       { key: "مانده حساب", type: "money" }, { key: "تاریخ عضویت", type: "date" },
     ],
     filters: [
-      { key: "name", label: "نام", type: "text", col: "c.first_name || ' ' || c.last_name" },
+      { key: "name", label: "نام", type: "text", col: "COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')" },
       { key: "city", label: "شهر", type: "text", col: "c.city" },
     ],
     defaultSort: "نام",

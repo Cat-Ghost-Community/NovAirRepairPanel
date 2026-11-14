@@ -38,7 +38,7 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
   sql += " AND (? IS NULL OR d.id IN (SELECT device_id FROM device_branch_access WHERE branch_id=?))";
   params.push(branch, branch);
   if (q) {
-    sql += " AND (d.model LIKE ? OR d.brand LIKE ? OR d.serial LIKE ? OR d.imei LIKE ? OR c.first_name || ' ' || c.last_name LIKE ?)";
+    sql += " AND (d.model LIKE ? OR d.brand LIKE ? OR d.serial LIKE ? OR d.imei LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ?)";
     const like = `%${q}%`;
     params.push(like, like, like, like, like);
   }

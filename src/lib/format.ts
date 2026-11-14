@@ -101,9 +101,15 @@ function canonicalDisplayNumber(value: number|bigint, unit: CurrencyUnit, groupi
 /** قالب اصلی مبالغ: ورودی ریال، خروجی بر اساس واحد فعال */
 export function fmtMoney(rial: number|bigint | null | undefined, unit?: CurrencyUnit): string {
   const u = unit ?? CURRENCY_UNIT;
-  const v = rial ?? 0;
-  const label = u === "toman" ? "تومان" : "ریال";
-  return `${toFaDigits(canonicalDisplayNumber(v, u, true))} ${label}`;
+  return `${fmtMoneyNumber(rial,u)} ${currencyUnitLabel(u)}`;
+}
+
+/** Printed tables put the unit in the column heading without changing precision. */
+export function fmtMoneyNumber(rial:number|bigint|null|undefined,unit:CurrencyUnit=CURRENCY_UNIT):string{
+  return toFaDigits(canonicalDisplayNumber(rial??0,unit,true));
+}
+export function currencyUnitLabel(unit:CurrencyUnit=CURRENCY_UNIT):string{
+  return unit==='toman'?'تومان':'ریال';
 }
 
 /** فقط عدد (بدون واحد) بر اساس واحد فعال — برای فرم‌ها */

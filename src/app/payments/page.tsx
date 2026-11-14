@@ -35,7 +35,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   if (sp.method) { sql += " AND p.method = ?"; params.push(sp.method); }
   if (sp.direction) { sql += " AND p.direction = ?"; params.push(sp.direction); }
   if (sp.q) {
-    sql += " AND (p.number LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ?)";
+    sql += " AND (p.number LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like);
   }

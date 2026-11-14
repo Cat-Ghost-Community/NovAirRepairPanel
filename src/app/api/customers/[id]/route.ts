@@ -8,10 +8,13 @@ import { activeBranch,BRANCH_COOKIE } from '@/lib/branch';
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
 import {postgresCustomersHttp} from '@/lib/db/pg-http';
 import {postgresOperationalHttp} from '@/lib/db/pg-operational-http';
+import {assertBranchProfileWrite,assertBranchResource} from '@/lib/branch-access';
+import {customerSalutation} from '@/lib/customer-identity';
+import {requireReceptionCustomerName} from '@/lib/reception-validation';
 
 export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
   const {id}=await params;if(postgresIntegration())return req.nextUrl.searchParams.get('view')==='merge_history'?postgresOperationalHttp(req,'customer-profile',Number(id)):postgresCustomersHttp(req,Number(id));
-  try{const session=requireSession(req);requirePerm(session,'customers.view');const number=Number(id);if(!Number.isSafeInteger(number)||number<1)throw new HttpError(400,'شناسه معتبر نیست.');const customer=getDb().prepare('SELECT * FROM customers WHERE id=? AND is_archived=0').get(number);if(!customer)throw new HttpError(404,'مشتری یافت نشد.');return ok({customer});}catch(error){return fail(error);}
+  try{const session=requireSession(req);requirePerm(session,'customers.view');const number=Number(id);if(!Number.isSafeInteger(number)||number<1)throw new HttpError(400,'شناسه معتبر نیست.');assertBranchResource(getDb(),session,req.cookies.get(BRANCH_COOKIE)?.value,'customer',number);const customer=getDb().prepare('SELECT * FROM customers WHERE id=? AND is_archived=0').get(number);if(!customer)throw new HttpError(404,'مشتری یافت نشد.');return ok({customer});}catch(error){return fail(error);}
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const customerId = Number(id);
     const b = await readJson(req);
     const db = getDb();
+    assertBranchProfileWrite(db,session,req.cookies.get(BRANCH_COOKIE)?.value,'customer',customerId);
     const before = db.prepare("SELECT * FROM customers WHERE id = ?").get(customerId) as any;
     if (!before) return Response.json({ error: "مشتری یافت نشد." }, { status: 404 });
 
@@ -44,7 +48,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return ok({ ok: true });
     }
     if (b.action === "update") {
-      const fields = ["first_name", "last_name", "company", "mobile", "phone", "email", "address", "city", "tax_id", "notes", "postal_code", "is_colleague", "customer_type", "organization_name"];
+      if(Object.hasOwn(b,'expected_updated_at')&&b.expected_updated_at!==(before.updated_at??null))throw new HttpError(409,'اطلاعات مشتری تغییر کرده است؛ صفحه را تازه کنید.');
+      requireReceptionCustomerName({...before,...b});
+      const fields = ["salutation", "first_name", "last_name", "company", "mobile", "phone", "email", "address", "city", "tax_id", "notes", "postal_code", "is_colleague", "customer_type", "organization_name", "national_id", "job", "referral_source", "nickname"];
+      for(const key of fields.filter(key=>!['is_colleague','salutation'].includes(key)))if(Object.hasOwn(b,key)){
+        if(b[key]!=null&&typeof b[key]!=='string')throw new HttpError(400,'مشخصات مشتری معتبر نیست.');
+        validate.maxLength(b[key],key==='notes'?2000:key==='address'?1000:key==='email'?254:['first_name','last_name'].includes(key)?60:160,'مشخصات مشتری');
+        if(typeof b[key]==='string')b[key]=b[key].trim();
+      }
+      if(Object.hasOwn(b,'salutation'))b.salutation=customerSalutation(b.salutation);
+      if(Object.hasOwn(b,'mobile'))b.mobile=validate.mobile(b.mobile)||null;
+      if(b.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email))throw new HttpError(400,'ایمیل معتبر نیست.');
       // اعتبارسنجی نوع مشتری + همگام‌سازی: نوع همکار ⇄ فلگ is_colleague
       if (b.customer_type !== undefined) {
         b.customer_type = customerTypeValue(b.customer_type);
@@ -58,10 +72,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         if (f in b) { sets.push(`${f} = ?`); vals.push(f === "is_colleague" ? (b[f] ? 1 : 0) : (b[f] ?? null)); }
       }
       if (sets.length === 0) return ok({ ok: true });
-      sets.push("updated_at = datetime('now')");
-      vals.push(customerId);
-      db.prepare(`UPDATE customers SET ${sets.join(", ")} WHERE id = ?`).run(...vals);
+      sets.push("updated_at = ?");
+      vals.push(new Date().toISOString(),customerId,before.updated_at??null);
+      atomic(db,()=>{
+      const result=db.prepare(`UPDATE customers SET ${sets.join(", ")} WHERE id = ? AND updated_at IS ?`).run(...vals);
+      if(result.changes!==1)throw new HttpError(409,'اطلاعات مشتری هم‌زمان تغییر کرده است؛ صفحه را تازه کنید.');
       audit(session, "update", "customer", customerId, before, b);
+      });
       return ok({ ok: true });
     }
     if (b.action === "merge_into" && b.target_id) {

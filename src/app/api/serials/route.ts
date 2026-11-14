@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     const partId = sp.get("part_id");
     return readSnapshot(db,()=>{
     let sql = `SELECT s.*, p.name part_name, p.sku part_code, l.name location_name,
-      sup.name supplier_name, c.first_name || ' ' || c.last_name buyer_name, t.number ticket_number
+      sup.name supplier_name, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') buyer_name, t.number ticket_number
       FROM serialized_parts s
       JOIN parts p ON p.id = s.part_id
       LEFT JOIN inventory_locations l ON l.id = s.location_id

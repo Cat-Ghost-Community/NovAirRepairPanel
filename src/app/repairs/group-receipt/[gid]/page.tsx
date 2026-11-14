@@ -1,3 +1,4 @@
+import {customerDisplayName} from '@/lib/customer-identity';
 import {currentDeviceCatalog} from '@/lib/current-device-catalog';
 import {deviceTypeLabel} from '@/lib/device-catalog';
 import { requirePageAccess } from "@/lib/page-access";
@@ -12,6 +13,9 @@ import Link from 'next/link';
 import {canUser} from '@/lib/auth';
 import {HttpError} from '@/lib/api';
 import {EmptyState} from '@/components/ui';
+import {DocumentPrintStyles,DocumentFooter,DocumentBrand} from '@/components/document-print';
+import {readPrintSettings} from '@/lib/print-settings-server';
+import {printPaper} from '@/lib/print-settings';
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +27,7 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
   const db = getDb();
   const tickets = db
     .prepare(
-      `SELECT t.*, s.name status_name, s.color status_color, c.first_name, c.last_name, c.mobile, c.phone,
+      `SELECT t.*, s.name status_name, s.color status_color, c.first_name, c.last_name, c.salutation, c.mobile, c.phone,
         d.type, d.brand, d.model, d.serial, d.imei
        FROM repair_tickets t
        JOIN repair_statuses s ON s.id = t.status_id
@@ -40,26 +44,23 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
   const c = tickets[0];
   if(tickets.some(t=>t.customer_id!==c.customer_id||t.branch_id!==c.branch_id))return <div className="mx-auto max-w-3xl p-4 sm:p-6"><div className="card card-pad" role="alert"><EmptyState title="قبض گروهی نیازمند بررسی اسناد است" body="این شناسه به بیش از یک مشتری یا شعبه تعلق دارد؛ برای حفظ محرمانگی، چاپ متوقف شد. مدیر باید اسناد اصلی را بررسی کند." action={<Link className="btn-secondary" href="/repairs">بازگشت به پذیرش‌ها</Link>}/></div></div>;
   const shop = (db.prepare("SELECT value FROM settings WHERE key = 'business_name'").get() as any)?.value ?? "RePaird";
-  const shopPhone = (db.prepare("SELECT value FROM settings WHERE key = 'business_phone'").get() as any)?.value ?? "";
-  const shopAddr = (db.prepare("SELECT value FROM settings WHERE key = 'business_address'").get() as any)?.value ?? "";
   const amounts=repairReceiptPositions(db,tickets.map(t=>t.id),c.branch_id);
   const depositTotal=[...amounts.values()].reduce((sum,p)=>sum+p.net,BigInt(0));
   const receiptReview=[...amounts.values()].some(p=>p.review);
   const groupCash=groupReceiptPosition(db,gid,c.customer_id,c.branch_id);
 
-  const query=await searchParams,paper=query.paper==='roll'?'roll':'a5';
+  const documentSettings=readPrintSettings(db),query=await searchParams,paper=printPaper(query.paper,documentSettings.print_receipt_paper);
   const showPrices = query.price==null?!(await cookies()).get("repaid_receipt_hide_prices"):query.price!=='0';
 
   return (
     <div className="min-h-dvh bg-zinc-100 dark:bg-zinc-950 print:bg-white" dir="rtl">
-      <style>{`@media print{@page{size:${paper==='roll'?'80mm 297mm':'A5'};margin:0;}}`}</style>
+      <DocumentPrintStyles settings={documentSettings} paper={paper}/>
       <PrintControls paper={paper} priceHidden={!showPrices} />
-      <div id="print-area" className={`mx-auto w-full bg-white p-4 text-zinc-900 shadow-lg print:shadow-none ${paper==='roll'?'max-w-[80mm] print:w-[80mm] print:p-3':'max-w-[148mm] sm:p-[10mm] print:w-[148mm] print:p-[10mm]'}`}>
+      <div id="print-area" data-document="group-receipt" className={`document-sheet mx-auto w-full bg-white p-4 text-zinc-900 shadow-lg print:shadow-none ${paper==='roll'?'max-w-[80mm]':'max-w-[210mm] sm:p-[10mm]'}`}>
         {/* سربرگ */}
         <div className="flex items-start justify-between border-b-2 border-zinc-800 pb-3">
-          <div>
-            <h1 className="text-lg font-extrabold">{shop}</h1>
-            {(shopAddr || shopPhone) && <p className="text-[11px] text-zinc-500 mt-0.5">{shopAddr} {shopPhone && `· ${shopPhone}`}</p>}
+          <div className="min-w-0 flex-1">
+            <DocumentBrand name={shop} settings={documentSettings}/>
           </div>
           <div className="text-left">
             <div className="text-[13px] font-bold">قبض پذیرش گروهی</div>
@@ -70,7 +71,7 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
 
         {/* مشتری */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs py-3 border-b border-zinc-300">
-          <div><span className="text-zinc-500">مشتری: </span><span className="font-semibold">{c.first_name} {c.last_name}</span></div>
+          <div><span className="text-zinc-500">مشتری: </span><span className="font-semibold">{customerDisplayName(c)}</span></div>
           <div><span className="text-zinc-500">تماس: </span><span className="font-mono">{c.mobile || c.phone || "—"}</span></div>
         </div>
 
@@ -132,10 +133,11 @@ export default async function GroupReceiptPage({ params,searchParams }: { params
         </div>
 
         {/* امضا */}
-        <div className="flex justify-between mt-5 text-[11px]">
+        <div className="document-signature-lines flex justify-between mt-5 text-[11px]">
           <div>امضای مشتری: .....................</div>
           <div>مهر و امضای فروشگاه: .....................</div>
         </div>
+        <DocumentFooter settings={documentSettings}/>
       </div>
     </div>
   );

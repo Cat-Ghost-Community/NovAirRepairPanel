@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function TrackLookup() {
+export function TrackLookup({example,initialTicket=''}:{example:string;initialTicket?:string}) {
   const router = useRouter();
-  const [ticket, setTicket] = useState("");
+  const [ticket, setTicket] = useState(initialTicket);
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -38,7 +38,7 @@ export function TrackLookup() {
     <form onSubmit={submit} className="space-y-3">
       <div>
         <label className="label" htmlFor="t">شماره پذیرش</label>
-        <input id="t" className="input" placeholder="مثلاً P0001" value={ticket} onChange={(e) => setTicket(e.target.value)} required />
+        <input id="t" className="input" placeholder={example} value={ticket} onChange={(e) => setTicket(e.target.value)} required />
       </div>
       <div>
         <label className="label" htmlFor="p">شماره موبایل شما</label>

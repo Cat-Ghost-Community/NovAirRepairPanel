@@ -1,4 +1,5 @@
 "use client";
+import {chargeKindLabel} from '@/lib/charge-category';
 
 import { SearchableSelect } from "@/components/searchable-select";
 
@@ -357,7 +358,7 @@ export function InvoiceForm({
   };
 
   const addManualLine = () => {
-    setLines((prev) => [...prev, { key: uid(), kind: "labor", ref_id: null, name: "اجرت دستی", sku: null, qty: 1, unit_price: 0, discount: 0, cost: 0, employee_id: ticket?.tech_id ?? employeeId ?? null, fromCatalog: false }]);
+    setLines((prev) => [...prev, { key: uid(), kind: "labor", ref_id: null, name: "خدمات تعمیر", sku: null, qty: 1, unit_price: 0, discount: 0, cost: 0, employee_id: ticket?.tech_id ?? employeeId ?? null, fromCatalog: false }]);
     setDirty(true);
   };
 
@@ -757,16 +758,13 @@ export function InvoiceForm({
           </div>
           <button className="btn-secondary btn-sm" onClick={() => setServiceOpen((v) => !v)}>
             <Icon name="plus" size={13} />
-            افزودن خدمت
-          </button>
-          <button className="btn-secondary btn-sm" onClick={addManualLine}>
-            <Icon name="plus" size={13} />
-            افزودن دستی (اجرت)
+            افزودن خدمات تعمیر
           </button>
         </div>
 
         {serviceOpen && (
           <div className="mt-2 rounded-xl border border-zinc-200 p-2 dark:border-zinc-800">
+            <button className="btn-secondary btn-sm mb-2" onClick={()=>{addManualLine();setServiceOpen(false);}}>ثبت دستی خدمات تعمیر</button>
             <input className="input !py-1.5 text-[13px]" autoFocus value={serviceQuery} onChange={(e) => setServiceQuery(e.target.value)} placeholder="جست‌وجوی خدمت از تعرفه…" aria-label="جست‌وجوی خدمت" />
             <div className="mt-1.5 max-h-44 overflow-y-auto">
               {services
@@ -785,7 +783,7 @@ export function InvoiceForm({
 
         {lines.length === 0 ? (
           <div className="mt-3">
-            <EmptyState icon="cart" title="فاکتور خالی است" body="با جست‌وجو/اسکن بارکد کالا اضافه کنید یا خدمت/اجرت دستی بیفزایید." />
+            <EmptyState icon="cart" title="فاکتور خالی است" body="با جست‌وجو/اسکن بارکد کالا اضافه کنید یا خدمات تعمیر بیفزایید." />
           </div>
         ) : (
           <div className="mt-3 overflow-x-auto">
@@ -812,7 +810,7 @@ export function InvoiceForm({
                         dir="auto"
                       />
                       <div className="mt-0.5 flex items-center gap-1.5">
-                        <span className="badge-gray !text-[9px]">{l.kind === "part" ? "کالا" : l.kind === "service" ? "خدمت" : "اجرت"}</span>
+                        <span className="badge-gray !text-[9px]">{chargeKindLabel(l.kind,type)}</span>
                         {l.sku && <span className="text-[10px] text-zinc-400 ltr-num" dir="ltr">{l.sku}</span>}
                         {l.employee_id != null && employees.find((e) => e.id === l.employee_id) && (
                           <span className="text-[10px] text-zinc-400">{employees.find((e) => e.id === l.employee_id)!.name.split(" ")[0]}</span>

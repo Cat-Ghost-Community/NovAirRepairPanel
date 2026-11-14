@@ -1,3 +1,4 @@
+import {requirePayrollManager} from '@/lib/payroll-permissions';
 import {NextRequest} from 'next/server';import {getDb} from '@/lib/db/schema';
 import {requireSession,requirePerm,readJson,ok,fail,validate,HttpError} from '@/lib/api';
 import {ledgerScope} from '@/lib/accounting';import {durableJsonResponse} from '@/lib/idempotency';import {readSnapshot} from '@/lib/db/transaction';
@@ -12,9 +13,10 @@ export async function GET(req:NextRequest){try{
  return ok({run:evidence.run,position:commissionPosition(db,run),operations:rows.slice(0,20),hasMore:rows.length>20,page,actor_id:session.user.id});});
 }catch(e){return fail(e);}}
 export async function POST(req:NextRequest){try{
- const session=requireSession(req);requirePerm(session,'finance.manage');requirePerm(session,'team.manage');const body=await readJson(req),db=getDb(),cookie=req.cookies.get('repaid_branch')?.value;
+ const session=requireSession(req);requirePerm(session,'finance.view');requirePerm(session,'team.view');const body=await readJson(req),db=getDb(),cookie=req.cookies.get('repaid_branch')?.value;
+ const proposal=body.action==='propose';if(proposal)requirePayrollManager(session);else{requirePerm(session,'finance.manage');requirePerm(session,'team.manage');}
  const run=body.action==='propose'?validate.id(body.run_id):Number(db.prepare('SELECT run_id FROM commission_corrections WHERE id=?').get(validate.id(body.id))?.run_id);if(!Number.isSafeInteger(run)||run<=0)throw new HttpError(404,'سند یافت نشد.');
- const evidence=commissionEvidence(db,run);ledgerScope(session,Number(evidence.run.branch_id),cookie,'finance.manage');
+ const evidence=commissionEvidence(db,run);ledgerScope(session,Number(evidence.run.branch_id),cookie,proposal?'finance.view':'finance.manage');
  return durableJsonResponse(db,{actorId:session.user.id,branchId:Number(evidence.run.branch_id),operation:'commission_correction',key:req.headers.get('idempotency-key'),payload:body},()=>{
   if(body.action==='propose')return ok(proposeCommissionCorrection(db,session,body,cookie));
   if(body.action==='approve'||body.action==='reject')return ok(decideCommissionCorrection(db,session,validate.id(body.id),body.action==='approve',cookie));

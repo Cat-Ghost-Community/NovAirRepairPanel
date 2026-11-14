@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const db = getDb();
     const branch = activeBranch(session, req.cookies.get(BRANCH_COOKIE)?.value).branchId;
     const status = req.nextUrl.searchParams.get("status");
-    let sql = `SELECT m.*, c.first_name || ' ' || c.last_name customer_name, c.mobile, u.name user_name
+    let sql = `SELECT m.*, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') customer_name, c.mobile, u.name user_name
       FROM messages m
       LEFT JOIN customers c ON c.id = m.customer_id
       LEFT JOIN users u ON u.id = m.user_id

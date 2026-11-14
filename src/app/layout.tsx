@@ -18,6 +18,8 @@ import {postgresIntegration} from "@/lib/db/pg-integration-config";
 import {postgresShellState} from "@/lib/db/pg-shell";
 import {hasPerm} from "@/lib/perms-shared";
 import type {Session} from "@/lib/auth";
+import {currentPrintSettings} from '@/lib/print-settings-server';
+import {DocumentPrintStyles} from '@/components/document-print';
 
 // فونت متغیر Estedad (self-host از fontsource) — بدون درخواست شبکه در runtime
 // متغیر --font-vazir حفظ شده تا همه ارجاعات قبلی کار کنند
@@ -55,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="fa" dir="rtl" className={`${vazir.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
+        <DocumentPrintStyles settings={await currentPrintSettings()}/>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:rounded-lg focus:bg-brand-600 focus:px-3 focus:py-2 focus:text-white">
           پرش به محتوای اصلی
         </a>

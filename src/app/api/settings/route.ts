@@ -5,9 +5,11 @@ import { BLOCKED_EXT } from "@/lib/chat-shared";
 import { assertOutboundUrl } from "@/lib/outbound";
 import { encryptCredential } from "@/lib/secrets";
 import {validDocumentAffix} from '@/lib/document-number';
+import {PRINT_SETTING_KEYS,printSettingError,type PrintSettingKey} from '@/lib/print-settings';
 
 /** کلیدهای مجاز تنظیمات — از نوشتن کلیدهای نامعتبر/ناشناخته جلوگیری می‌کند */
 const ALLOWED_SETTING_KEYS = [
+  ...PRINT_SETTING_KEYS,
   "business_name",
   "currency_unit",
   "tax_rate",
@@ -17,6 +19,7 @@ const ALLOWED_SETTING_KEYS = [
   "invoice_prefix",
   "ticket_prefix",
   "ticket_suffix", "invoice_suffix",
+  "tracking_ticket_example",
   "diagnostic_fee",
   "default_credit_limit",
   "public_base_url",
@@ -63,8 +66,12 @@ export async function POST(req: NextRequest) {
         throw new HttpError(400, `تنظیم «${key}» شناخته‌شده نیست.`);
       }
       let value = String(v ?? "").trim();
+      if((PRINT_SETTING_KEYS as readonly string[]).includes(key)){
+        const error=printSettingError(key as PrintSettingKey,value);if(error)throw new HttpError(400,error);
+      }
       if(['ticket_prefix','ticket_suffix','invoice_prefix','invoice_suffix'].includes(key)&&!validDocumentAffix(value))throw new HttpError(400,'پیشوند و پسوند حداکثر ۳۲ نویسه دارند؛ فقط حرف، رقم، خط تیره، نقطه و زیرخط مجاز است.');
       if (key.startsWith("sms_") && !["owner", "admin"].includes(session.user.role)) throw new HttpError(403, "تنظیم درگاه پیام فقط توسط مدیر ارشد مجاز است.");
+      if(key==='tracking_ticket_example'&&(value.length>160||/[\u0000-\u001f]/.test(value)))throw new HttpError(400,'متن نمونهٔ پیگیری باید کوتاه و تک‌خطی باشد.');
       if (value.length > 4096) throw new HttpError(400, "مقدار تنظیم بیش از حد طولانی است.");
       if (key === "sms_provider" && !["none", "kavenegar", "melipayamak", "ghasedak", "custom"].includes(value)) throw new HttpError(400, "درگاه پیامک معتبر نیست.");
       if (key === "sms_api_key") {

@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       .prepare(
         `SELECT d.id, d.brand, d.model, d.type, d.serial, d.imei, c.first_name, c.last_name
          FROM devices d JOIN customers c ON c.id = d.customer_id
-         WHERE (? IS NULL OR d.id IN (SELECT device_id FROM device_branch_access WHERE branch_id=?)) AND (d.model LIKE ? OR d.brand LIKE ? OR d.serial LIKE ? OR d.imei LIKE ? OR c.first_name || ' ' || c.last_name LIKE ?)
+         WHERE (? IS NULL OR d.id IN (SELECT device_id FROM device_branch_access WHERE branch_id=?)) AND (d.model LIKE ? OR d.brand LIKE ? OR d.serial LIKE ? OR d.imei LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ?)
          LIMIT 8`
       )
       .all(scope.branchId,scope.branchId,like, like, like, like, like) as any[] : [];
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       .prepare(
         `SELECT i.id, i.number, i.total, i.status, c.first_name, c.last_name
          FROM effective_invoices i JOIN customers c ON c.id = i.customer_id
-         WHERE (${invoiceScope.sql}) AND (i.number LIKE ? OR c.first_name || ' ' || c.last_name LIKE ?)
+         WHERE (${invoiceScope.sql}) AND (i.number LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ?)
          LIMIT 8`
       )
       .all(...invoiceScope.params, like, like) as any[] : [];

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui";
 import { fmtMoney, fmtDate, toFaDigits } from "@/lib/format";
 import { escapeHtml } from "@/lib/html";
+import {printDocumentWindow} from '@/lib/print-ready';
 
 type Col = { key: string; label: string; type?: "money" | "date" | "num" };
 type Source = { key: string; label: string; cols: Col[]; filters: Array<{ key: string; label: string; type: string }> };
@@ -124,12 +125,8 @@ export function ReportBuilderClient({ saved: initialSaved }: { saved: Saved[] })
       return `<td style="border:1px solid #ccc;padding:5px;text-align:center">${escapeHtml(v)}</td>`;
     }).join("")}</tr>`).join("");
     const w = window.open("", "_blank");
-    w?.document.write(`<!DOCTYPE html><html dir="rtl" lang="fa"><head><meta charset="utf-8"><title>گزارش</title>
-      <style>body{font-family:Vazirmatn,Tahoma,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;font-size:12px}@page{size:A4;margin:12mm}</style></head>
-      <body><h2 style="font-size:16px">گزارش ${escapeHtml(sources.find((s) => s.key === source)?.label ?? "")}</h2>
-      <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></body></html>`);
-    w?.document.close();
-    w?.print();
+    if(!w){toast('پنجرهٔ چاپ باز نشد؛ اجازهٔ بازشدن پنجره را در مرورگر بدهید.','error');return;}
+    printDocumentWindow(w,'گزارش',`<h1>گزارش ${escapeHtml(sources.find((s)=>s.key===source)?.label??'')}</h1><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`);
   };
 
   const cell = (c: Col, v: any) => {

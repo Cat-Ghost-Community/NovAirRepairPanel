@@ -86,7 +86,7 @@ describe("two-branch business access using real API handlers and SQLite",()=>{
   });
   it("persists a newly created customer in the actual employed branch",async()=>{
     const {POST}=await import("../src/app/api/customers/route");
-    const response=await POST(request("staff2","/api/customers",{first_name:"NEW-OWN-BRANCH",mobile:"09129999999"}));
+    const response=await POST(request("staff2","/api/customers",{first_name:"NEW-OWN-BRANCH",last_name:"SURNAME",mobile:"09129999999"}));
     assert.equal(response.status,200);
     const {id}=await response.json();
     assert.equal(db.prepare("SELECT branch_id FROM customers WHERE id=?").get(id)!.branch_id,2);
@@ -274,24 +274,26 @@ describe("legacy compatibility and less visible branch paths",()=>{
     assert.throws(()=>chat.requireVisibleChatMessage(db,ids.staff1,sent.id),{status:404});
     const stale=chat.requireConversation(db,group,ids.staff1);
     db.prepare("UPDATE users SET branch_id=2 WHERE id=?").run(ids.staff1);
-    try{assert.throws(()=>chat.postMessage(db,staff,stale.conv,stale.member,{body:"STALE-BRANCH-WRITE"}),{status:404});}finally{db.prepare("UPDATE users SET branch_id=1 WHERE id=?").run(ids.staff1);}
+    try{assert.throws(()=>chat.postMessage(db,staff,stale.conv,stale.member,{body:"STALE-BRANCH-WRITE"}),{status:409});}finally{db.prepare("UPDATE users SET branch_id=1 WHERE id=?").run(ids.staff1);}
     assert.equal(db.prepare("SELECT COUNT(*) n FROM chat_messages WHERE body='STALE-BRANCH-WRITE'").get()!.n,0);
   });
 });
 
 describe("internal-only organizational chat and employment changes",()=>{
-  it("supports staff DMs and company management contact, blocks foreign-branch users and include-ID leaks",async()=>{
-    const chat=await import("../src/lib/chat");
-    const one=await session("staff1");
+  it("allows active employees across branches to find one another and exchange private messages",async()=>{
+    const chat=await import('../src/lib/chat'),one=await session('staff1');
     ids.dm=chat.ensureDirectConversation(db,one,ids.manager1);
     assert.equal(chat.ensureDirectConversation(db,one,ids.manager1),ids.dm);
-    assert.throws(()=>chat.ensureDirectConversation(db,one,ids.staff2),{status:403});
-    const management=chat.ensureDirectConversation(db,await session("staff2"),ids.owner);
-    assert.equal(chat.requireConversation(db,management,ids.staff2).conv.branch_id,2);
-    const {GET}=await import("../src/app/api/chat/users/route");
-    const users=(await (await GET(request("staff1",`/api/chat/users?include=${ids.staff2}`))).json()).users;
-    assert.ok(!users.some((u:{id:number})=>u.id===ids.staff2));
-    assert.ok(users.some((u:{id:number})=>u.id===ids.owner));
+    const cross=chat.ensureDirectConversation(db,one,ids.staff2);
+    assert.equal(chat.requireConversation(db,cross,ids.staff1).conv.branch_id,null);
+    assert.equal(chat.ensureDirectConversation(db,await session('staff2'),ids.staff1),cross);
+    assert.throws(()=>chat.requireConversation(db,cross,ids.inventory1),{status:403});
+    const management=chat.ensureDirectConversation(db,await session('staff2'),ids.owner);
+    assert.equal(chat.requireConversation(db,management,ids.staff2).conv.branch_id,null);
+    const {GET}=await import('../src/app/api/chat/users/route');
+    const users=(await (await GET(request('staff1','/api/chat/users'))).json()).users;
+    assert.ok(users.some((user:{id:number})=>user.id===ids.staff2));
+    assert.ok(!users.some((user:{id:number})=>[ids.inactiveBranch,ids.unassigned].includes(user.id)));
   });
   it("rejects new customer/document chats and hides preserved legacy linked threads everywhere",async()=>{
     const chat=await import("../src/lib/chat");
@@ -324,30 +326,20 @@ describe("internal-only organizational chat and employment changes",()=>{
     assert.equal(db.prepare("SELECT COUNT(*) n FROM chat_conversations").get()!.n,before);
     function awaitedManager(){return {user:{id:ids.manager1,name:"manager1",role:"manager",branch_id:1,email:"manager1@test.local",avatar_color:"#000000"}};}
   });
-  it("revokes old branch conversations, messages, search, summaries and events immediately after staff transfer",async()=>{
-    const chat=await import("../src/lib/chat");
-    ids.branchGroup=chat.createGroupConversation(db,await session("manager1"),{type:"group",title:"BRANCH-ONE-GROUP",memberIds:[ids.staff1]});
-    const member=chat.requireConversation(db,ids.branchGroup,ids.manager1);
-    chat.postMessage(db,await session("manager1"),member.conv,member.member,{body:"secret old branch",client_key:"old-branch"});
-    db.prepare("INSERT INTO notifications(user_id,title,body) VALUES(?,'OLD-BRANCH','secret')").run(ids.staff1);
-    assert.equal(db.prepare("SELECT branch_id FROM notifications WHERE user_id=?").get(ids.staff1)!.branch_id,1);
-    db.prepare("UPDATE users SET branch_id=2 WHERE id=?").run(ids.staff1);
-    const moved=await session("staff1");assert.equal(moved.user.branch_id,2);
-    chat.postMessage(db,await session("manager1"),member.conv,member.member,{body:"SECRET AFTER TRANSFER",mentions:[ids.staff1]});
-    assert.equal(db.prepare("SELECT COUNT(*) n FROM notifications WHERE user_id=? AND body LIKE '%SECRET AFTER TRANSFER%'").get(ids.staff1)!.n,0);
-    assert.ok(!chat.getMemberList(db,ids.branchGroup,false).some(m=>m.user_id===ids.staff1));
-    for(const id of [ids.dm,ids.branchGroup]){
-      assert.throws(()=>chat.requireConversation(db,id,ids.staff1),{status:404});
-      assert.throws(()=>chat.fetchMessages(db,moved,id,{}),{status:404});
-      assert.throws(()=>chat.fetchEvents(db,moved,0,id),{status:404});
-    }
-    assert.throws(()=>chat.ensureDirectConversation(db,moved,ids.manager1),{status:403});
-    assert.ok(!chat.listConversations(db,moved,{filter:"all",q:"",withPresence:false}).some(c=>c.id===ids.branchGroup));
-    assert.equal(chat.searchChat(db,moved,{q:"secret"}).results.length,0);
-    assert.equal(chat.chatSummary(db,ids.staff1).unread_total,0);
-    const {GET}=await import("../src/app/api/notifications/route");
-    assert.equal((await (await GET(request("staff1","/api/notifications"))).json()).notifications.length,0);
-    db.prepare("UPDATE users SET branch_id=1 WHERE id=?").run(ids.staff1);
+  it("retains internal conversations after transfer while revoking inactive employment",async()=>{
+    const chat=await import('../src/lib/chat');
+    ids.branchGroup=chat.createGroupConversation(db,await session('manager1'),{type:'group',title:'COMPANY-GROUP',memberIds:[ids.staff1]});
+    const membership=chat.requireConversation(db,ids.branchGroup,ids.manager1);
+    const message=chat.postMessage(db,await session('manager1'),membership.conv,membership.member,{body:'Internal colleague message'}).message;
+    db.prepare('UPDATE users SET branch_id=2 WHERE id=?').run(ids.staff1);
+    try{
+      const moved=await session('staff1');
+      assert.ok(chat.requireConversation(db,ids.branchGroup,ids.staff1));
+      assert.doesNotThrow(()=>chat.requireVisibleChatMessage(db,ids.staff1,message.id));
+      assert.ok(chat.listConversations(db,moved,{filter:'all',q:'',withPresence:false}).some(row=>row.id===ids.branchGroup));
+      db.prepare('UPDATE users SET is_active=0 WHERE id=?').run(ids.staff1);
+      assert.throws(()=>chat.requireConversation(db,ids.branchGroup,ids.staff1),{status:404});
+    }finally{db.prepare('UPDATE users SET branch_id=1,is_active=1 WHERE id=?').run(ids.staff1);}
   });
   it("allows explicit internal company-wide groups while keeping branch business records inaccessible",async()=>{
     const chat=await import("../src/lib/chat");
@@ -433,26 +425,18 @@ describe("company chat controls and concurrent creation",()=>{
     assert.equal(db.prepare("SELECT COUNT(*) n FROM chat_events WHERE conversation_id=? AND type='conversation_created'").get(first)!.n,1);
     assert.equal(db.prepare("SELECT COUNT(*) n FROM audit_logs WHERE entity='chat_conversation' AND entity_id=? AND action='create'").get(first)!.n,1);
   });
-  it("starts a new branch-owned management DM after transfer and leaves the old context read-only",async()=>{
-    const chat=await import("../src/lib/chat");
-    const owner=await session("owner");
-    const before=chat.ensureDirectConversation(db,await session("staff1"),ids.owner);
-    assert.equal(chat.requireConversation(db,before,ids.staff1).conv.branch_id,1);
-    db.prepare("UPDATE users SET branch_id=2 WHERE id=?").run(ids.staff1);
+  it("keeps a single company-wide management DM after employee transfer",async()=>{
+    const chat=await import('../src/lib/chat'),owner=await session('owner');
+    const before=chat.ensureDirectConversation(db,await session('staff1'),ids.owner);
+    assert.equal(chat.requireConversation(db,before,ids.staff1).conv.branch_id,null);
+    db.prepare('UPDATE users SET branch_id=2 WHERE id=?').run(ids.staff1);
     try{
-      const historical=chat.requireConversation(db,before,ids.owner);
-      assert.equal(chat.canPostIn(historical.conv,historical.member,owner,db),false);
-      assert.throws(()=>chat.postMessage(db,owner,historical.conv,historical.member,{body:"UNREACHABLE OLD CONTEXT"}),{status:403});
-      const after=chat.ensureDirectConversation(db,await session("staff1"),ids.owner);
-      assert.notEqual(before,after);
-      assert.equal(chat.ensureDirectConversation(db,owner,ids.staff1),after);
+      const after=chat.ensureDirectConversation(db,await session('staff1'),ids.owner);
+      assert.equal(before,after);assert.equal(chat.ensureDirectConversation(db,owner,ids.staff1),after);
       const active=chat.requireConversation(db,after,ids.staff1);
-      assert.equal(active.conv.branch_id,2);
-      assert.throws(()=>chat.requireConversation(db,before,ids.staff1),{status:404});
-      const sent=chat.postMessage(db,await session("staff1"),active.conv,active.member,{body:"NEW EMPLOYMENT CONTEXT"}).message;
-      assert.equal(db.prepare("SELECT conversation_id FROM chat_messages WHERE id=?").get(sent.id)!.conversation_id,after);
-      assert.equal(db.prepare("SELECT COUNT(*) n FROM chat_messages WHERE body='UNREACHABLE OLD CONTEXT'").get()!.n,0);
-    }finally{db.prepare("UPDATE users SET branch_id=1 WHERE id=?").run(ids.staff1);}
+      const message=chat.postMessage(db,await session('staff1'),active.conv,active.member,{body:'COMPANY-WIDE EMPLOYEE MESSAGE'}).message;
+      assert.equal(db.prepare('SELECT conversation_id FROM chat_messages WHERE id=?').get(message.id)!.conversation_id,after);
+    }finally{db.prepare('UPDATE users SET branch_id=1 WHERE id=?').run(ids.staff1);}
   });
   it("does not notify a former branch technician about private repair activity",async()=>{
     const {notifyUser}=await import("../src/lib/repair");

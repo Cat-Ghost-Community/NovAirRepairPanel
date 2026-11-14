@@ -1,5 +1,6 @@
 "use client";
 
+import {NotificationAnnouncements} from './notification-announcements';
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback,useEffect, useMemo, useRef, useState,useTransition } from "react";
@@ -235,7 +236,8 @@ export function Shell({
     notificationScopeRef.current=notificationScope;
     loadNotifs();
     const iv = setInterval(loadNotifs, 30000);
-    return () => {clearInterval(iv);notifController.current?.abort();};
+    window.addEventListener('repaid:notifications',loadNotifs);
+    return () => {clearInterval(iv);notifController.current?.abort();window.removeEventListener('repaid:notifications',loadNotifs);};
   }, [loadNotifs,notificationScope]);
   const markNotification=async(body:{action:'mark_read'|'mark_all_read';id?:number})=>{
     if(notifBusy)return false;setNotifBusy(true);
@@ -265,9 +267,10 @@ export function Shell({
     };
     load();
     const iv = setInterval(load, 30000);
+    window.addEventListener('repaid:notifications',load);
     return () => {
       alive = false;
-      clearInterval(iv);
+      clearInterval(iv);window.removeEventListener('repaid:notifications',load);
     };
   }, [perms,integrationMode]);
 
@@ -340,7 +343,7 @@ export function Shell({
   const myBranchName = branches.find((b) => b.id === user.branch_id)?.name;
 
   return (
-    <div className="flex h-dvh overflow-hidden">
+    <div className="app-shell flex h-dvh overflow-hidden">
       <ThemeInitEffect />
       {/* منوی کنار دسکتاپ */}
       <aside className="hidden lg:flex w-56 shrink-0 border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -489,7 +492,7 @@ export function Shell({
         )}
 
         {/* تنها ناحیهٔ اسکرول عمودی برنامه — صفحه‌ها نباید اسکرول تودرتو بسازند */}
-        <main id="main-content" className="min-h-0 flex-1 overflow-y-auto">{children}</main>
+        <NotificationAnnouncements userId={user.id} branch={activeBranchId}/><main id="main-content" className="min-h-0 flex-1 overflow-y-auto">{children}</main>
 
         {/* ناوبری پایین موبایل */}
         <nav className="lg:hidden flex h-14 shrink-0 items-stretch border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900" aria-label="ناوبری موبایل">

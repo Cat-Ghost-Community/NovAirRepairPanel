@@ -51,7 +51,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   if (bScope.sql !== "1=1") { sql += ` AND ${bScope.sql}`; params.push(...bScope.params); }
   if (sp.status) { sql += " AND a.status = ?"; params.push(sp.status); }
   if (sp.q) {
-    sql += " AND (a.repair_type LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ? OR c.mobile LIKE ?)";
+    sql += " AND (a.repair_type LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ? OR c.mobile LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like, like);
   }

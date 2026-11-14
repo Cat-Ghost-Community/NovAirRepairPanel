@@ -3,6 +3,7 @@ import { multiplyRial, percentRial, sumRial } from "@/lib/money";
 import { atomic } from "@/lib/db/transaction";
 import { captureFinancialDocument } from "@/lib/accounting-events";
 import { PAYROLL_SOURCE_JOINS,PAYROLL_BRANCH_SQL } from "@/lib/payroll-scope";
+import {isRepairService} from './charge-category';
 
 /**
  * حقوق و دستمزد تعمیرکاران:
@@ -58,7 +59,7 @@ export function computeTechnicianCommission(ticketId: number, actorId?: number) 
   if (!profile || profile.is_active === 0 || profile.salary_type === "fixed") return;
 
   const items = db.prepare("SELECT kind,qty,unit_price FROM ticket_items WHERE ticket_id=? AND consumed=1").all(ticketId) as { kind: string; qty: number; unit_price: number }[];
-  const laborTotal = sumRial(items.filter(i => i.kind === "labor").map(i => multiplyRial(i.unit_price, i.qty)));
+  const laborTotal = sumRial(items.filter(i => isRepairService(i.kind)).map(i => multiplyRial(i.unit_price, i.qty)));
   const partsTotal = sumRial(items.filter(i => i.kind === "part").map(i => multiplyRial(i.unit_price, i.qty)));
 
   let commission = 0;
@@ -87,7 +88,7 @@ export function payrollReport(userId: number, fromISO: string, toISO: string, br
   const profile = getProfile(userId);
   const commission = db.prepare(
     `SELECT COALESCE(SUM(p.effective_commission),0) c FROM payroll_runs r JOIN users u ON u.id=r.user_id JOIN commission_positions p ON p.run_id=r.id ${PAYROLL_SOURCE_JOINS}
-      WHERE r.user_id = ? AND r.status != 'cancelled' AND r.period_from BETWEEN ? AND ? ${branchId==null?"":`AND ${PAYROLL_BRANCH_SQL}=?`}`
+      WHERE r.user_id = ? AND r.status != 'cancelled' AND date(r.period_from) BETWEEN ? AND ? ${branchId==null?"":`AND ${PAYROLL_BRANCH_SQL}=?`}`
   ).get(userId, fromISO, toISO,...(branchId==null?[]:[branchId])) as any;
   const deductions = db.prepare(
     `SELECT COALESCE(SUM(amount),0) c FROM payroll_deductions WHERE user_id = ? AND date BETWEEN ? AND ? ${branchId==null?'':'AND branch_id=?'}`

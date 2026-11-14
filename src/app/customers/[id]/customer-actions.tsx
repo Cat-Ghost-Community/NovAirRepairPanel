@@ -6,6 +6,7 @@ import { EmptyState,Modal,useToast } from "@/components/ui";
 import {SearchableSelect} from '@/components/searchable-select';
 import {Checkbox} from '@/components/checkbox';
 import {CUSTOMER_TYPES,customerTypeFa,customerTypeValue} from '@/lib/customer-type';
+import {CUSTOMER_TITLES} from '@/lib/customer-identity';
 import {toFaDigits} from '@/lib/format';
 
 export function CustomerActions({ customerId, canEdit, blacklist }: { customerId: number; canEdit: boolean; canMerge: boolean; blacklist: boolean }) {
@@ -60,7 +61,7 @@ export function CustomerActions({ customerId, canEdit, blacklist }: { customerId
 }
 
 type MergeCandidate={id:number;first_name?:string;last_name?:string;company?:string;code?:string;mobile?:string};
-const editFields=[['first_name','نام'],['last_name','نام خانوادگی'],['company','شرکت'],['mobile','موبایل'],['email','ایمیل'],['city','شهر'],['phone','تلفن'],['postal_code','کد پستی'],['tax_id','شناسه مالیاتی'],['organization_name','نام سازمان']] as const;
+const editFields=[['first_name','نام'],['last_name','نام خانوادگی'],['company','شرکت'],['mobile','موبایل'],['email','ایمیل'],['city','شهر'],['phone','تلفن'],['postal_code','کد پستی'],['tax_id','شناسه مالیاتی'],['organization_name','نام سازمان'],['national_id','کد ملی'],['job','شغل'],['nickname','نام مستعار'],['referral_source','طریقه آشنایی']] as const;
 const mergeLabel=(row:MergeCandidate)=>[row.first_name,row.last_name].filter(Boolean).join(' ')||row.company||row.code||toFaDigits(row.id);
 /** Native profile controls reuse the existing design and retain failed-operation
  * identities; unrelated SQLite screens continue using CustomerActions. */
@@ -82,7 +83,7 @@ export function CustomerProfileActions({customerId,canEdit,canMerge,profile,bran
  },[panel,search,page,branchId,customerId,retry]);
  function open(next:'edit'|'merge'){
   setError(null);setPanel(next);
-  if(next==='edit')setForm(Object.fromEntries([...editFields.map(([key])=>[key,String(profile[key]??'')]),['address',String(profile.address??'')],['notes',String(profile.notes??'')],['customer_type',customerTypeValue(profile.customer_type)??'regular']]));
+  if(next==='edit')setForm(Object.fromEntries([...editFields.map(([key])=>[key,String(profile[key]??'')]),['address',String(profile.address??'')],['notes',String(profile.notes??'')],['customer_type',customerTypeValue(profile.customer_type)??'regular'],['salutation',String(profile.salutation??'')]]));
   else{setSearch('');setPage(1);setSelected(null);setConfirmed(false);setLookup({items:[],loading:true,error:null,hasMore:false});}
  }
  async function submit(body:Record<string,unknown>){
@@ -102,7 +103,8 @@ export function CustomerProfileActions({customerId,canEdit,canMerge,profile,bran
   <Modal open={panel==='edit'} onClose={()=>setPanel(null)} dismissible={!busy} title="ویرایش مشخصات مشتری" wide footer={<><button type="button" className="btn-secondary" disabled={busy} onClick={()=>setPanel(null)}>انصراف</button><button type="submit" form="customer-profile-edit" className="btn-primary" disabled={busy}>{busy?'در حال ذخیره…':'ذخیره مشخصات'}</button></>}>
    <form id="customer-profile-edit" onSubmit={event=>{event.preventDefault();void submit({action:'update',...form,expected_updated_at:profile.updated_at??null});}}>
     <fieldset disabled={busy} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
-     {editFields.map(([key,label])=><label key={key} className="min-w-0"><span className="label">{label}</span><input className="input w-full min-w-0" value={form[key]??''} type={key==='email'?'email':'text'} inputMode={['mobile','phone','postal_code'].includes(key)?'tel':undefined} dir={['email','mobile','phone'].includes(key)?'ltr':undefined} maxLength={key==='email'?254:160} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}
+     <label className="min-w-0"><span className="label">عنوان</span><SearchableSelect value={form.salutation??''} onChange={event=>setForm(previous=>({...previous,salutation:event.target.value}))}><option value="">بدون عنوان</option>{Object.entries(CUSTOMER_TITLES).map(([key,label])=><option key={key} value={key}>{label}</option>)}</SearchableSelect></label>
+     {editFields.map(([key,label])=><label key={key} className="min-w-0"><span className="label">{label}</span><input required={key==='last_name'} className="input w-full min-w-0" value={form[key]??''} type={key==='email'?'email':'text'} inputMode={['mobile','phone','postal_code'].includes(key)?'tel':undefined} dir={['email','mobile','phone'].includes(key)?'ltr':undefined} maxLength={key==='email'?254:160} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}
      <label className="min-w-0"><span className="label">نوع مشتری</span><SearchableSelect value={form.customer_type??'regular'} onChange={event=>setForm(previous=>({...previous,customer_type:event.target.value}))}>{CUSTOMER_TYPES.map(type=><option key={type} value={type}>{customerTypeFa(type)}</option>)}</SearchableSelect></label>
      {(['address','notes'] as const).map(key=><label key={key} className="min-w-0 sm:col-span-2"><span className="label">{key==='address'?'نشانی':'توضیحات'}</span><textarea className="input min-h-24 w-full resize-y" maxLength={key==='notes'?2000:1000} value={form[key]??''} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}
     </fieldset>{error&&<p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}

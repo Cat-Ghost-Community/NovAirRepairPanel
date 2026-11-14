@@ -6,6 +6,10 @@ import { escapeHtml } from "@/lib/html";
 import { requireRepairAccess } from "@/lib/repair-access";
 import { fmtMoney, fmtDate, fmtDateTime, toFaDigits } from "@/lib/format";
 import {PRINT_FONT_ROOT} from '@/lib/network-policy';
+import {documentPrintCss} from '@/lib/print-settings';
+import {readPrintSettings} from '@/lib/print-settings-server';
+import {customerDisplayName} from '@/lib/customer-identity';
+import {assertBranchResource} from '@/lib/branch-access';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,9 +17,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     requirePerm(session, "estimates.view");
     const { id } = await params;
     const db = getDb();
+    const documentSettings=readPrintSettings(db);
     const e = db
       .prepare(
-        `SELECT e.*, c.first_name, c.last_name, c.company, c.mobile, d.brand, d.model, t.number ticket_number
+        `SELECT e.*, c.first_name, c.last_name, c.salutation, c.company, c.mobile, d.brand, d.model, t.number ticket_number
          FROM estimates e JOIN customers c ON c.id = e.customer_id
          LEFT JOIN devices d ON d.id = e.device_id LEFT JOIN repair_tickets t ON t.id = e.ticket_id
          WHERE e.id = ?`
@@ -23,11 +28,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .get(Number(id)) as any;
     if (!e) return new Response("یافت نشد", { status: 404 });
     if (e.ticket_id) requireRepairAccess(session, Number(e.ticket_id), req.cookies.get("repaid_branch")?.value);
+    else assertBranchResource(db,session,req.cookies.get('repaid_branch')?.value,'customer',e.customer_id);
+    const customerName=escapeHtml(customerDisplayName(e));
     for (const key of Object.keys(e)) if (typeof e[key] === "string") e[key] = escapeHtml(e[key]);
     if (e.signature_data && !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(e.signature_data)) e.signature_data = null;
     const items = db.prepare("SELECT * FROM estimate_items WHERE estimate_id = ? ORDER BY id").all(Number(id)) as any[];
     const shop = escapeHtml(rawGetSetting("business_name", "تعمیرگاه"));
-    const origin = escapeHtml(new URL(process.env.APP_ORIGIN??req.nextUrl.origin).origin);
+    const requestOrigin=new URL(req.nextUrl.origin),host=req.headers.get('host');if(host)requestOrigin.host=host;
+    const origin = escapeHtml(new URL(rawGetSetting('public_base_url')||process.env.APP_ORIGIN||requestOrigin.origin).origin);
 
     const rows = items
       .map(
@@ -62,12 +70,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   @media print {
     body{margin:0;padding:12mm}
     .noprint{display:none}
-    @page { size: A5; margin: 10mm; }
   }
-</style></head><body>
+  ${documentPrintCss(documentSettings)}
+</style></head><body class="document-sheet" data-document="estimate">
+<div class="noprint" style="margin-bottom:18px"><button id="document-print" type="button">چاپ / ذخیره PDF</button><p>برای خروجی تمیز، سربرگ و پابرگ مرورگر را در پنجرهٔ چاپ خاموش کنید.</p></div>
 <div class="head">
-  <div>
+  <div class="document-brand" style="flex:1">
     <strong style="font-size:17px">${shop}</strong>
+    ${documentSettings.business_phone?`<div class="document-contact" dir="ltr">${escapeHtml(documentSettings.business_phone)}</div>`:''}
+    ${documentSettings.business_address?`<div class="document-contact">${escapeHtml(documentSettings.business_address)}</div>`:''}
     <div class="muted">برآورد هزینه تعمیرات</div>
     ${e.ticket_number ? `<div class="muted">پذیرش: <span class="num">${e.ticket_number}</span></div>` : ""}
   </div>
@@ -79,9 +90,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   </div>
 </div>
 <div class="info">
-  <strong>صورتحساب برای:</strong> ${e.company ?? `${e.first_name} ${e.last_name}`}<br/>
+  <strong>صورتحساب برای:</strong> ${e.company || customerName}<br/>
   ${e.mobile ? `تلفن: <span class="num">${toFaDigits(e.mobile)}</span><br/>` : ""}
-  ${e.brand ? `دستگاه: ${e.brand} ${e.model ?? ""}<br/>` : ""}
+  ${(e.brand||e.model) ? `دستگاه: ${e.brand??''} ${e.model ?? ""}<br/>` : ""}
 </div>
 <table><thead><tr><th>شرح</th><th style="width:60px">تعداد</th><th style="width:130px">قیمت واحد</th><th style="width:130px">جمع کل</th></tr></thead>
 <tbody>${rows}</tbody></table>
@@ -93,7 +104,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 </div>
 ${(e.notes || e.terms) ? `<p class="muted" style="margin-top:18px;line-height:2">${e.notes ?? ""} ${e.terms ?? ""}</p>` : ""}
 ${e.signature_data ? `
-<div style="margin-top:22px;border:1px solid #ddd;border-radius:8px;padding:14px;background:#fafafa">
+<div class="document-signed-evidence" style="margin-top:22px;border:1px solid #ddd;border-radius:8px;padding:14px;background:#fafafa">
   <div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:8px">تأیید و امضای مشتری</div>
   <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <img src="${e.signature_data}" alt="امضای مشتری" style="display:block;width:100%;max-width:360px;height:120px;object-fit:contain;padding:12px;box-sizing:border-box;border:1px solid #d4d4d8;border-radius:12px;background:#fff"/>
@@ -104,17 +115,18 @@ ${e.signature_data ? `
     </div>
   </div>
   <div class="muted" style="margin-top:8px;font-size:10.5px">این امضای الکترونیکی به‌منزله امضای دست‌نویس مشتری است و تأیید مبلغ و شروع تعمیر را اثبات می‌کند (مطابق قوانین تجارت الکترونیک).</div>
-</div>` : `<div style="margin-top:26px;display:flex;justify-content:space-between;font-size:12px;color:#555">
+</div>` : `<div class="document-signature-lines" style="margin-top:26px;display:flex;justify-content:space-between;font-size:12px;color:#555">
   <div>امضای مشتری: ......................................</div>
   <div>مهر و امضای تعمیرگاه: ......................................</div>
 </div>`}
 <div class="qr">
   <p class="muted noprint">تأیید یا رد این برآورد به‌صورت آنلاین:</p>
-  <img class="noprint" src="/api/qr?text=${encodeURIComponent(`/track/estimate/${e.public_token}`)}" alt="QR" width="110"/>
+  <img src="/api/qr?text=${encodeURIComponent(`${origin}/track/estimate/${e.public_token}`)}" alt="QR تأیید برآورد" width="110"/>
   <div class="muted num" dir="ltr">${origin}/track/estimate/${e.public_token}</div>
 </div>
 <p class="foot">این برآورد صرفاً اعلام هزینه است و تا پیش از تأیید مشتری، هیچ عملیاتی انجام نمی‌شود. پس از تأیید، موارد تأییدشده مشمول شرایط گارانتی درج‌شده در رسید پذیرش خواهد بود.</p>
-<script nonce="${escapeHtml(req.headers.get('x-nonce')??'')}">if(location.search.includes("print"))window.print()</script>
+${documentSettings.print_footer?`<footer class="document-footer">${escapeHtml(documentSettings.print_footer)}</footer>`:''}
+<script nonce="${escapeHtml(req.headers.get('x-nonce')??'')}">async function printDocument(){await document.fonts.ready;await Promise.all(Array.from(document.images).map(image=>image.decode().catch(()=>{})));window.print()}document.getElementById('document-print').addEventListener('click',printDocument);if(new URLSearchParams(location.search).get('print')==='1')printDocument();</script>
 </body></html>`;
     return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control":"private, no-store" } });
   } catch (e) {

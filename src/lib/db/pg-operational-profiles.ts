@@ -6,6 +6,8 @@ import {postgresDurableOperation} from './postgres-operations';
 import {pgDay,pgId,pgMoney,pgRecord,pgText,postgresFinancialAudit,scopeFor} from './pg-customer-finance';
 import {safePostgresInteger,type PostgresDatabase} from './postgres';
 import {CUSTOMER_TYPES,customerTypeValue} from '../customer-type';
+import {customerSalutation} from '../customer-identity';
+import {requireReceptionCustomerName} from '../reception-validation';
 import {toEnDigits} from '../format';
 import {deviceRegistrationSpecs} from '../device-catalog';
 import {readPostgresDeviceCatalog} from './pg-device-catalog';
@@ -97,7 +99,7 @@ export async function mutatePostgresCustomer(db:PostgresDatabase,schema:string,t
  if(target==null)throw new HttpError(409,'برای ویرایش نمایهٔ قدیمی، شعبهٔ دارای سابقه را مشخص کنید؛ مالکیت اصلی تغییر نمی‌کند.');
  if(!['update','archive','blacklist','unblacklist'].includes(String(action)))throw new HttpError(409,'این تغییر مالکیت یا ادغام هنوز به مسیر کنترل‌شدهٔ PostgreSQL متصل نشده است.');
  for(const field of ['branch_id','customer_id','code','created_at','created_by','credit_limit','referrer_customer_id','referrer_commission_type','referrer_commission_value'])if(Object.hasOwn(body,field))throw new HttpError(409,'مالکیت و مدارک مالی از فرم مشخصات قابل تغییر نیستند.');
- const editable=['first_name','last_name','company','mobile','phone','email','address','city','tax_id','notes','postal_code','organization_name','customer_type','is_colleague'];
+ const editable=['salutation','national_id','job','nickname','referral_source','first_name','last_name','company','mobile','phone','email','address','city','tax_id','notes','postal_code','organization_name','customer_type','is_colleague'];
  const allowed=['action','expected_updated_at',...(action==='update'?editable:action==='blacklist'?['reason']:[])];
  if(Object.keys(body).some(key=>!allowed.includes(key)))throw new HttpError(400,'فیلد درخواست برای این عملیات معتبر نیست.');
  return postgresDurableOperation(db,schema,token??'',{permission:'customers.edit',branchId:target,operation:'customer.profile',key,payload},async scope=>{
@@ -110,13 +112,14 @@ export async function mutatePostgresCustomer(db:PostgresDatabase,schema:string,t
   if(action==='archive')changes.is_archived=1;
   else if(action==='blacklist'||action==='unblacklist'){changes.is_blacklisted=action==='blacklist'?1:0;changes.blacklist_reason=action==='blacklist'?pgText(body.reason,1000):null;}
   else{
-   for(const field of ['first_name','last_name','company','mobile','phone','email','address','city','tax_id','notes','postal_code','organization_name'])if(Object.hasOwn(body,field))changes[field]=pgText(body[field],field==='notes'?2000:field==='address'?1000:field==='email'?254:160);
+   for(const field of ['national_id','job','nickname','referral_source','first_name','last_name','company','mobile','phone','email','address','city','tax_id','notes','postal_code','organization_name'])if(Object.hasOwn(body,field))changes[field]=pgText(body[field],field==='notes'?2000:field==='address'?1000:field==='email'?254:160);
    if(changes.mobile){const mobile=toEnDigits(String(changes.mobile)).replace(/[ +()-]/g,'').replace(/^98/,'0').replace(/^9(?=\d{9}$)/,'09');if(!/^09\d{9}$/.test(mobile))throw new HttpError(400,'شماره موبایل معتبر نیست.');changes.mobile=mobile;}
    if(changes.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(changes.email)))throw new HttpError(400,'ایمیل معتبر نیست.');
    if(Object.hasOwn(body,'customer_type')){body.customer_type=customerTypeValue(body.customer_type);if(typeof body.customer_type!=='string'||!CUSTOMER_TYPES.includes(body.customer_type as typeof CUSTOMER_TYPES[number]))throw new HttpError(400,'نوع مشتری معتبر نیست.');changes.customer_type=body.customer_type;changes.is_colleague=body.customer_type==='colleague'?1:0;}
    if(Object.hasOwn(body,'is_colleague')){if(typeof body.is_colleague!=='boolean')throw new HttpError(400,'گزینهٔ همکار معتبر نیست.');changes.is_colleague=body.is_colleague?1:0;}
    if(body.customer_type==='colleague')changes.is_colleague=1;
-   if(!({...before,...changes}.first_name)&&!({...before,...changes}.company))throw new HttpError(400,'نام یا نام شرکت الزامی است.');
+   if(Object.hasOwn(body,'salutation'))changes.salutation=customerSalutation(body.salutation);
+   requireReceptionCustomerName({...before,...changes});
    if(Object.hasOwn(changes,'company'))changes.is_company=changes.company?1:0;
   }
   changes.updated_at=new Date().toISOString();const keys=Object.keys(changes);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fmtMoney,toFaDigits,fmtDate } from "@/lib/format";
+import {printWhenReady} from '@/lib/print-ready';
 
 type Tab = "pl" | "ar_ap" | "journal" | "stock_value";
 
@@ -31,7 +32,7 @@ export default function IranReportsClient() {
   }, [tab, days,stockAfter,reload,requestKey]);
 
   return (
-    <div className="mx-auto max-w-6xl p-4 sm:p-6 space-y-4">
+    <div className="document-sheet mx-auto max-w-6xl p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold tracking-tight"> گزارش‌های مالی</h1>
         <div className="flex gap-1">
@@ -41,7 +42,7 @@ export default function IranReportsClient() {
               {r.label}
             </button>
           ))}
-          <button className="btn-secondary btn-sm mr-2" onClick={() => window.print()}> چاپ</button>
+          <button className="btn-secondary btn-sm mr-2" onClick={() => void printWhenReady()}> چاپ</button>
         </div>
       </div>
 
@@ -74,7 +75,7 @@ export default function IranReportsClient() {
 
 function PLReport({ d }: { d: any }) {
   const rows:Array<{label:string;rev:number;cost:number;profit:number}> = d.ledger_categories??[
-    { label: "اجرت‌ها و خدمات تعمیر", rev: d.labor.revenue, cost: d.labor.cost, profit: d.labor.profit },
+    { label: "خدمات تعمیر", rev: (d.services??d.labor).revenue, cost: (d.services??d.labor).cost, profit: (d.services??d.labor).profit },
     { label: "قطعات (فروش در تعمیرات)", rev: d.parts.revenue, cost: d.parts.cost, profit: d.parts.profit },
     { label: "فروشگاه (POS)", rev: d.sales.revenue, cost: d.sales.cost, profit: d.sales.profit },
   ];

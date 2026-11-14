@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import {printWhenReady} from '@/lib/print-ready';
 
 export default function PrintControls({ paper,priceHidden=false }: { paper: string;priceHidden?:boolean }) {
   const router = useRouter();
@@ -18,8 +19,9 @@ export default function PrintControls({ paper,priceHidden=false }: { paper: stri
     <div className="no-print flex flex-wrap items-center gap-3 mb-3 text-sm" aria-busy={pending}>
       <div role="group" aria-label="اندازهٔ کاغذ" className="flex flex-wrap items-center gap-2">
       <span className="text-zinc-500">سایز کاغذ:</span>
-      <button type="button" disabled={pending} aria-pressed={paper!=='roll'} onClick={() => setParam("paper", "a5")}
-        className={`${choice} ${paper !== "roll" ? selected : unselected}`}>
+      <button type="button" disabled={pending} aria-pressed={paper==='a4'} onClick={() => setParam("paper", "a4")} className={`${choice} ${paper==='a4'?selected:unselected}`}>A4</button>
+      <button type="button" disabled={pending} aria-pressed={paper==='a5'} onClick={() => setParam("paper", "a5")}
+        className={`${choice} ${paper === "a5" ? selected : unselected}`}>
         A5
       </button>
       <button type="button" disabled={pending} aria-pressed={paper==='roll'} onClick={() => setParam("paper", "roll")}
@@ -36,7 +38,7 @@ export default function PrintControls({ paper,priceHidden=false }: { paper: stri
         className={`${choice} ${priceHidden ? selected : unselected}`}>
         مخفی
       </button>
-      </div><button type="button" disabled={pending} className="btn-primary btn-sm ms-auto" onClick={() => window.print()}>چاپ رسید</button>
+      </div><button type="button" disabled={pending} className="btn-primary btn-sm ms-auto" onClick={() => void printWhenReady()}>چاپ رسید / PDF</button>
     </div>
   );
 }

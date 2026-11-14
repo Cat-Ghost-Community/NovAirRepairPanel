@@ -79,7 +79,7 @@ export default async function VatReportPage({ searchParams }: { searchParams: Pr
   const invoices = db
     .prepare(
       `SELECT i.id, i.number, i.date, i.subtotal, i.discount, i.tax, i.total, i.status,
-              COALESCE(c.company, c.first_name || ' ' || c.last_name) customer_name
+              COALESCE(c.company, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) customer_name
        FROM invoices i JOIN customers c ON c.id = i.customer_id
        WHERE ${bw.sql} AND i.status != 'cancelled'
          AND COALESCE(i.date, substr(i.created_at,1,10)) >= ? AND COALESCE(i.date, substr(i.created_at,1,10)) < ?
@@ -111,7 +111,7 @@ export default async function VatReportPage({ searchParams }: { searchParams: Pr
         </div>
       </div>
 
-      <div className="card card-pad print-area space-y-4">
+      <div className="card card-pad print-area document-sheet space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-base font-bold">گزارش ارزش افزوده — {JALALI_MONTHS[jm - 1]} {toFaDigits(jy)}</div>

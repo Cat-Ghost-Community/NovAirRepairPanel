@@ -180,13 +180,26 @@ h1, h2, h3 { line-height: 1.45; }
 
 /* Print */
 @media print {
+  html, body { height: auto !important; min-height: 0 !important; color-scheme: light; }
+  .app-shell, .app-shell > div, #main-content { display: block !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; }
+  .app-shell > aside, .app-shell > div > header, .app-shell > div > nav, #mobile-navigation, [data-sonner-toaster], [role="dialog"], body > a { display: none !important; }
+  #main-content > div { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  button, input, select, textarea { display: none !important; }
+  .document-sheet [class*="bg-"] { background: transparent !important; }
+  .document-sheet a { color: inherit !important; text-decoration: none !important; }
+  .document-sheet { box-decoration-break: clone; }
+  .document-kind { display: none !important; }
+  .document-signed-evidence { break-inside: avoid; page-break-inside: avoid; }
+  .document-totals { width: 75mm; max-width: 100% !important; }
+  .document-totals > div { gap: 4mm; }
+  .document-totals > div > span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
   .no-print { display: none !important; }
   body { background: white !important; color: black !important; }
   /* فاکتور/رسید در چاپ: جریان عادی صفحه (بدون absolute) تا فاکتورهای بلند درست صفحه‌بندی شوند */
   .print-area { position: static !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
   .print-area.card { box-shadow: none !important; border: none !important; }
   /* فاکتورهای چندصفحه‌ای: سرستون جدول در هر صفحه تکرار شود و بلوک جمع‌بندی/امضا نصفه نشود */
-  .print-repeat thead { display: table-header-group; }
+  .print-repeat thead, thead.print-repeat { display: table-header-group; }
   .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
   .print-signatures { break-inside: avoid; page-break-inside: avoid; }
   @page { size: A4; margin: 12mm; }

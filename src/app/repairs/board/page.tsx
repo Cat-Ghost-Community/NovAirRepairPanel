@@ -43,7 +43,7 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
   }
   if (sp.tech) { from += " AND t.technician_id = ?"; params.push(Number(sp.tech)); }
   if (sp.q) {
-    from += " AND (t.number LIKE ? OR c.first_name || ' ' || c.last_name LIKE ? OR d.brand || ' ' || d.model LIKE ?)";
+    from += " AND (t.number LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ? OR d.brand || ' ' || d.model LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like, like);
   }

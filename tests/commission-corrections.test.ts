@@ -23,6 +23,10 @@ function propose(kind:'reduction'|'reinstatement'|'recovery',amount:number,rever
 function post(id:number,input:{confirmed?:boolean;settlement_reference?:string}={}){corrections.decideCommissionCorrection(db,approver,id,true,'1');return corrections.postCommissionCorrection(db,owner,id,input,'1');}
 function balance(code:string){return ledger.trialBalance(db,owner,{branch_id:1,to:date}).rows.find(r=>r.code===code)?.balance??0;}
 describe('approved commission reduction, recovery and reinstatement against real SQLite',()=>{
+ it('blocks direct cancellation after approval and payment; compensating correction remains mandatory',async()=>{
+  const {cancelPendingCommission}=await import('../src/lib/commission-settlement');
+  assert.throws(()=>cancelPendingCommission(db,owner,run,{reason:'Reviewed cancellation decision',reference:'Decision-001'},'1'),{status:409});
+ });
  it('separates unpaid liability reversal from a recoverable paid overpayment after cancellation',()=>{
   db.prepare("UPDATE repair_tickets SET status_id=(SELECT id FROM repair_statuses WHERE name='Cancelled') WHERE id=?").run(ticket);
   assert.throws(()=>settlements.recordCommissionPayment(db,owner,run,{amount:1,method:'cash',payment_date:date,document_reference:'UNAPPROVED',confirmed:true},'1'),/اصلاح مصوب/);

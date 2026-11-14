@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       });
     const digits = toEn(b.phone).replace(/\D/g, "");
     const normalize = (value: string) => value.startsWith("0098") ? "0" + value.slice(4) : value.startsWith("98") ? "0" + value.slice(2) : value;
-    const stored = toEn(t?.mobile ?? t?.phone).replace(/\D/g, "");
+    const stored = toEn(t?.mobile || t?.phone).replace(/\D/g, "");
     if (!t || !stored || normalize(digits) !== normalize(stored)) {
       return Response.json({ error: "شماره پذیرش و موبایل مطابقت ندارند." }, { status: 403 });
     }

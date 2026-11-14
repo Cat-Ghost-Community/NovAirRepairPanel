@@ -1,4 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
+import {NOTIFICATION_DELIVERY_DDL} from '../notification-delivery-schema';
+import {DELIVERY_SIGNATURE_DDL} from '../delivery-signature-shared';
 import {documentNumber} from '../document-number';
 import path from "node:path";
 import fs from "node:fs";
@@ -76,7 +78,7 @@ export function getDb(): DatabaseSync {
     }
 }
 
-export const DDL = `
+export const DDL = NOTIFICATION_DELIVERY_DDL+DELIVERY_SIGNATURE_DDL+`
 CREATE TABLE IF NOT EXISTS operation_receipts (
   actor_id INTEGER NOT NULL REFERENCES users(id), branch_id INTEGER NOT NULL REFERENCES branches(id),
   operation TEXT NOT NULL, operation_key TEXT NOT NULL, request_hash TEXT NOT NULL, result_json TEXT NOT NULL,
@@ -470,6 +472,8 @@ export const POST_MIGRATIONS_SQL: string[] = [
 
 /* ALTERهای افزایشی — باید جدا و idempotent اجرا شوند */
 const MIGRATIONS: Array<[string, string, string]> = [
+  ['notifications','chat_message_id','ALTER TABLE notifications ADD COLUMN chat_message_id INTEGER REFERENCES chat_messages(id)'],
+  ['customers','salutation',"ALTER TABLE customers ADD COLUMN salutation TEXT CHECK(salutation IN ('mr','ms') OR salutation IS NULL)"],
   ['repair_tickets','assignment_version','ALTER TABLE repair_tickets ADD COLUMN assignment_version INTEGER NOT NULL DEFAULT 0'],
   ['repair_assignments','workflow_revision','ALTER TABLE repair_assignments ADD COLUMN workflow_revision INTEGER'],
   ['repair_assignments','assignment_version','ALTER TABLE repair_assignments ADD COLUMN assignment_version INTEGER'],

@@ -1,3 +1,4 @@
+import {customerDisplayName} from '@/lib/customer-identity';
 import {repairReadAssignedOnly} from '@/lib/repair-workflow';
 import { requirePageAccess } from "@/lib/page-access";
 import { activeBranch,BRANCH_COOKIE,canSwitchBranch } from '@/lib/branch';
@@ -11,7 +12,7 @@ import { fmtMoney, fmtDate, fmtDateTime, timeAgo, toFaDigits } from "@/lib/forma
 import { StatusBadge } from "@/components/ui";
 import { customerTypeFa, customerTypeBadge } from "@/lib/customer-type";
 import { InvStatusBadge } from "@/app/repairs/[id]/workspace-client";
-import { CustomerActions } from "./customer-actions";
+import { CustomerProfileActions } from "./customer-actions";
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
 import {PostgresCustomerProfile} from '@/components/pg-customer-profile';
 
@@ -70,7 +71,6 @@ export default async function CustomerDetailPage({ params,searchParams }: { para
   const sharedLegacy=c.branch_id==null && Number(db.prepare("SELECT COUNT(*) n FROM customer_branch_access WHERE customer_id=?").get(customerId)?.n)>1;
   const editableIdentity=!sharedLegacy || (session && canSwitchBranch(session.user.role));
   const canEdit = !!editableIdentity && canUser(session, "customers.edit");
-  const canMerge = !!editableIdentity && canUser(session, "customers.*");
 
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6 space-y-4">
@@ -78,7 +78,7 @@ export default async function CustomerDetailPage({ params,searchParams }: { para
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-bold">{c.company ? c.company : `${c.first_name} ${c.last_name}`}</h1>
+              <h1 className="text-lg font-bold">{c.company || customerDisplayName(c)}</h1>
               <span className="badge-gray">{c.code}</span>
               {c.is_vip ? <span className="badge-amber">VIP</span> : null}
               <span className={customerTypeBadge(c.customer_type)}>{customerTypeFa(c.customer_type)}</span>
@@ -117,7 +117,7 @@ export default async function CustomerDetailPage({ params,searchParams }: { para
               <Link href={`/repairs/new`} className="btn-primary btn-sm">+ پذیرش</Link>
               <Link href={`/customers/${c.id}/statement`} className="btn-secondary btn-sm">صورت‌حساب</Link>
               {balance > 0 && <Link href={`/payments/new?customer_id=${c.id}`} className="btn-secondary btn-sm">دریافت وجه</Link>}
-              <CustomerActions customerId={Number(c.id)} canEdit={canEdit} canMerge={canMerge} blacklist={!!c.is_blacklisted} />
+              <CustomerProfileActions customerId={Number(c.id)} canEdit={canEdit} canMerge={false} profile={{...c}} branchId={c.branch_id??undefined} />
             </div>
           </div>
         </div>

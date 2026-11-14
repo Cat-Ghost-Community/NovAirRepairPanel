@@ -71,9 +71,9 @@ export function ChatClient({
   const [browserNotify, setBrowserNotify] = useState(false);
 
   const cursorRef = useRef(0);
+  const bootstrapRef=useRef(true);
   const mutedRef = useRef<Map<number, boolean>>(new Map());
   const listRefreshRef = useRef<number | null>(null);
-  const notifiedRef = useRef<Set<number>>(new Set());
   const lastReadSentRef = useRef<Map<number, number>>(new Map());
   const messagesRef = useRef<ChatMessage[]>([]);
   useEffect(() => {
@@ -168,9 +168,14 @@ export function ChatClient({
           body: JSON.stringify({ action: "read", last_message_id: messageId }),
         });
         setMembers((prev) => prev.map((m) => (m.user_id === me.id ? { ...m, last_read_message_id: messageId } : m)));
-      } catch {}
+        window.dispatchEvent(new Event('repaid:notifications'));
+        scheduleListRefresh();
+      } catch {
+        if(lastReadSentRef.current.get(conversationId)===messageId)lastReadSentRef.current.set(conversationId,last);
+        setConnOk(false);
+      }
     },
-    [me.id]
+    [me.id,scheduleListRefresh]
   );
 
   // ---- باز کردن مکالمه ----
@@ -274,33 +279,6 @@ export function ChatClient({
     } catch {}
   }, [markRead]);
 
-  // ---- اعلان پیام‌های مکالمه‌های دیگر ----
-  const maybeNotify = useCallback(
-    (ev: EventPayload) => {
-      if (notifiedRef.current.has(ev.id)) return;
-      notifiedRef.current.add(ev.id);
-      if (mutedRef.current.get(ev.conversation_id)) return;
-      const hidden = typeof document !== "undefined" && document.hidden;
-      if (!hidden && ev.conversation_id === activeRef.current) return;
-      chatFetch<{ message: ChatMessage }>(`/api/chat/messages/${ev.payload?.message_id}`)
-        .then(({ message }) => {
-          const sender = message.sender_name ?? "همکار";
-          const text = message.body?.slice(0, 80) || "پیوست فرستاد";
-          if (hidden && browserNotify && typeof Notification !== "undefined" && Notification.permission === "granted") {
-            const n = new Notification(`پیام از ${sender}`, { body: text, tag: `chat-${message.conversation_id}` });
-            n.onclick = () => {
-              window.focus();
-              void openConversation(message.conversation_id);
-            };
-          } else if (!hidden) {
-            toast.info(`${sender}: ${text}`);
-          }
-        })
-        .catch(() => {});
-    },
-    [browserNotify, openConversation]
-  );
-
   // ---- جریان رویدادها ----
   const handleEvents = useCallback(
     async (events: EventPayload[]) => {
@@ -315,7 +293,6 @@ export function ChatClient({
           case "message_new": {
             touched.add(ev.conversation_id);
             if (ev.conversation_id === active) needNewer = true;
-            else if (ev.actor_id !== me.id) maybeNotify(ev);
             break;
           }
           case "message_edit":
@@ -375,7 +352,7 @@ export function ChatClient({
         return;
       }
       try {
-        const url = `/api/chat/events?cursor=${cursorRef.current}${activeRef.current ? `&active=${activeRef.current}` : ""}`;
+        const url = `/api/chat/events?cursor=${cursorRef.current}${bootstrapRef.current?'&bootstrap=1':''}${activeRef.current ? `&active=${activeRef.current}` : ""}`;
         const data = await chatFetch<{
           cursor: number;
           events: EventPayload[];
@@ -383,7 +360,8 @@ export function ChatClient({
           presence: Array<{ user_id: number; online: boolean; last_seen_at: string | null }>;
           unread_total: number;
         }>(url);
-        cursorRef.current = data.cursor;
+        if(!alive)return;
+        cursorRef.current = data.cursor;bootstrapRef.current=false;
         setConnOk(true);
         setTyping(data.typing);
         if (data.presence.length) {
@@ -410,6 +388,7 @@ export function ChatClient({
           );
         }
         await handleEvents(data.events);
+        if(document.hasFocus()&&activeRef.current!=null){const messages=messagesRef.current,last=messages[messages.length-1];if(last)void markRead(activeRef.current,last.id);}
       } catch {
         setConnOk(false);
       }

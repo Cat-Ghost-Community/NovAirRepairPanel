@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const rows = db
       .prepare(
         `SELECT d.id, d.brand, d.model, d.type, d.next_service_date, d.service_interval_days,
-                c.id customer_id, c.first_name || ' ' || c.last_name customer, c.mobile,
+                c.id customer_id, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') customer, c.mobile,
                 julianday(d.next_service_date) - julianday('now') days_left
          FROM devices d JOIN customers c ON c.id = d.customer_id
          WHERE d.next_service_date IS NOT NULL AND d.is_archived = 0

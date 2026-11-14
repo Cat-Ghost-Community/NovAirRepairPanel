@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams;
     const cursor = Math.max(0, Number(sp.get("cursor") ?? 0) || 0);
     const active = sp.get("active") == null || sp.get("active") === "" ? null : Number(sp.get("active"));
-    const data = fetchEvents(getDb(), session, cursor, Number.isFinite(active as number) ? active : null);
+    const data = fetchEvents(getDb(), session, cursor, Number.isFinite(active as number) ? active : null,sp.get('bootstrap')==='1');
     return ok(data);
   } catch (e) {
     return fail(e);

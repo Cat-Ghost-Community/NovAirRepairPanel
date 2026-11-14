@@ -1,4 +1,5 @@
 "use client";
+import {customerDisplayName} from '@/lib/customer-identity';
 
 import { SearchableSelect } from "@/components/searchable-select";
 
@@ -35,7 +36,7 @@ function splitOpts(s: string): string[] {
   return s.split(/[،,؛]/).map((x) => x.trim()).filter(Boolean);
 }
 
-type Customer = { id: number; first_name: string; last_name: string; company: string; mobile: string; email: string; code: string; is_vip: number; is_blacklisted: number; blacklist_reason: string | null; nickname: string | null; customer_type?: string; organization_name?: string | null };
+type Customer = { salutation?:string|null; id: number; first_name: string; last_name: string; company: string; mobile: string; email: string; code: string; is_vip: number; is_blacklisted: number; blacklist_reason: string | null; nickname: string | null; customer_type?: string; organization_name?: string | null };
 type Device = { id: number; type: string; brand: string; model: string; serial: string; imei: string };
 type Technician = { id: number; name: string; role: string; branch_id: number | null };
 type Template = { id: number; name: string; device_type: string | null; brand: string | null; model: string | null; repair_type: string | null; problem: string | null; est_cost: number | null };
@@ -229,7 +230,7 @@ export default function NewRepairPage() {
   };
 
   const canNext = () => {
-    if (step === 0) return customer ? !!customer.first_name?.trim() && !!customer.last_name?.trim() : !!(newCust.first_name?.trim() && newCust.last_name?.trim() && newCust.mobile);
+    if (step === 0) return customer ? !!customer.last_name?.trim() : !!newCust.last_name?.trim();
     if (step === 1) return !!device || (catalog && deviceFormComplete(catalog,String(newDev.type),newDev));
     if (step === 2) return problem.trim().length > 3;
     if (step === 3) return customQuestions.filter((q) => q.is_required).every((q) => (customAnswers[q.id] ?? "").trim() !== "");
@@ -319,7 +320,7 @@ export default function NewRepairPage() {
                 id="cust-search"
                 className="input"
                 placeholder="نام، تلفن، ایمیل، کد ملی…"
-                value={customer ? `${customer.first_name} ${customer.last_name}${customer.company ? ` (${customer.company})` : ""}` : custQuery}
+                value={customer ? customerDisplayName(customer) : custQuery}
                 onFocus={() => { if (customer) { setCustomer(null); setCustQuery(""); } }}
                 onChange={(e) => { setCustQuery(e.target.value); setCustomer(null); }}
               />
@@ -328,7 +329,7 @@ export default function NewRepairPage() {
                   {custResults.map((c) => (
                     <button key={c.id} onClick={() => { setCustomer(c); setCustResults([]); }} className="w-full text-right px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center justify-between">
                       <span>
-                        <span className="text-sm font-medium">{c.first_name} {c.last_name}</span>
+                        <span className="text-sm font-medium">{customerDisplayName(c)}</span>
                         {c.nickname && <span className="text-xs text-brand-600"> «{c.nickname}»</span>}
                         {c.company && <span className="text-xs text-zinc-400"> · {c.company}</span>}
                         <span className="block text-xs text-zinc-400">{c.mobile} · {c.code}</span>
@@ -343,7 +344,7 @@ export default function NewRepairPage() {
                 </div>
               )}
             </div>
-            {customer&&(!customer.first_name?.trim()||!customer.last_name?.trim())&&<p role="alert" className="text-sm text-amber-700 dark:text-amber-300">نام و نام خانوادگی برای پذیرش الزامی است. ابتدا <a className="underline" href={`/customers/${customer.id}`}>اطلاعات مشتری را تکمیل کنید</a>.</p>}
+            {customer&&!customer.last_name?.trim()&&<p role="alert" className="text-sm text-amber-700 dark:text-amber-300">نام خانوادگی برای پذیرش الزامی است. ابتدا <a className="underline" href={`/customers/${customer.id}`}>اطلاعات مشتری را تکمیل کنید</a>.</p>}
             <div className="relative">
               <div className="absolute inset-0 flex items-center" aria-hidden><div className="w-full border-t border-zinc-200 dark:border-zinc-800" /></div>
               <div className="relative flex justify-center"><span className="bg-white dark:bg-zinc-900 px-2 text-xs text-zinc-400">یا مشتری جدید</span></div>
@@ -590,7 +591,7 @@ export default function NewRepairPage() {
               </div>
             </div>
             <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800 text-sm">
-              <ReviewRow label="مشتری" value={customer ? `${customer.first_name} ${customer.last_name}` : `${newCust.first_name} ${newCust.last_name} (جدید)`} />
+              <ReviewRow label="مشتری" value={customer ? customerDisplayName(customer) : customerDisplayName(newCust)+" (جدید)"} />
               <ReviewRow label="دستگاه" value={device ? `${device.brand} ${device.model}` : `${newDev.brand} ${newDev.model} (جدید)`} />
               <ReviewRow label="روش دریافت" value={source === "حضوری" ? "حضوری آمده" : "ارسال کرده"} />
               <ReviewRow label="ایراد" value={problem} />

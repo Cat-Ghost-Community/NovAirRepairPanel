@@ -11,9 +11,10 @@ process.env.REPAID_DATA_DIR=directory;process.env.REPAID_DEMO_MODE='0';
 let db:ReturnType<typeof import('../src/lib/db/schema').getDb>,next:typeof import('../src/lib/db/schema').nextSeq;
 before(async()=>{const schema=await import('../src/lib/db/schema');db=schema.getDb();next=schema.nextSeq;});
 after(()=>{db?.close();const root=fs.realpathSync(directory);assert.equal(path.dirname(root),fs.realpathSync(os.tmpdir()));assert.ok(path.basename(root).startsWith('novair-numbering-'));fs.rmSync(root,{recursive:true,force:true});});
-it('requires both names for reception, rejecting empty, whitespace and non-text surnames',()=>{
+it('requires only surname for reception while keeping supplied names type-safe',()=>{
  for(const last_name of [undefined,null,'','  ',42])assert.throws(()=>requireReceptionCustomerName({first_name:'علی',last_name}),{status:400});
- assert.throws(()=>requireReceptionCustomerName({first_name:' ',last_name:'رضایی'}),{status:400});
+ for(const first_name of [undefined,null,'',' ','علی'])assert.doesNotThrow(()=>requireReceptionCustomerName({first_name,last_name:'رضایی'}));
+ for(const first_name of [42,{},[]])assert.throws(()=>requireReceptionCustomerName({first_name,last_name:'رضایی'}),{status:400});
  assert.doesNotThrow(()=>requireReceptionCustomerName({first_name:'علی',last_name:'رضایی'}));
 });
 it('removes the novice option while preserving neutral display of legacy records',()=>{

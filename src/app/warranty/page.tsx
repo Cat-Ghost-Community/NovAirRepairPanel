@@ -45,7 +45,7 @@ export default async function WarrantyPage({ searchParams }: { searchParams: Pro
   if (sp.status === "active") sql += " AND w.status = 'active' AND w.end_date >= ?", params.push(today);
   if (sp.status === "expired") sql += " AND w.end_date < ?", params.push(today);
   if (sp.q) {
-    sql += " AND (c.first_name || ' ' || c.last_name LIKE ? OR t.number LIKE ?)";
+    sql += " AND (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ? OR t.number LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like);
   }

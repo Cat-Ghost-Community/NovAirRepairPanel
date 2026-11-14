@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     const ledgerExpenses=trial.rows.filter(r=>r.classification==='expense'&&(r.debit!==r.credit)).map(r=>({category:r.name,total:r.debit-r.credit}));
     const laborRevenue = (db.prepare(
       `SELECT COALESCE(SUM(ii.total),0) v FROM invoice_items ii JOIN effective_invoices i ON i.id = ii.invoice_id
-       WHERE ii.kind IN ('service','labor') AND i.created_at >= ${since} AND i.status NOT IN ('draft','cancelled') AND (:financialBranch IS NULL OR i.branch_id=:financialBranch)`
+       WHERE ii.kind IN ('service','labor','fee') AND COALESCE(i.type,'repair')!='purchase' AND i.created_at >= ${since} AND i.status NOT IN ('draft','cancelled') AND (:financialBranch IS NULL OR i.branch_id=:financialBranch)`
     ).get({financialBranch}) as any).v;
     const partsRevenue = (db.prepare(
       `SELECT COALESCE(SUM(ii.total),0) v FROM invoice_items ii JOIN effective_invoices i ON i.id = ii.invoice_id
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     ).get({financialBranch}) as any).v;
     const laborCost = (db.prepare(
       `SELECT COALESCE(SUM(ii.cost * ii.qty),0) v FROM invoice_items ii JOIN effective_invoices i ON i.id = ii.invoice_id
-       WHERE ii.kind IN ('service','labor') AND i.created_at >= ${since} AND i.status NOT IN ('draft','cancelled') AND (:financialBranch IS NULL OR i.branch_id=:financialBranch)`
+       WHERE ii.kind IN ('service','labor','fee') AND COALESCE(i.type,'repair')!='purchase' AND i.created_at >= ${since} AND i.status NOT IN ('draft','cancelled') AND (:financialBranch IS NULL OR i.branch_id=:financialBranch)`
     ).get({financialBranch}) as any).v;
     const partsCost = (db.prepare(
       `SELECT COALESCE(SUM(ii.cost * ii.qty),0) v FROM invoice_items ii JOIN effective_invoices i ON i.id = ii.invoice_id
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     const expensesTotal = expensesRows.reduce((s, r) => s + r.total, 0);
     const byTicket = db
       .prepare(
-        `SELECT t.number, d.brand || ' ' || d.model device, c.first_name || ' ' || c.last_name customer,
+        `SELECT t.number, d.brand || ' ' || d.model device, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') customer,
                 COALESCE(SUM(ii.total),0) revenue, COALESCE(SUM(ii.cost * ii.qty),0) cost
          FROM repair_tickets t
          JOIN effective_invoices i ON i.ticket_id = t.id
@@ -112,6 +112,7 @@ export async function GET(req: NextRequest) {
     const salesProfit = salesRevenue - salesCost;
 
     return ok({
+      services: { revenue: laborRevenue, cost: laborCost, profit: laborProfit },
       labor: { revenue: laborRevenue, cost: laborCost, profit: laborProfit },
       parts: { revenue: partsRevenue, cost: partsCost, profit: partsProfit },
       sales: { revenue: salesRevenue, cost: salesCost, profit: salesProfit },

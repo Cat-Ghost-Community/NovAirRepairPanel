@@ -41,6 +41,7 @@ const GROUPS: Group[] = [
     fields: [
       { key: "ticket_prefix", label: "پیشوند شماره پذیرش", type: "text", placeholder: "RP-" },
       { key: "ticket_suffix", label: "پسوند شماره پذیرش", type: "text", placeholder: "-A" },
+      { key: "tracking_ticket_example", label: "متن نمونهٔ شماره پذیرش در پیگیری", type: "text", hint: "خالی بگذارید تا نمونه از پیشوند و پسوند شماره‌گذاری ساخته شود.", placeholder: "مثلاً R0001" },
       { key: "invoice_prefix", label: "پیشوند شماره فاکتور", type: "text", placeholder: "INV-" },
       { key: "invoice_suffix", label: "پسوند شماره فاکتور", type: "text", placeholder: "-A" },
     ],

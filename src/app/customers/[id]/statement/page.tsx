@@ -9,6 +9,8 @@ import { getSessionByToken, canUser } from "@/lib/auth";
 import { fmtDate, fmtMoney, toFaDigits, toGregorian, todayISO, todayJalaali } from "@/lib/format";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PrintButton } from "./print-button";
+import {DocumentBrand,DocumentFooter} from '@/components/document-print';
+import {readPrintSettings} from '@/lib/print-settings-server';
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +46,7 @@ export default async function CustomerStatementPage({
   const sp = await searchParams;
   const customerId = Number(id);
   const db = getDb();
+  const documentSettings=readPrintSettings(db),businessName=String(db.prepare("SELECT value FROM settings WHERE key='business_name'").get()?.value??'تعمیرگاه');
 
   const customer = db.prepare("SELECT * FROM customers WHERE id = ?").get(customerId) as any;
   if (!customer) notFound();
@@ -102,7 +105,9 @@ export default async function CustomerStatementPage({
         </div>
       </div>
 
-      <div className="card card-pad print-area">
+      <div className="card card-pad print-area document-sheet" data-document="statement">
+        <DocumentBrand name={businessName} settings={documentSettings}/>
+        <h2 className="my-3 text-lg font-bold">صورت‌حساب مشتری</h2>
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
           <div>
             <div className="text-base font-bold">{name}</div>
@@ -192,10 +197,12 @@ export default async function CustomerStatementPage({
           </div>
         )}
 
-        {statement.totalPages>1&&<div className="no-print mt-4 flex flex-wrap gap-2 items-center"><span>صفحهٔ {toFaDigits(statement.page)} از {toFaDigits(statement.totalPages)}</span>{statement.page>1&&<Link className="btn-secondary" href={pageHref(statement.page-1)}>صفحهٔ قبل</Link>}{statement.page<statement.totalPages&&<Link className="btn-secondary" href={pageHref(statement.page+1)}>صفحهٔ بعد</Link>}</div>}
+        {statement.totalPages>1&&<p className="mt-4 text-xs">بخش {toFaDigits(statement.page)} از {toFaDigits(statement.totalPages)} — فقط تراکنش‌های این بخش در این نسخهٔ چاپی آمده‌اند.</p>}
+        {statement.totalPages>1&&<div className="no-print mt-4 flex flex-wrap gap-2 items-center">{statement.page>1&&<Link className="btn-secondary" href={pageHref(statement.page-1)}>صفحهٔ قبل</Link>}{statement.page<statement.totalPages&&<Link className="btn-secondary" href={pageHref(statement.page+1)}>صفحهٔ بعد</Link>}</div>}
         <p className="mt-5 border-t border-zinc-200 pt-3 text-xs text-zinc-400 dark:border-zinc-800">
           این صورت‌حساب بر اساس اسناد ثبت‌شده در سیستم تهیه شده است. در صورت مشاهدهٔ اختلاف، با واحد حسابداری تماس بگیرید.
         </p>
+        <DocumentFooter settings={documentSettings}/>
       </div>
     </div>
   );

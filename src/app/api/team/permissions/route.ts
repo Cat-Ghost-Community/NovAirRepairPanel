@@ -67,6 +67,7 @@ const PERM_CATALOG: Array<{ group: string; perms: Array<{ key: string; label: st
       { key: "expenses.view", label: "مشاهده هزینه‌ها" },
       { key: "expenses.manage", label: "ثبت و ویرایش هزینه" },
       { key: "finance.view", label: "مشاهده خلاصه مالی" },
+      { key: "payroll.manage", label: "مدیریت قرارداد حقوق و پیشنهاد اصلاح پورسانت" },
       { key: "finance.manage", label: "مدیریت حساب‌های بانکی و چک" },
     ],
   },

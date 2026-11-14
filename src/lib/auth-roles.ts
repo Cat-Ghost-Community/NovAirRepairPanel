@@ -18,7 +18,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "repairs.*", "customers.*", "devices.*", "inventory.*", "suppliers.*", "purchasing.*",
     "sales.*", "invoices.*", "payments.*", "estimates.*", "expenses.view", "expenses.manage",
     "reports.view", "communication.view", "communication.send", "warranty.*", "complaints.*", "appointments.*",
-    "team.view", "dashboard.*", "portal.manage", "finance.view", "settings.view",
+    "team.view", "payroll.manage", "dashboard.*", "portal.manage", "finance.view", "settings.view",
     "repairs.assign",
     "chat.view", "chat.dm", "chat.group.create", "chat.group.manage", "chat.channel.create",
     "chat.channel.post", "chat.files", "chat.moderate", "chat.pin", "chat.presence",

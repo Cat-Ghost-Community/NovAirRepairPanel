@@ -32,12 +32,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         if (!["part", "service", "labor"].includes(kind)) throw new HttpError(400, "نوع قلم معتبر نیست.");
         const qty = quantityValue(line.qty ?? 1);
         if (qty <= 0 || qty > 1000000) throw new HttpError(400, "تعداد قلم معتبر نیست.");
-        const ref = line.ref_id == null ? null : validate.id(line.ref_id);
+        let ref = line.ref_id == null ? null : validate.id(line.ref_id);
         let name = typeof line.name === "string" ? line.name : "";
         let cost = 0;
         let price = line.unit_price == null ? 0 : validate.amount(line.unit_price, "قیمت");
         let warranty = 0;
-        if (kind !== "labor") {
+        if(line.tariff_id!=null){
+          if(kind!=='labor'||line.ref_id!=null)throw new HttpError(400,'مرجع تعرفهٔ خدمات معتبر نیست.');
+          const tariff=db.prepare('SELECT title,brand,labor_price,warranty_days FROM repair_tariffs WHERE id=? AND is_active=1').get(validate.id(line.tariff_id));
+          if(!tariff)throw new HttpError(404,'تعرفهٔ خدمات یافت نشد.');
+          ref=validate.id(line.tariff_id);
+          const referencePrice=validate.amount(tariff.labor_price,'مبلغ تعرفه');
+          if(line.unit_price!=null&&price!==referencePrice)requirePerm(session,'invoices.edit');
+          price=line.unit_price==null?referencePrice:price;
+          name=String(tariff.title)+(tariff.brand?' ('+String(tariff.brand)+')':'');warranty=Number(tariff.warranty_days??0);
+        }else if (kind !== "labor") {
           const source = kind === "part"
             ? db.prepare("SELECT name,price,avg_cost,purchase_price FROM parts WHERE id=? AND is_active=1").get(ref)
             : db.prepare("SELECT name,price,cost,warranty_days FROM services WHERE id=? AND is_active=1").get(ref);

@@ -50,7 +50,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
   if (sp.status) { sql += " AND co.status = ?"; params.push(sp.status); }
   if (sp.priority) { sql += " AND co.priority = ?"; params.push(sp.priority); }
   if (sp.q) {
-    sql += " AND (co.description LIKE ? OR co.category LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ?)";
+    sql += " AND (co.description LIKE ? OR co.category LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like, like);
   }

@@ -30,11 +30,13 @@ import { fmtMoney, fmtDate, fmtDateTime, plain, timeAgo } from "@/lib/format";
 import { StatusBadge, PriorityBadge, Avatar } from "@/components/ui";
 import { Icon } from "@/components/icon";
 import { RepairWorkspaceClient } from "./workspace-client";
+import {DeviceEditor} from '@/components/device-editor';
+import {customerDisplayName} from '@/lib/customer-identity';
+import {CodePreview} from '@/components/code-preview';
 import { DeliverSignatureButton } from "./deliver-signature";
 import { AssignButton } from "./assign-button";
 import { JourneyButton } from "@/components/journey-drawer";
 import { PHASE_META, repairPhase } from "@/lib/assign-shared";
-import { QR } from "@/components/qr";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +68,7 @@ export default async function RepairDetailPage({ params,searchParams }: { params
   const t = db
     .prepare(
       `SELECT t.*, s.name status_name, s.color status_color, s.allowed_next, s.is_open, s.category status_category,
-              c.first_name, c.last_name, c.mobile, c.email, c.code customer_code, c.is_vip, c.is_blacklisted, c.id customer_id,
+              c.first_name, c.last_name, c.salutation, c.mobile, c.email, c.code customer_code, c.is_vip, c.is_blacklisted, c.id customer_id,
               d.*, t.device_id AS dev_id, t.id AS ticket_row_id,
               u.name tech_name, u.avatar_color tech_color,
               u2.name tech2_name
@@ -176,6 +178,9 @@ export default async function RepairDetailPage({ params,searchParams }: { params
   return {t,statuses,allowedNext,history,notes,ticketItems,estimate,invoice,attachments,timeEntries,workLog,warranty,messages,inspection,checklist,activeTimer,subtotal,cost,paid,users,parts,services,tariffs,canEdit,canStatus,canFinancial,hidePrices,canReveal,canAssign,canTrack:repairWorkflow(db,Number(t.branch_id)).mode==='legacy'?canEdit:t.technician_id===session.user.id||t.technician2_id===session.user.id,workflowRevision:repairWorkflow(db,Number(t.branch_id)).revision,nativeReadOnly:false,availableAdvance:null,pendingAdvance:null,financialNotes:[] as string[],costBasis:'estimate',timeSnapshot:undefined,pagination:null};
   })();
   const {t,statuses,allowedNext,history,notes,ticketItems,estimate,invoice,attachments,timeEntries,workLog,warranty,messages,inspection,checklist,activeTimer,subtotal,cost,paid,users,parts,services,tariffs,canEdit,canStatus,canFinancial,hidePrices,canReveal,canAssign,canTrack,workflowRevision,nativeReadOnly,availableAdvance,pendingAdvance,financialNotes,costBasis,timeSnapshot,pagination}=data;
+  const editState=postgresIntegration()?await postgresShellState(cookieStore.get('repaid_session')?.value,cookieStore.get('repaid_branch')?.value):null;
+  const canEditDevice=editState?hasPerm(editState.permissions,'devices.edit'):canUser(session,'devices.edit');
+  const canEditCustomer=editState?hasPerm(editState.permissions,'customers.edit'):canUser(session,'customers.edit');
   const phase = repairPhase({ status_name: t.status_name, status_category: t.status_category, technician_id: t.technician_id });
   const phaseMeta = PHASE_META[phase];
 
@@ -196,10 +201,10 @@ export default async function RepairDetailPage({ params,searchParams }: { params
               </span>
               <PriorityBadge p={t.priority} />
               {t.is_warranty ? <span className="badge-purple">گارانتی</span> : null}
-              <QR text={`/repairs/${t.id}`} size={22} label />
+              <CodePreview text={`/repairs/${t.id}`} label={t.number} />
             </div>
             <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-              <Link href={`/customers/${t.customer_id}`} className="font-medium hover:underline">{t.first_name} {t.last_name}</Link>
+              <Link href={`/customers/${t.customer_id}`} className="font-medium hover:underline">{customerDisplayName(t)}</Link>
               {t.is_vip ? <span className="badge-amber ml-1.5">VIP</span> : null}
               {t.is_blacklisted ? <span className="badge-red ml-1.5">لیست سیاه{t.blacklist_reason ? `: ${t.blacklist_reason}` : ""}</span> : null}
               <span className="text-zinc-400"> · {t.mobile}</span>
@@ -214,7 +219,7 @@ export default async function RepairDetailPage({ params,searchParams }: { params
             <div>ثبت: {fmtDateTime(t.created_at)}</div>
             {t.estimated_completion && <div>موعد: {fmtDate(t.estimated_completion)}</div>}
             {t.delivered_at && <div className="text-emerald-600">تحویل: {fmtDate(t.delivered_at)}</div>}
-            <div className="pt-1 flex gap-1.5 flex-wrap justify-end">
+            <div className="pt-1 flex gap-1.5 flex-wrap justify-end"><DeviceEditor deviceId={Number(t.dev_id??t.device_id)} canEdit={canEditDevice}/>{canEditCustomer&&<Link className="btn-secondary btn-sm" href={`/customers/${t.customer_id}`}>ویرایش اطلاعات مشتری</Link>}
               <a href={nativeReadOnly?undefined:`/repairs/${t.id}/receipt?paper=a5`} aria-disabled={nativeReadOnly} target="_blank" className="btn-secondary btn-sm no-underline">قبض پذیرش</a>
               {!nativeReadOnly&&<JourneyButton ticketId={t.id} ticketNumber={t.number} compact />}
               {canAssign && (

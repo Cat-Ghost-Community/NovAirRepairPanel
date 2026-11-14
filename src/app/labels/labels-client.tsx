@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { fmtMoney } from "@/lib/format";
+import {printWhenReady} from '@/lib/print-ready';
 
 type Part = { id: number; name: string; barcode: string | null; price: number };
 type Ticket = { id: number; number: string; customer: string; device: string };
@@ -95,7 +96,7 @@ export default function LabelsClient({ parts, tickets }: { parts: Part[]; ticket
             {items.length === 0 && <p className="p-3 text-sm text-zinc-400">از ستون کنار، کالا یا پذیرش را انتخاب کنید.</p>}
           </div>
           <div className="flex gap-2 mt-3">
-            <button className="btn-primary btn-sm flex-1" disabled={totalLabels === 0} onClick={() => window.print()}>
+            <button className="btn-primary btn-sm flex-1" disabled={totalLabels === 0} onClick={() => void printWhenReady()}>
                چاپ {totalLabels > 0 ? `${totalLabels.toLocaleString("fa-IR")} برچسب` : ""}
             </button>
             {mode === "part" && <button className="btn-secondary btn-sm" onClick={addBarcodeStock} disabled={items.length === 0} title="برای هر کالا حداقل یک برچسب">تعداد = ۱</button>}
@@ -135,8 +136,8 @@ export default function LabelsClient({ parts, tickets }: { parts: Part[]; ticket
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body { background: white !important; }
-          .no-print, header, nav { display: none !important; }
-          .print-area { position: absolute; inset: 0; padding: 4mm !important; }
+          .no-print { display: none !important; }
+          .print-area { position: static; padding: 0 !important; }
           .label-card { border-style: solid !important; break-inside: avoid; }
           @page { size: auto; margin: 5mm; }
         }

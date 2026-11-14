@@ -18,7 +18,7 @@ export type { DayActivity };
 
 const TICKET_INFO = `
   SELECT t.id, t.number,
-         COALESCE(c.first_name || ' ' || c.last_name, '—') AS customer,
+         COALESCE(COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,''), '—') AS customer,
          COALESCE(TRIM(d.brand || ' ' || d.model), '—') AS device,
          COALESCE(s.name, '—') AS status,
          COALESCE(s.color, '#71717a') AS status_color

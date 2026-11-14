@@ -773,7 +773,7 @@ export function listInvoices(filters: InvoiceListFilters) {
   const q = String(filters.q ?? "").trim();
   if (q) {
     const like = `%${q}%`;
-    sql += ` AND (i.number LIKE ? OR i.external_number LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ? OR sup.name LIKE ? OR t.number LIKE ?)`;
+    sql += ` AND (i.number LIKE ? OR i.external_number LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ? OR sup.name LIKE ? OR t.number LIKE ?)`;
     params.push(like, like, like, like, like);
   }
   sql += " ORDER BY i.created_at DESC, i.id DESC LIMIT ?";

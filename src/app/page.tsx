@@ -248,7 +248,7 @@ export default async function Dashboard() {
   const statusTotal = statusDist.reduce((a, s) => a + s.c, 0);
 
   const recentPayments = db.prepare(
-    `SELECT p.id, p.amount, p.method, p.direction, c.first_name || ' ' || c.last_name cn
+    `SELECT p.id, p.amount, p.method, p.direction, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') cn
      FROM payments p LEFT JOIN customers c ON c.id = p.customer_id
      WHERE ${bw("p").sql} AND ${SETTLED_PAYMENT} ORDER BY p.created_at DESC LIMIT 6`
   ).all(...bw("p").params) as Array<{ id: number; amount: number; method: string; direction: string; cn: string | null }>;

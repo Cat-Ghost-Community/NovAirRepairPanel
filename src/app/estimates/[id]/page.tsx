@@ -6,11 +6,16 @@ import { getDb } from "@/lib/db/schema";
 import { fmtMoney, fmtDate, toFaDigits } from "@/lib/format";
 import { EstStatusBadge } from "@/app/repairs/[id]/workspace-client";
 import { EstimateActions } from "./estimate-actions";
+import {chargeKindLabel} from '@/lib/charge-category';
+import {cookies} from 'next/headers';
+import {requireRepairAccess} from '@/lib/repair-access';
+import {assertBranchResource} from '@/lib/branch-access';
+import {HttpError} from '@/lib/api';
 
 export const dynamic = "force-dynamic";
 
 export default async function EstimateDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePageAccess("/estimates/[id]");
+  const session=await requirePageAccess("/estimates/[id]");
   const { id } = await params;
   const db = getDb();
   const estId = Number(id);
@@ -25,6 +30,10 @@ export default async function EstimateDetailPage({ params }: { params: Promise<{
     )
     .get(estId) as any;
   if (!e) notFound();
+  try{
+    const branch=(await cookies()).get('repaid_branch')?.value;
+    if(e.ticket_id)requireRepairAccess(session,Number(e.ticket_id),branch);else assertBranchResource(db,session,branch,'customer',e.customer_id);
+  }catch(error){if(error instanceof HttpError&&[403,404].includes(error.status))notFound();throw error;}
   const items = db.prepare("SELECT * FROM estimate_items WHERE estimate_id = ? ORDER BY sort, id").all(estId) as any[];
 
   return (
@@ -63,7 +72,7 @@ export default async function EstimateDetailPage({ params }: { params: Promise<{
             {items.map((i) => (
               <tr key={i.id} className="border-b border-zinc-100 dark:border-zinc-800/60">
                 <td className="td">{i.name}</td>
-                <td className="td"><span className="badge-gray">{i.kind === "service" ? "خدمت" : i.kind === "part" ? "قطعه" : i.kind === "labor" ? "اجرت" : i.kind === "fee" ? "هزینه" : i.kind}</span></td>
+                <td className="td"><span className="badge-gray">{chargeKindLabel(i.kind)}</span></td>
                 <td className="td text-right">{i.qty}</td>
                 <td className="td text-right">{fmtMoney(i.unit_price)}</td>
                 <td className="td text-right font-medium">{fmtMoney(i.total)}</td>

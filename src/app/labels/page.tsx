@@ -21,7 +21,7 @@ export default async function LabelsPage() {
   const branch=activeBranch(session,cookieStore.get(BRANCH_COOKIE)?.value).branchId;
   const parts = plainRows(db.prepare("SELECT id, name, barcode, price FROM parts WHERE is_active = 1 ORDER BY name LIMIT 200").all() as any[]);
   const recentTickets = plainRows(
-    db.prepare(`SELECT t.id, t.number, c.first_name || ' ' || c.last_name customer, d.brand || ' ' || d.model device
+    db.prepare(`SELECT t.id, t.number, COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') customer, d.brand || ' ' || d.model device
               FROM repair_tickets t JOIN customers c ON c.id = t.customer_id JOIN devices d ON d.id = t.device_id
               WHERE (? IS NULL OR t.branch_id=?) AND (?=0 OR t.technician_id=? OR t.technician2_id=?) ORDER BY t.created_at DESC LIMIT 30`).all(branch,branch,repairReadAssignedOnly(session)?1:0,session.user.id,session.user.id) as any[]
   );

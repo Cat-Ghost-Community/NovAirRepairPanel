@@ -11,6 +11,7 @@ import { JalaliDatePicker } from "@/components/jalali-date-picker";
 import { fmtMoney, parseMoneyInput } from "@/lib/format";
 import { toast } from "sonner";
 import { postFinancial } from "@/lib/financial-client";
+import {printWhenReady} from '@/lib/print-ready';
 
 async function jfetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...init, headers: { ...(init?.body ? { "Content-Type": "application/json" } : {}), ...(init?.headers ?? {}) } });
@@ -24,8 +25,9 @@ export function AutoPrint() {
   const sp = useSearchParams();
   useEffect(() => {
     if (sp.get("print") === "1") {
-      const t = setTimeout(() => window.print(), 500);
-      return () => clearTimeout(t);
+      let active=true;
+      void document.fonts.ready.then(()=>{if(active)void printWhenReady();});
+      return () => {active=false;};
     }
   }, [sp]);
   return null;

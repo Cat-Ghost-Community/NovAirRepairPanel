@@ -14,6 +14,9 @@ import {readyApplicationPostgres} from '@/lib/db/pg-application';
 import {postgresShellState} from '@/lib/db/pg-shell';
 import {PostgresDevicesRepository} from '@/lib/db/pg-operational-profiles';
 import {HttpError} from '@/lib/http-error';
+import {DeviceEditor} from '@/components/device-editor';
+import {canUser} from '@/lib/auth';
+import {hasPerm} from '@/lib/perms-shared';
 import {Pagination} from '@/components/pagination';
 
 export const dynamic = "force-dynamic";
@@ -56,6 +59,8 @@ export default async function DeviceDetailPage({ params,searchParams }: { params
    return {d,repairs,warranties,history:null,catalog:readDeviceCatalog(getDb())};
   })();
 
+  const editState=postgresIntegration()?await postgresShellState((await cookies()).get('repaid_session')?.value,(await cookies()).get('repaid_branch')?.value):null;
+  const canEditDevice=editState?hasPerm(editState.permissions,'devices.edit'):canUser(session,'devices.edit');
   const labels={...DEVICE_COLUMNS,...Object.fromEntries(catalog.types.find(type=>type.id===d.type)?.fields.map(field=>[field.id,field.label])??[])};
   const specs=Object.entries(labels).filter(([key])=>!['brand','model','condition','notes'].includes(key)&&Object.hasOwn(DEVICE_COLUMNS,key)&&d[key]!=null&&String(d[key]).trim()!=='').map(([key,label])=>({label,value:key==='battery_health'?String(d[key])+'%':['purchase_date','warranty_until'].includes(key)?fmtDate(d[key]):String(d[key])}));
   specs.push(...customDeviceSpecs(d.specs));
@@ -72,7 +77,7 @@ export default async function DeviceDetailPage({ params,searchParams }: { params
               <span className="text-zinc-400"> · {d.mobile}</span>
             </div>
           </div>
-          <Link href={`/repairs/new`} className="btn-primary btn-sm">+ پذیرش جدید برای این دستگاه</Link>
+          <div className="flex flex-wrap gap-2"><DeviceEditor deviceId={Number(d.id)} canEdit={canEditDevice}/><Link href={`/repairs/new`} className="btn-primary btn-sm">+ پذیرش جدید برای این دستگاه</Link></div>
         </div>
         {specs.length > 0 && (
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 border-t border-zinc-200 dark:border-zinc-800 pt-3">

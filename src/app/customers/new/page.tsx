@@ -48,7 +48,7 @@ export default function NewCustomerPage() {
         )}
         <div className="flex gap-2 justify-end pt-2">
           <button className="btn-secondary" onClick={() => router.back()}>انصراف</button>
-          <button className="btn-primary" disabled={busy || !form.first_name?.trim() || !form.last_name?.trim() || !form.mobile} onClick={() => submit(false)}>
+          <button className="btn-primary" disabled={busy || !form.last_name?.trim()} onClick={() => submit(false)}>
             {busy ? "در حال ذخیره…" : "ذخیره مشتری"}
           </button>
         </div>

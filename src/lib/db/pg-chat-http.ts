@@ -22,7 +22,7 @@ export async function postgresChatHttp(req:NextRequest,endpoint:Endpoint,id?:num
   if(endpoint==='message')return reply(await chat.message(token,chatId(id)));
   if(endpoint==='summary')return reply(await chat.summary(token));
   if(endpoint==='users')return reply(await chat.users(token,query.get('q')??'',page(query.get('page'))));
-  if(endpoint==='events')return reply(await chat.events(token,page(query.get('cursor'),0),number('active')));
+  if(endpoint==='events')return reply(await chat.events(token,page(query.get('cursor'),0),number('active'),query.get('bootstrap')==='1'));
   if(endpoint==='search')return reply(await chat.search(token,{q:query.get('q')??'',conversation_id:number('conversation_id'),from:number('from'),before_id:number('before_id'),has_file:query.get('has_file')==='1',has_mention:query.get('has_mention')==='1',limit:query.has('limit')?page(query.get('limit')):25}));
   if(endpoint==='attachment'){const row=await chat.attachment(token,chatId(id)),stored=await attachmentBody(row,req.signal),mime=String(row.mime||'application/octet-stream'),inline=(isImageMime(mime)||mime==='application/pdf')&&matchesContentType(stored.prefix,mime),name=String(row.filename??'file').replace(/[\r\n"\\]/g,'_');return new Response(stored.body,{headers:{'Content-Type':mime,'Content-Length':String(stored.bytes),'Content-Disposition':`${inline?'inline':'attachment'}; filename*=UTF-8''${encodeURIComponent(name)}`,'X-Content-Type-Options':'nosniff','Cache-Control':'private, no-store'}});}
  }

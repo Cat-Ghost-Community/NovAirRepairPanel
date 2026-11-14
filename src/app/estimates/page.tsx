@@ -33,7 +33,7 @@ export default async function EstimatesPage({ searchParams }: { searchParams: Pr
   const params: any[] = scope.all || scope.branchId == null ? [] : [scope.branchId];
   if (sp.status) { sql += " AND e.status = ?"; params.push(sp.status); }
   if (sp.q) {
-    sql += " AND (e.number LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ? OR c.company LIKE ?)";
+    sql += " AND (e.number LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ? OR c.company LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like, like);
   }

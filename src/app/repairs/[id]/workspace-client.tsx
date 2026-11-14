@@ -14,6 +14,8 @@ import { fmtMoney, fmtDate, fmtDateTime, timeAgo, toFaDigits, parseMoneyInput, m
 import { statusFa, sourceFa } from "@/lib/status-fa";
 import type { WorkLogRow } from "@/lib/worklog-shared";
 import { WorkLogPanel } from "./worklog-panel";
+import {RepairServiceCard} from '@/components/repair-service-card';
+import {chargeKindLabel} from '@/lib/charge-category';
 
 type Props = {
   ticket: any;
@@ -160,7 +162,7 @@ export function RepairWorkspaceClient(p: Props) {
                   {p.items.map((i: any) => (
                     <tr key={i.id}>
                       <td className="td">{i.name}</td>
-                      <td className="td"><span className="badge-gray">{i.kind === "service" ? "خدمت" : i.kind === "part" ? "قطعه" : i.kind === "labor" ? "اجرت" : i.kind === "fee" ? "هزینه" : i.kind}</span></td>
+                      <td className="td"><span className="badge-gray">{chargeKindLabel(i.kind)}</span></td>
                       <td className="td">{i.qty}</td>
                       <td className="td">{Number(i.warranty_days ?? 0) > 0 ? `${toFaDigits(i.warranty_days)} روز` : "—"}</td>
                       {!p.flags.hidePrices && <><td className="td">{fmtMoney(i.unit_price)}</td>
@@ -180,10 +182,9 @@ export function RepairWorkspaceClient(p: Props) {
             )}
           </div>
           {p.flags.canEdit&&p.statusName!=='Cancelled' && (
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <AddPartCard ticketId={ticket.id} parts={p.parts} busy={busy} call={call} />
-              <AddServiceCard ticketId={ticket.id} services={p.services} busy={busy} call={call} hidePrices={!!p.flags.hidePrices} />
-              <AddTariffCard ticketId={ticket.id} tariffs={p.tariffs ?? []} busy={busy} call={call} hidePrices={!!p.flags.hidePrices} />
+              <RepairServiceCard ticketId={ticket.id} services={p.services} tariffs={p.tariffs??[]} busy={busy} call={call} hidePrices={!!p.flags.hidePrices}/>
             </div>
           )}
         </div>
@@ -642,115 +643,6 @@ function AddPartCard({ ticketId, parts, busy, call }: any) {
         onClick={() => call(`/api/repairs/${ticketId}/items`, { kind: "part", ref_id: Number(partId), qty }, "قطعه اضافه شد — از موجودی کسر شد")}>
         افزودن قطعه (از موجودی کسر می‌شود)
       </button>
-    </div>
-  );
-}
-
-function AddServiceCard({ ticketId, services, busy, call, hidePrices }: any) {
-  const toast=useToast();
-  const [serviceId, setServiceId] = useState("");
-  const [price, setPrice] = useState("");
-  const [name, setName] = useState("");
-  const sel = services.find((x: any) => String(x.id) === serviceId);
-  return (
-    <div className="card card-pad space-y-3">
-      <h3 className="section-title">افزودن اجرت / خدمت</h3>
-      <div>
-        <label className="label" htmlFor="svc-sel">خدمت</label>
-        <SearchableSelect id="svc-sel" className="input" value={serviceId} onChange={(e) => { setServiceId(e.target.value); setPrice(""); setName(""); }}>
-          <option value="">انتخاب خدمت…</option>
-          {services.map((x: any) => <option key={x.id} value={x.id}>{hidePrices ? x.name : `${x.name} — ${fmtMoney(x.price)}`}</option>)}
-        </SearchableSelect>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><label className="label" htmlFor="svc-name">یا قلم دلخواه</label><input id="svc-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="مثلاً تعمیر برد" /></div>
-        <div><label className="label" htmlFor="svc-price">قیمت فروش</label><input id="svc-price" type="number" step="0.1" className="input" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={sel ? moneyDisplayValue(sel.price) : "0"} /></div>
-      </div>
-      <button className="btn-primary btn-sm w-full" disabled={busy || (!serviceId && !name)}
-        onClick={() => {try{void call(`/api/repairs/${ticketId}/items`, { kind: serviceId ? "service" : "labor", ref_id: serviceId ? Number(serviceId) : null, name: name || undefined, unit_price: price ? parseMoneyInput(price,undefined,true) : undefined }, "افزوده شد");}catch(error){toast(error instanceof Error?error.message:'مبلغ معتبر نیست.','error');}}}>
-        افزودن خدمت / اجرت
-      </button>
-    </div>
-  );
-}
-
-/** افزودن اجرت از «تعرفهٔ تعمیرات» — تعرفه‌ها را مدیر در بخش /tariffs تعیین می‌کند */
-function AddTariffCard({ ticketId, tariffs, busy, call, hidePrices }: any) {
-  const toast=useToast();
-  const [tariffId, setTariffId] = useState("");
-  const [price, setPrice] = useState("");
-  const sel = tariffs.find((x: any) => String(x.id) === tariffId);
-  return (
-    <div className="card card-pad space-y-3">
-      <h3 className="section-title">افزودن از تعرفهٔ تعمیرات</h3>
-      {tariffs.length === 0 ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          تعرفه‌ای ثبت نشده است — مدیر می‌تواند از بخش «تعرفه تعمیرات» اجرت هر نوع دستگاه را تعیین کند.
-        </p>
-      ) : (
-        <>
-          <div>
-            <label className="label" htmlFor="tf-sel">تعرفه</label>
-            <SearchableSelect
-              id="tf-sel"
-              className="input"
-              value={tariffId}
-              onChange={(e) => {
-                setTariffId(e.target.value);
-                setPrice("");
-              }}
-            >
-              <option value="">انتخاب از تعرفه…</option>
-              {tariffs.map((x: any) => (
-                <option key={x.id} value={x.id}>
-                  {x.device_type} — {x.title}
-                  {x.brand ? ` (${x.brand})` : ""}
-                  {hidePrices ? "" : ` — ${fmtMoney(x.labor_price)}`}
-                </option>
-              ))}
-            </SearchableSelect>
-          </div>
-          {sel && !hidePrices && (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              اجرت تعرفه: {fmtMoney(sel.labor_price)}
-              {sel.warranty_days != null ? ` · گارانتی ${toFaDigits(sel.warranty_days)} روز` : ""}
-              {sel.duration_min != null ? ` · مدت تقریبی ${toFaDigits(sel.duration_min)} دقیقه` : ""}
-            </p>
-          )}
-          {!hidePrices && (
-            <div>
-              <label className="label" htmlFor="tf-price-override">اجرت این پذیرش (در صورت تخفیف/تغییر)</label>
-              <input
-                id="tf-price-override"
-                type="number"
-                step="0.01"
-                className="input"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder={sel ? moneyDisplayValue(sel.labor_price) : "0"}
-              />
-            </div>
-          )}
-          <button
-            className="btn-primary btn-sm w-full"
-            disabled={busy || !tariffId}
-            onClick={() => {try{
-              call(
-                `/api/repairs/${ticketId}/items`,
-                {
-                  kind: "labor",
-                  ref_id: sel ? sel.id : null,
-                  name: sel ? `${sel.title}${sel.brand ? ` (${sel.brand})` : ""}` : undefined,
-                  unit_price: price ? parseMoneyInput(price,undefined,true) : sel ? sel.labor_price : undefined,
-                  warranty_days: sel ? Math.max(0, Number(sel.warranty_days ?? 0)) : 0,
-                },
-                "اجرت از تعرفه افزوده شد"
-              );}catch(error){toast(error instanceof Error?error.message:'مبلغ معتبر نیست.','error');}}}
-          >
-            افزودن اجرت از تعرفه
-          </button>
-        </>
-      )}
     </div>
   );
 }

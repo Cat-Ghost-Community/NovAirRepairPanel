@@ -4,6 +4,7 @@ import {accountingDate,ledgerScope,createJournal,postJournal} from '@/lib/accoun
 import {atomic} from '@/lib/db/transaction';
 import {commissionEvidence} from '@/lib/commission-settlement';import {commissionPosition} from '@/lib/commission-position';
 import {captureFinancialDocument} from '@/lib/accounting-events';
+import {requirePayrollManager} from '@/lib/payroll-permissions';
 const hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 function text(value:unknown,label:string){if(typeof value!=='string'||value.trim().length<5||value.length>1000)throw new HttpError(400,`${label} را مستند وارد کنید.`);return value.trim();}
 function scope(db:DatabaseSync,session:Session,id:number,cookie?:string|null){requirePerm(session,'team.manage');requirePerm(session,'finance.manage');const evidence=commissionEvidence(db,validate.id(id));ledgerScope(session,Number(evidence.run.branch_id),cookie,'finance.manage');return evidence;}
@@ -30,7 +31,7 @@ function basis(db:DatabaseSync,runId:number,kind:'reduction'|'reinstatement'|'re
  return {evidence_hash:evidence.hash,run,position,accrual,expense_account:String(expense[0].account_code),payouts,corrections,reversed,liability,recovery};
 }
 export function proposeCommissionCorrection(db:DatabaseSync,session:Session,input:{run_id:number;kind:'reduction'|'reinstatement'|'recovery';amount:unknown;reverses_id?:number;posting_date:string;reason:string;evidence_reference:string},cookie?:string|null){return atomic(db,()=>{
- const evidence=scope(db,session,input.run_id,cookie);if(!['reduction','reinstatement','recovery'].includes(input.kind)||(input.kind==='reinstatement')!==(input.reverses_id!=null))throw new HttpError(400,'نوع اصلاح و سند مرجع معتبر نیست.');
+ requirePayrollManager(session);const evidence=commissionEvidence(db,validate.id(input.run_id));ledgerScope(session,Number(evidence.run.branch_id),cookie,'finance.view');if(!['reduction','reinstatement','recovery'].includes(input.kind)||(input.kind==='reinstatement')!==(input.reverses_id!=null))throw new HttpError(400,'نوع اصلاح و سند مرجع معتبر نیست.');
  const amount=validate.amount(input.amount),date=accountingDate(input.posting_date),reason=text(input.reason,'دلیل اصلاح'),reference=text(input.evidence_reference,'مرجع تصمیم مصوب'),snapshot=basis(db,input.run_id,input.kind,amount,input.reverses_id??null);
  const id=Number(db.prepare(`INSERT INTO commission_corrections(run_id,branch_id,user_id,kind,reverses_id,amount,expense_account,liability_amount,recovery_amount,posting_date,reason,evidence_reference,basis_hash,snapshot_json,snapshot_hash,proposed_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(input.run_id,evidence.run.branch_id,evidence.run.user_id,input.kind,input.reverses_id??null,amount,snapshot.expense_account,snapshot.liability,snapshot.recovery,date,reason,reference,evidence.hash,JSON.stringify(snapshot),hash(snapshot),session.user.id).lastInsertRowid);
  auditRecord(db,session,'propose','commission_correction',id,null,{run_id:input.run_id,kind:input.kind,amount,branch_id:evidence.run.branch_id});return {id,state:'proposed'};

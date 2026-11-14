@@ -58,7 +58,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   }
   if (q) {
     const like = `%${q}%`;
-    where.push("(i.number LIKE ? OR i.external_number LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ? OR sup.name LIKE ? OR t.number LIKE ?)");
+    where.push("(i.number LIKE ? OR i.external_number LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ? OR sup.name LIKE ? OR t.number LIKE ?)");
     params.push(like, like, like, like, like);
   }
   const whereSql = where.join(" AND ");

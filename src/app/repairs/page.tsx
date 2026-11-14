@@ -1,3 +1,4 @@
+import {customerDisplayName} from '@/lib/customer-identity';
 import {currentDeviceCatalog} from '@/lib/current-device-catalog';
 import {deviceTypeLabel} from '@/lib/device-catalog';
 import {postgresIntegration} from '@/lib/db/pg-integration-config';
@@ -6,6 +7,7 @@ import {readyApplicationPostgres} from '@/lib/db/pg-application';
 import {listPostgresRepairs} from '@/lib/db/pg-repair-read';
 import {repairReadAssignedOnly} from '@/lib/repair-workflow';
 import { requirePageAccess } from "@/lib/page-access";
+import {CodePreview} from '@/components/code-preview';
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { getDb } from "@/lib/db/schema";
@@ -50,7 +52,7 @@ export default async function RepairsPage({ searchParams }: { searchParams: Prom
   }
   const stId = (n: string) => statuses.find((s) => s.name === n)?.id ?? -1;
 
-  let sql = `SELECT t.*, t.group_receipt_id, s.name status_name, s.color status_color, c.first_name, c.last_name,
+  let sql = `SELECT t.*, t.group_receipt_id, s.name status_name, s.color status_color, c.first_name, c.last_name, c.salutation,
     d.brand, d.model, d.type, u.name tech_name, u.avatar_color
     FROM repair_tickets t
     JOIN repair_statuses s ON s.id = t.status_id
@@ -75,7 +77,7 @@ export default async function RepairsPage({ searchParams }: { searchParams: Prom
              AND s.is_open = 1`;
   }
   if (sp.q) {
-    sql += " AND (t.number LIKE ? OR c.first_name || ' ' || c.last_name LIKE ? OR d.brand || ' ' || d.model LIKE ?)";
+    sql += " AND (t.number LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ? OR d.brand || ' ' || d.model LIKE ?)";
     const like = `%${sp.q}%`;
     params.push(like, like, like);
   }
@@ -163,13 +165,13 @@ export default async function RepairsPage({ searchParams }: { searchParams: Prom
                   return (
                     <tr key={t.id} className="row-hover">
                       <td className="td">
-                        <Link href={`/repairs/${t.id}`} className="font-mono text-[13px] font-semibold text-brand-600 hover:underline">{t.number}</Link>
+                        <CodePreview text={`/repairs/${t.id}`} label={t.number}/><Link href={`/repairs/${t.id}`} className="font-mono text-[13px] font-semibold text-brand-600 hover:underline">{t.number}</Link>
                         <div className="max-w-[200px] truncate text-xs text-zinc-400">{t.problem}</div>
                         {t.group_receipt_id && (
                           postgresIntegration()?<span className="text-xs text-zinc-400" title="چاپ قبض گروهی در انتظار یکپارچه‌سازی است.">قبض گروهی</span>:<Link href={`/repairs/group-receipt/${t.group_receipt_id}`} className="text-xs text-brand-600 hover:underline" title="چاپ قبض گروهی همه دستگاه‌های این پذیرش">قبض گروهی</Link>
                         )}
                       </td>
-                      <td className="td whitespace-nowrap">{t.first_name} {t.last_name}</td>
+                      <td className="td whitespace-nowrap">{customerDisplayName(t)}</td>
                       <td className="td whitespace-nowrap">{t.brand} {t.model}<div className="text-xs text-zinc-400">{deviceTypeLabel(deviceCatalog,t.type)}</div></td>
                       <td className="td whitespace-nowrap">
                         <span className={`${sm.cls} inline-flex items-center gap-1`}>{sm.icon && <Icon name={sm.icon} size={13} className="opacity-70" />}{sm.label}</span>
@@ -203,7 +205,7 @@ export default async function RepairsPage({ searchParams }: { searchParams: Prom
                   <StatusBadge name={t.status_name} color={t.status_color} />
                 </div>
                 <div className="text-sm font-medium">{t.brand} {t.model}</div>
-                <div className="text-xs text-zinc-500">{t.first_name} {t.last_name} · {timeAgo(t.created_at)}</div>
+                <div className="text-xs text-zinc-500">{customerDisplayName(t)} · {timeAgo(t.created_at)}</div>
                 <div className="mt-1.5 flex items-center gap-2 flex-wrap">
                   <PriorityBadge p={t.priority} />
                   <span className="chip inline-flex items-center gap-1">{sm.icon && <Icon name={sm.icon} size={12} className="opacity-70" />}{sm.label}</span>

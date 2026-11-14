@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     }
     if (status) { sql += " AND s.name = ?"; params.push(status); }
     if (q) {
-      sql += " AND (t.number LIKE ? OR c.first_name || ' ' || c.last_name LIKE ? OR d.brand || ' ' || d.model LIKE ? OR d.imei LIKE ? OR d.serial LIKE ?)";
+      sql += " AND (t.number LIKE ? OR COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'') LIKE ? OR d.brand || ' ' || d.model LIKE ? OR d.imei LIKE ? OR d.serial LIKE ?)";
       const like = `%${q}%`;
       params.push(like, like, like, like, like);
     }

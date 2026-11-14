@@ -1,3 +1,5 @@
+import {hasPerm} from '../perms-shared';
+import {postgresNotificationVisibility} from './pg-notification-delivery';
 import {createHash} from 'node:crypto';
 import {HttpError} from '../http-error';
 import {operationHash,operationKey} from '../operation-identity';
@@ -26,9 +28,9 @@ export async function listPostgresNotifications(db:PostgresDatabase,schema:strin
  const paging=pagination(page,limit),t=postgresRelation(schema,'notifications');
  return db.transaction(async()=>{
   const scope=await requirePostgresIdentity(db,schema,token,undefined,branchId),user=scope.session.user.id;
-  if((await db.query(`SELECT 1 FROM ${t} WHERE user_id=$1 AND ($2::bigint IS NULL OR branch_id=$2) AND read IS NOT NULL AND read NOT IN (0,1) LIMIT 1`,[user,scope.branchId])).rowCount)throw new HttpError(409,'وضعیت اعلان‌های قدیمی نیازمند بررسی است.');
-  const rows=(await db.query(`SELECT * FROM ${t} WHERE user_id=$1 AND ($2::bigint IS NULL OR branch_id=$2) ORDER BY created_at DESC NULLS LAST,id DESC LIMIT $3 OFFSET $4`,[user,scope.branchId,paging.limit+1,(paging.page-1)*paging.limit])).rows;
-  const count=(await db.query(`SELECT COUNT(*) unread FROM ${t} WHERE user_id=$1 AND (read=0 OR read IS NULL) AND ($2::bigint IS NULL OR branch_id=$2)`,[user,scope.branchId])).rows[0];
+  if((await db.query(`SELECT 1 FROM ${t} n WHERE ${postgresNotificationVisibility(schema,'$1','$2','n',hasPerm(scope.permissions,'chat.view'))} AND read IS NOT NULL AND read NOT IN (0,1) LIMIT 1`,[user,scope.branchId])).rowCount)throw new HttpError(409,'وضعیت اعلان‌های قدیمی نیازمند بررسی است.');
+  const rows=(await db.query(`SELECT * FROM ${t} n WHERE ${postgresNotificationVisibility(schema,'$1','$2','n',hasPerm(scope.permissions,'chat.view'))} ORDER BY created_at DESC NULLS LAST,id DESC LIMIT $3 OFFSET $4`,[user,scope.branchId,paging.limit+1,(paging.page-1)*paging.limit])).rows;
+  const count=(await db.query(`SELECT COUNT(*) unread FROM ${t} n WHERE ${postgresNotificationVisibility(schema,'$1','$2','n',hasPerm(scope.permissions,'chat.view'))} AND (read=0 OR read IS NULL)`,[user,scope.branchId])).rows[0];
   return {...paging,notifications:rows.slice(0,paging.limit).map(row=>({...row,id:safePostgresInteger(row.id),user_id:safePostgresInteger(row.user_id),branch_id:row.branch_id==null?null:safePostgresInteger(row.branch_id),read:row.read==null?0:safePostgresInteger(row.read)})),hasMore:rows.length>paging.limit,unread:safePostgresInteger(count.unread)};
  },{isolation:'repeatable read'});
 }
@@ -46,9 +48,9 @@ export async function markPostgresNotifications(db:PostgresDatabase,schema:strin
   await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[schema,'notification:'+user+':'+key]);
   const prior=(await db.query(`SELECT request_hash,result_json FROM ${table('pg_notification_operations')} WHERE user_id=$1 AND operation_key=$2`,[user,key])).rows[0];
   if(prior){if(prior.request_hash!==hash)throw new HttpError(409,'این شناسه قبلاً برای درخواست دیگری استفاده شده است.');return JSON.parse(String(prior.result_json)) as {ok:true;updated:number};}
-  if((await db.query(`SELECT 1 FROM ${table('notifications')} WHERE user_id=$1 AND ($2::bigint IS NULL OR branch_id=$2) AND ($3::bigint IS NULL OR id=$3) AND read IS NOT NULL AND read NOT IN (0,1) LIMIT 1`,[user,scope.branchId,id])).rowCount)throw new HttpError(409,'وضعیت اعلان قدیمی نیازمند بررسی است.');
-  if(id!=null&&!(await db.query(`SELECT id FROM ${table('notifications')} WHERE id=$1 AND user_id=$2 AND ($3::bigint IS NULL OR branch_id=$3) FOR UPDATE`,[id,user,scope.branchId])).rowCount)throw new HttpError(404,'اعلان یافت نشد.');
-  const changed=await db.query(`UPDATE ${table('notifications')} SET read=1 WHERE user_id=$1 AND ($2::bigint IS NULL OR branch_id=$2) AND ($3::bigint IS NULL OR id=$3) AND (read=0 OR read IS NULL) RETURNING id`,[user,scope.branchId,id]);
+  if((await db.query(`SELECT 1 FROM ${table('notifications')} n WHERE ${postgresNotificationVisibility(schema,'$1','$2','n',hasPerm(scope.permissions,'chat.view'))} AND ($3::bigint IS NULL OR id=$3) AND read IS NOT NULL AND read NOT IN (0,1) LIMIT 1`,[user,scope.branchId,id])).rowCount)throw new HttpError(409,'وضعیت اعلان قدیمی نیازمند بررسی است.');
+  if(id!=null&&!(await db.query(`SELECT id FROM ${table('notifications')} n WHERE n.id=$1 AND ${postgresNotificationVisibility(schema,'$2','$3','n',hasPerm(scope.permissions,'chat.view'))} FOR UPDATE`,[id,user,scope.branchId])).rowCount)throw new HttpError(404,'اعلان یافت نشد.');
+  const changed=await db.query(`UPDATE ${table('notifications')} n SET read=1 WHERE ${postgresNotificationVisibility(schema,'$1','$2','n',hasPerm(scope.permissions,'chat.view'))} AND ($3::bigint IS NULL OR id=$3) AND (read=0 OR read IS NULL) RETURNING id`,[user,scope.branchId,id]);
   const result={ok:true as const,updated:changed.rowCount??0};
   await db.query(`INSERT INTO ${table('audit_logs')}(user_id,action,entity,entity_id,"after",branch_id) VALUES($1,'update','notification',$2,$3,$4)`,[user,id,JSON.stringify({action,updated:result.updated,operation_key:key}),scope.branchId]);
   await db.query(`INSERT INTO ${table('pg_notification_operations')}(user_id,operation_key,request_hash,branch_id,result_json) VALUES($1,$2,$3,$4,$5)`,[user,key,hash,scope.branchId,JSON.stringify(result)]);

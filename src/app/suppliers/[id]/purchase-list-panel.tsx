@@ -8,6 +8,7 @@ import { EmptyState, useToast } from "@/components/ui";
 import { Select } from "@/components/select";
 import { parseMoneyInput, faQty, fmtMoney, toEnDigits } from "@/lib/format";
 import {postFinancial} from '@/lib/financial-client';
+import {printDocumentWindow} from '@/lib/print-ready';
 
 type Item = {
   id: number;
@@ -196,20 +197,11 @@ export function SupplierPurchaseList({
           `<td>${escapeHtml(PRIORITY_FA[i.priority]?.label ?? "")}</td><td>${escapeHtml(i.note)}</td></tr>`
       )
       .join("");
-    w.document.write(
-      `<!doctype html><html dir="rtl" lang="fa"><head><meta charset="utf-8"><title>لیست خرید</title>` +
-        `<style>body{font-family:Tahoma,Arial,sans-serif;padding:24px;color:#111}` +
-        `h1{font-size:18px;margin:0}h2{font-size:13px;font-weight:400;color:#555;margin:4px 0 16px}` +
-        `table{width:100%;border-collapse:collapse;font-size:13px}` +
-        `th,td{border:1px solid #ddd;padding:6px 8px;text-align:right}th{background:#f4f4f5}` +
-        `@media print{body{padding:0}}</style></head><body>` +
-        `<h1>لیست خرید${supplierName ? ` — ${escapeHtml(supplierName)}` : ""}</h1>` +
-        `<h2>تاریخ چاپ: ${new Date().toLocaleDateString("fa-IR")} · ${faQty(openItems.length)} قلم</h2>` +
-        `<table><thead><tr><th>کالا</th><th>تعداد</th><th>اولویت</th><th>یادداشت</th></tr></thead>` +
-        `<tbody>${rows}</tbody></table>` +
-        `<script nonce="${escapeHtml(document.querySelector<HTMLScriptElement>('script[nonce]')?.nonce??'')}">window.onload=function(){window.print()}<\/script></body></html>`
+    printDocumentWindow(w,'لیست خرید',
+      `<h1>لیست خرید${supplierName ? ` — ${escapeHtml(supplierName)}` : ""}</h1>` +
+      `<h2>تاریخ چاپ: ${new Date().toLocaleDateString("fa-IR")} · ${faQty(openItems.length)} قلم</h2>` +
+      `<table><thead><tr><th>کالا</th><th>تعداد</th><th>اولویت</th><th>یادداشت</th></tr></thead><tbody>${rows}</tbody></table>`
     );
-    w.document.close();
   };
 
   const activeTotal = items

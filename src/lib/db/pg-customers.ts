@@ -6,6 +6,8 @@ import {HttpError} from '../http-error';
 import {CUSTOMER_TYPES,customerTypeValue} from '../customer-type';
 import {toEnDigits} from '../format';
 import {rial} from '../money';
+import {customerSalutation} from '../customer-identity';
+import {requireReceptionCustomerName} from '../reception-validation';
 
 type Query={q?:string;page?:number;perPage?:number;vip?:string;blacklist?:string;type?:string};
 export type CustomerProfile={id:number;code:string;first_name:string|null;last_name:string|null;company:string|null;mobile:string|null;email:string|null;tags:string;created_at:string;device_count:number;repair_count:number;balance:null;[key:string]:unknown};
@@ -16,7 +18,8 @@ function input(value:unknown){
  if(!value||typeof value!=='object'||Array.isArray(value))throw new HttpError(400,'اطلاعات مشتری معتبر نیست.');
  const body=value as Record<string,unknown>,fields:Record<string,string|null>={};
  for(const [key,max] of Object.entries({first_name:60,last_name:60,company:120,mobile:40,phone:40,email:254,address:1000,city:100,tax_id:40,contact_person:120,notes:2000,national_id:20,job:120,referral_source:120,nickname:120,postal_code:20,organization_name:120}))fields[key]=text(body,key,max);
- if(!fields.first_name&&!fields.company)throw new HttpError(400,'نام یا نام شرکت الزامی است.');
+ requireReceptionCustomerName(fields);
+ fields.salutation=customerSalutation(body.salutation);
  if(fields.mobile){let mobile=toEnDigits(fields.mobile).replace(/[ +()-]/g,'');if(mobile.startsWith('98'))mobile='0'+mobile.slice(2);if(/^9\d{9}$/.test(mobile))mobile='0'+mobile;if(!/^09\d{9}$/.test(mobile))throw new HttpError(400,'شماره موبایل معتبر نیست.');fields.mobile=mobile;}
  if(fields.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))throw new HttpError(400,'ایمیل معتبر نیست.');
  if(fields.national_id){fields.national_id=toEnDigits(fields.national_id);if(!/^\d{10}$/.test(fields.national_id))throw new HttpError(400,'کد ملی معتبر نیست.');}

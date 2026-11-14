@@ -1,3 +1,5 @@
+import {customerSalutation} from '@/lib/customer-identity';
+import {requireReceptionCustomerName} from '@/lib/reception-validation';
 import { NextRequest } from "next/server";
 import { getDb, nextSeq } from "@/lib/db/schema";
 import { requireSession, requirePerm, fail, ok, readJson, audit, validate, HttpError } from "@/lib/api";
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest) {
       return ok({
         customers: db
           .prepare(
-            `SELECT id, first_name, last_name, company, mobile, email, code, is_vip, is_blacklisted, customer_type, organization_name FROM customers WHERE is_archived = 0 AND (? IS NULL OR id IN (SELECT customer_id FROM customer_branch_access WHERE branch_id=?)) AND
+            `SELECT id, first_name, last_name, company, mobile, email, code, salutation, is_vip, is_blacklisted, customer_type, organization_name FROM customers WHERE is_archived = 0 AND (? IS NULL OR id IN (SELECT customer_id FROM customer_branch_access WHERE branch_id=?)) AND
              ((COALESCE(first_name,'') || ' ' || COALESCE(last_name,'')) LIKE ? OR company LIKE ? OR mobile LIKE ? OR email LIKE ? OR code LIKE ?)
              ORDER BY created_at DESC LIMIT 8`
           )
@@ -45,6 +47,8 @@ export async function POST(req: NextRequest) {
     return atomic(db,()=>{
     const branchId = recordBranchId(session, req.cookies.get(BRANCH_COOKIE)?.value);
     const lookupBranch = activeBranch(session, req.cookies.get(BRANCH_COOKIE)?.value).branchId;
+    requireReceptionCustomerName(b);
+    b.salutation=customerSalutation(b.salutation);
 
     // اعتبارسنجی سرور
     const mobile = validate.mobile(b.mobile);
@@ -87,14 +91,14 @@ export async function POST(req: NextRequest) {
         : Math.max(0, Math.round(Number((db.prepare("SELECT value FROM settings WHERE key = 'default_credit_limit'").get() as any)?.value ?? 0) || 0));
     const id = db
       .prepare(
-        `INSERT INTO customers(code, first_name, last_name, company, mobile, phone, email, address, city, tax_id, tags, is_vip, is_blacklisted, is_company, contact_person, credit_limit, notes, national_id, job, referral_source, nickname, referrer_customer_id, postal_code, is_colleague, customer_type, organization_name, created_by, branch_id)
-         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        `INSERT INTO customers(code, first_name, last_name, company, mobile, phone, email, address, city, tax_id, tags, is_vip, is_blacklisted, is_company, contact_person, credit_limit, notes, national_id, job, referral_source, nickname, referrer_customer_id, postal_code, is_colleague, customer_type, organization_name, created_by, branch_id, salutation)
+         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
       )
       .run(
         code, b.first_name ?? null, b.last_name ?? null, b.company || null, b.mobile ?? null, b.phone ?? null,
         b.email ?? null, b.address ?? null, b.city ?? null, b.tax_id ?? null, JSON.stringify(b.tags ?? []),
         b.is_vip ? 1 : 0, 0, b.company ? 1 : 0, b.contact_person ?? null, creditLimit, b.notes ?? null,
-        b.national_id ?? null, b.job ?? null, b.referral_source ?? null, b.nickname ?? null, b.referrer_customer_id ?? null, b.postal_code ?? null, b.is_colleague ? 1 : 0, b.customer_type ?? "regular", b.organization_name ?? null, session.user.id, branchId
+        b.national_id ?? null, b.job ?? null, b.referral_source ?? null, b.nickname ?? null, b.referrer_customer_id ?? null, b.postal_code ?? null, b.is_colleague ? 1 : 0, b.customer_type ?? "regular", b.organization_name ?? null, session.user.id, branchId, b.salutation
       ).lastInsertRowid as number;
     audit(session, "create", "customer", id, null, { name, mobile: b.mobile,branch_id:branchId });
     addCustomerEvent(id, "customer", "مشتری ثبت شد", name, session.user.id);

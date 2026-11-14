@@ -4,7 +4,6 @@ import { NextRequest } from "next/server";
 import { getDb } from "@/lib/db/schema";
 import { requireSession, requirePerm, fail, ok } from "@/lib/api";
 import { normalizeFa } from "@/lib/chat-shared";
-import { canSwitchBranch } from "@/lib/branch";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
     requirePerm(session, "chat.view");
     const db = getDb();
     const q = normalizeFa(String(req.nextUrl.searchParams.get("q") ?? "").trim());
-    const branch = canSwitchBranch(session.user.role) ? null : session.user.branch_id ?? -1;
+    const branch = null;
     const page = Math.max(1, Math.min(100000, Number(req.nextUrl.searchParams.get("page")) || 1));
     const rows = db
       .prepare(
@@ -25,7 +24,7 @@ export async function GET(req: NextRequest) {
          FROM users u
          LEFT JOIN branches b ON b.id = u.branch_id
          LEFT JOIN chat_presence p ON p.user_id = u.id
-         WHERE u.is_active = 1 AND u.id != ? AND (? IS NULL OR u.branch_id=? OR u.role IN ('owner','admin'))
+         WHERE u.is_active = 1 AND u.id != ? AND (? IS NULL OR u.branch_id=?) AND (u.role IN ('owner','admin') OR b.is_active=1)
            AND (?='' OR replace(replace(u.name,'ي','ی'),'ك','ک') LIKE ? OR u.role LIKE ? OR b.name LIKE ?)
          ORDER BY u.name,u.id LIMIT 300 OFFSET ?`
       )

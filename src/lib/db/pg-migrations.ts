@@ -26,6 +26,7 @@ import {postgresRepairWorkflowStatements,postgresRepairWorkflowChecksum,verifyPo
 import {postgresRepairNotesStatements,postgresRepairNotesChecksum,verifyPostgresRepairNotesGuards} from './pg-repair-notes-guards';
 
 import {postgresRepairWorkStatements,postgresRepairWorkChecksum,verifyPostgresRepairWorkGuards} from './pg-repair-work-guards';
+import {postgresExperienceStatements} from './pg-experience-migration';
 
 const sha=(value:string)=>createHash('sha256').update(value).digest('hex');
 const historyBody="BEGIN RAISE EXCEPTION 'Applied migration history is immutable' USING ERRCODE='23514'; END";
@@ -40,7 +41,9 @@ names.push('operational_repair_technical_work_and_time');
 checksums.push(postgresRepairWorkChecksum());
 names.push('configurable_device_type_registry');
 checksums.push(postgresDeviceCatalogGuardChecksum());
-export const POSTGRES_SCHEMA_VERSION=10;
+names.push('customer_titles_company_chat_and_notification_delivery');
+checksums.push(sha(postgresExperienceStatements('repaid').join('\n')));
+export const POSTGRES_SCHEMA_VERSION=11;
 type Applied={version:number;name:string;checksum:string;schema_sha256:string};
 
 export async function postgresSchemaEvidence(db:PostgresDatabase,schema:string){
@@ -144,6 +147,7 @@ export async function applyPostgresMigrations(db:PostgresDatabase,schema:string,
    if(version===8)for(const statement of [...postgresRepairWorkflowStatements(schema),...postgresRepairNotesStatements(schema)])await db.query(statement);
    if(version===9)for(const statement of postgresRepairWorkStatements(schema))await db.query(statement);
    if(version===10)await db.query(postgresDeviceCatalogGuardStatement(schema));
+   if(version===11)for(const statement of postgresExperienceStatements(schema))await db.query(statement);
    const digest=await schemaFingerprint(db,schema);
    await db.query(`INSERT INTO ${q}._repaid_migrations(version,name,checksum,schema_sha256,execution_ms) VALUES($1,$2,$3,$4,$5)`,[version,names[version-1],checksums[version-1],digest,Date.now()-started]);applied.push(version);
   }

@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getDb } from "@/lib/db/schema";
 import { getStatuses, statusFa } from "@/lib/repair";
-import { DEVICE_TYPE_FA } from "@/lib/status-fa";
+import {deviceTypeLabel} from '@/lib/device-catalog';
+import {readDeviceCatalog} from '@/lib/device-catalog-store';
+import {customerDisplayName} from '@/lib/customer-identity';
 import { fmtMoney, fmtDate, fmtDateTime } from "@/lib/format";
+import {DeliveryAcceptance} from './delivery-acceptance';
 import { TrackActions } from "./track-actions";
 import { fetchPostalEvents } from "@/lib/postal";
 import { resolveTrackingToken } from "@/lib/tracking";
@@ -22,7 +25,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   const t = db
     .prepare(
       `SELECT t.*, s.name status_name, s.color status_color, s.customer_visible, s.description status_desc,
-              c.first_name, c.last_name, d.brand, d.model, d.type
+              c.first_name, c.last_name, c.salutation, d.brand, d.model, d.type device_type
        FROM repair_tickets t
        JOIN repair_statuses s ON s.id = t.status_id
        JOIN customers c ON c.id = t.customer_id
@@ -39,6 +42,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
     );
   }
 
+  const deliveryRequest=db.prepare('SELECT * FROM repair_delivery_requests WHERE ticket_id=? AND fulfilled_at IS NULL AND expires_at>?').get(ticketId,Date.now());
   const statuses = getStatuses().filter((s) => s.customer_visible);
   const history = db
     .prepare(
@@ -86,7 +90,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
           <div className="flex items-center justify-between">
             <div>
               <div className="font-mono font-bold text-lg">{t.number}</div>
-              <div className="text-sm text-zinc-500">{t.brand} {t.model} <span className="text-zinc-400">· {DEVICE_TYPE_FA[t.type] ?? t.type}</span></div>
+              <div className="text-sm text-zinc-500">{[t.brand,t.model].filter(Boolean).join(' ')||deviceTypeLabel(readDeviceCatalog(db),t.device_type)} <span className="text-zinc-400">· {deviceTypeLabel(readDeviceCatalog(db),t.device_type)}</span></div>
             </div>
             <span className="badge" style={{ backgroundColor: t.status_color + "22", color: t.status_color }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: t.status_color }} />
@@ -109,6 +113,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
           )}
         </div>
 
+        {deliveryRequest&&!t.delivery_signature&&<DeliveryAcceptance token={token} customerName={customerDisplayName(t)}/>}
         {/* Estimate approve/reject */}
         {estimate && estimate.status === "sent" && (
           <div className="card card-pad border-amber-300 dark:border-amber-500/40">
@@ -124,7 +129,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
             <div className="flex justify-between pt-2 mt-1 border-t border-zinc-200 dark:border-zinc-800 font-semibold">
               <span>جمع با احتساب مالیات</span><span>{fmtMoney(estimate.total)}</span>
             </div>
-            <TrackActions estimateToken={estimate.public_token} customerName={`${t.first_name} ${t.last_name ?? ""}`.trim()} total={estimate.total} validUntil={estimate.valid_until} />
+            <TrackActions estimateToken={estimate.public_token} customerName={customerDisplayName(t)} total={estimate.total} validUntil={estimate.valid_until} />
           </div>
         )}
 

@@ -1,4 +1,5 @@
 "use client";
+import {printWhenReady} from '@/lib/print-ready';
 
 import { useMemo, useState } from "react";
 import { Avatar } from "@/components/ui";
@@ -106,7 +107,7 @@ export function WorkLogPanel({ rows, ticketNumber }: { rows: WorkLogRow[]; ticke
   };
 
   return (
-    <section className="card card-pad space-y-4 print-area">
+    <section className="card card-pad space-y-4 print-area document-sheet">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="section-title">گزارش کار تعمیرکار</h3>
@@ -119,7 +120,7 @@ export function WorkLogPanel({ rows, ticketNumber }: { rows: WorkLogRow[]; ticke
           <button type="button" className="btn-secondary btn-sm" onClick={exportCsv} disabled={filtered.length === 0}>
             <Icon name="excel" size={14} /> خروجی اکسل
           </button>
-          <button type="button" className="btn-secondary btn-sm" onClick={() => window.print()} disabled={filtered.length === 0}>
+          <button type="button" className="btn-secondary btn-sm" onClick={() => void printWhenReady()} disabled={filtered.length === 0}>
             <Icon name="printer" size={14} /> چاپ
           </button>
         </div>

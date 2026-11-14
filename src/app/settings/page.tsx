@@ -8,6 +8,8 @@ import { toFaDigits } from "@/lib/format";
 import { SettingsShell, type ShellItem } from "./settings-shell";
 import { SettingsSection, SettingsStat } from "./section";
 import { SettingsForm } from "./settings-form";
+import {PrintSettingsForm} from './print-settings-form';
+import {readPrintSettings} from '@/lib/print-settings-server';
 import { StatusList } from "./status-list";
 import { QuestionsManager } from "./questions-manager";
 import { BlacklistManager } from "./blacklist-manager";
@@ -25,6 +27,7 @@ export const dynamic = "force-dynamic";
 /** فهرست بخش‌های تنظیمات — همین ترتیب در ناوبری و صفحه رندر می‌شود */
 const SECTIONS: ShellItem[] = [
   { id: "biz", title: "نمایه کسب‌وکار و مالیات", icon: "settings", group: "کسب‌وکار", keywords: "نام کسب‌وکار، مالیات، ارزش افزوده، واحد پول، شماره‌گذاری، پیش‌شماره، عیب‌یابی، سقف اعتبار، آدرس عمومی" },
+  {id:'print',title:'چاپ و ظاهر اسناد',icon:'settings',group:'کسب‌وکار',keywords:'چاپ PDF فاکتور رسید برآورد سربرگ رنگ حاشیه فونت امضا'},
   { id: "branches", title: "شعبه‌ها", icon: "landmark", group: "کسب‌وکار", keywords: "شعبه، آدرس، تلفن، شهر، فعال" },
   { id: "repair-routing", title: "مسیر پذیرش و ارجاع", icon: "clipboard", group: "گردش کار تعمیر", keywords: "مدیر سرپرست صف آزاد تعمیرکار" },
   { id: "workflow", title: "وضعیت‌های گردش کار تعمیر", icon: "clipboard", group: "گردش کار تعمیر", keywords: "وضعیت، رنگ، انتقال، پیامک، SLA" },
@@ -48,6 +51,7 @@ export default async function SettingsPage() {
   const keys = ["business_name", "currency_unit", "tax_rate", "vat_enabled", "duty_rate", "round_to", "invoice_prefix", "ticket_prefix", "invoice_suffix", "ticket_suffix", "diagnostic_fee", "default_credit_limit", "public_base_url", "postal_api_url"];
   const values: Record<string, string> = {};
   for (const k of keys) values[k] = getSetting(k,k==="ticket_prefix"?"R":k==="invoice_prefix"?"INV-":"");
+  const printValues=readPrintSettings(db);
 
   const statuses = db.prepare("SELECT * FROM repair_statuses ORDER BY sort, id").all() as any[];
   // شمار پذیرش‌های فعلی هر وضعیت — برای نمایش «اکنون: N پذیرش» در نقشهٔ گردش کار
@@ -92,6 +96,9 @@ export default async function SettingsPage() {
       <SettingsShell
         items={SECTIONS}
         panes={Object.fromEntries([
+          <SettingsSection key="print" id="print" index={12} icon="settings" title="چاپ و ظاهر اسناد" desc="سربرگ، کاغذ، حاشیه، قلم و متن پایانی فاکتور، رسید و برآورد.">
+            <fieldset disabled={!canEdit}><PrintSettingsForm key={JSON.stringify(printValues)} values={{...printValues}} name={values.business_name??''}/></fieldset>
+          </SettingsSection>,
           <SettingsSection
             key="biz"
             id="biz"

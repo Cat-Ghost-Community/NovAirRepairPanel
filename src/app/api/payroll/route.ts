@@ -1,3 +1,4 @@
+import {canManagePayroll,requirePayrollManager} from '@/lib/payroll-permissions';
 import { NextRequest } from "next/server";
 import { requireSession,requirePerm,ok,fail,readJson,audit,validate,HttpError } from "@/lib/api";
 import { getDb } from "@/lib/db/schema";
@@ -6,7 +7,7 @@ import { activeBranch,recordBranchId } from "@/lib/branch";
 import { accountingDate,ledgerScope } from "@/lib/accounting";
 import { durableJsonResponse } from "@/lib/idempotency";
 import { quantityValue } from "@/lib/money";
-import { approveCommission,commissionEvidence,recordCommissionPayment } from "@/lib/commission-settlement";
+import { approveCommission,cancelPendingCommission,commissionEvidence,recordCommissionPayment } from "@/lib/commission-settlement";
 import { PAYROLL_SOURCE_JOINS,PAYROLL_BRANCH_SQL } from "@/lib/payroll-scope";
 
 export async function GET(req:NextRequest){try{
@@ -22,11 +23,11 @@ export async function GET(req:NextRequest){try{
     const deductions=db.prepare(`SELECT * FROM payroll_deductions WHERE user_id=? AND date BETWEEN ? AND ? ${scope.all?'':'AND branch_id=?'} ORDER BY id DESC LIMIT 200`).all(userId,from,to,...params);
     const runs=db.prepare(`SELECT r.*,p.paid paid_amount,p.effective_net,p.effective_commission,p.payable,p.recoverable,p.recovered
       FROM payroll_runs r JOIN users u ON u.id=r.user_id JOIN commission_positions p ON p.run_id=r.id ${PAYROLL_SOURCE_JOINS}
-      WHERE r.user_id=? ${scope.all?"":`AND ${PAYROLL_BRANCH_SQL}=?`} ORDER BY r.id DESC LIMIT 50`).all(userId,...params);
+      WHERE r.user_id=? AND date(r.period_from) BETWEEN ? AND ? ${scope.all?"":`AND ${PAYROLL_BRANCH_SQL}=?`} ORDER BY r.id DESC LIMIT 50`).all(userId,from,to,...params);
     return ok({report,deductions,runs});
   }
   const after=sp.has("after")?validate.id(sp.get("after")):0;
-  const staff=db.prepare(`SELECT u.id,u.name,u.role,u.avatar_color,p.salary_type,p.fixed_monthly,p.percent_repair,p.percent_parts,p.percent_only_labor,p.pay_period,
+  const staff=db.prepare(`SELECT u.id,u.name,u.role,u.avatar_color,p.salary_type,p.fixed_monthly,p.percent_repair,p.percent_parts,p.percent_only_labor,p.pay_period,p.is_active profile_active,
     COALESCE((SELECT SUM(CASE WHEN r.source_ticket_id IS NOT NULL AND r.base_salary=0 AND r.deductions=0
       THEN cp.payable ELSE cp.effective_commission END)
       FROM payroll_runs r JOIN commission_positions cp ON cp.run_id=r.id ${PAYROLL_SOURCE_JOINS} WHERE r.user_id=u.id
@@ -38,28 +39,35 @@ export async function GET(req:NextRequest){try{
 }catch(error){return fail(error);}}
 
 export async function POST(req:NextRequest){try{
-  const session=requireSession(req);requirePerm(session,"team.manage");requirePerm(session,"finance.manage");
+  const session=requireSession(req);if(!canManagePayroll(session)){requirePerm(session,"team.manage");requirePerm(session,"finance.manage");}
   const body=await readJson(req),db=getDb(),cookie=req.cookies.get("repaid_branch")?.value;
+  const managerial=['save_profile','add_deduction','cancel_run'].includes(body.action);
+  if(managerial)requirePayrollManager(session);else{requirePerm(session,'team.manage');requirePerm(session,'finance.manage');}
+  const permission=managerial?'finance.view':'finance.manage';
   let branch:number;
-  if(["pay_run","approve_run"].includes(body.action)){
+  if(["pay_run","approve_run","cancel_run"].includes(body.action)){
     const evidence=commissionEvidence(db,validate.id(body.id));branch=Number(evidence.run.branch_id);
-    ledgerScope(session,branch,cookie,"finance.manage");if(body.action==="pay_run")requirePerm(session,"payments.create");
+    ledgerScope(session,branch,cookie,permission);if(body.action==="pay_run")requirePerm(session,"payments.create");
   }else{
     const user=db.prepare("SELECT branch_id FROM users WHERE id=? AND is_active=1").get(validate.id(body.user_id));
-    if(!user)throw new HttpError(404,"کارمند فعال یافت نشد.");branch=Number(user.branch_id);ledgerScope(session,branch,cookie,"finance.manage");
+    if(!user)throw new HttpError(404,"کارمند فعال یافت نشد.");branch=Number(user.branch_id);ledgerScope(session,branch,cookie,permission);
   }
   if(!Number.isSafeInteger(branch)||branch<=0)branch=recordBranchId(session,cookie);
   return durableJsonResponse(db,{actorId:session.user.id,branchId:branch,operation:"payroll",key:req.headers.get("idempotency-key"),payload:body},()=>{
+    if(managerial)requirePayrollManager(session);
     if(body.action==="approve_run")return ok(approveCommission(db,session,validate.id(body.id),cookie));
+    if(body.action==="cancel_run")return ok(cancelPendingCommission(db,session,validate.id(body.id),{reason:body.reason,reference:body.reference},cookie));
     if(body.action==="pay_run")return ok(recordCommissionPayment(db,session,validate.id(body.id),body,cookie));
     if(body.action==="save_profile"){
       const salaryType=body.salary_type??"fixed",period=body.pay_period??"monthly";
       if(!["fixed","percent","mixed"].includes(salaryType)||!["monthly","weekly","daily"].includes(period))throw new HttpError(400,"نوع حقوق یا دورهٔ پرداخت معتبر نیست.");
       const rate=(value:unknown)=>{const n=quantityValue(value??0);if(n>100)throw new HttpError(400,"درصد دستمزد نباید از صد بیشتر باشد.");return n;};
+      if(body.is_active!=null&&![true,false,0,1].includes(body.is_active))throw new HttpError(400,'وضعیت محاسبهٔ پورسانت معتبر نیست.');
       const current=db.prepare("SELECT * FROM payroll_profiles WHERE user_id=?").get(body.user_id);
-      upsertProfile({user_id:validate.id(body.user_id),salary_type:salaryType,fixed_monthly:validate.amount(body.fixed_monthly??0),percent_repair:rate(body.percent_repair),
-        percent_parts:rate(body.percent_parts),percent_only_labor:body.percent_only_labor===true||body.percent_only_labor===1?1:0,pay_period:period,is_active:Number(current?.is_active??1)});
-      audit(session,"payroll_profile","user",Number(body.user_id),current??null,{salary_type:salaryType,fixed_monthly:validate.amount(body.fixed_monthly??0),branch_id:branch});
+      const profile={user_id:validate.id(body.user_id),salary_type:salaryType,fixed_monthly:validate.amount(body.fixed_monthly??0),percent_repair:rate(body.percent_repair),
+        percent_parts:rate(body.percent_parts),percent_only_labor:body.percent_only_labor===true||body.percent_only_labor===1?1:0,pay_period:period,is_active:body.is_active==null?Number(current?.is_active??1):body.is_active===true||body.is_active===1?1:0};
+      upsertProfile(profile);
+      audit(session,"payroll_profile","user",Number(body.user_id),current??null,{...profile,branch_id:branch});
       return ok({ok:true});
     }
     if(body.action==="add_deduction"){

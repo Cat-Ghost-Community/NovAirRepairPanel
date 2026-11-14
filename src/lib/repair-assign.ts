@@ -104,7 +104,7 @@ function searchWhere(q: string, dateFrom?: string | null, dateTo?: string | null
   if (term) {
     const like = `%${term}%`;
     parts.push(
-      `(t.number LIKE ? OR (c.first_name || ' ' || c.last_name) LIKE ? OR (d.brand || ' ' || d.model) LIKE ? OR d.imei LIKE ? OR d.serial LIKE ? OR c.mobile LIKE ? OR d.type LIKE ?)`
+      `(t.number LIKE ? OR (COALESCE(c.first_name,'') || ' ' || COALESCE(c.last_name,'')) LIKE ? OR (d.brand || ' ' || d.model) LIKE ? OR d.imei LIKE ? OR d.serial LIKE ? OR c.mobile LIKE ? OR d.type LIKE ?)`
     );
     params.push(like, like, like, like, like, like, like);
   }

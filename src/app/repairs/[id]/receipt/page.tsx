@@ -1,7 +1,8 @@
+import {customerDisplayName} from '@/lib/customer-identity';
 import { SignatureView } from "@/components/signature-pad";
 import { requirePageAccess } from "@/lib/page-access";
 import { requireRepairAccess } from "@/lib/repair-access";
-import { cookies } from "next/headers";
+import { cookies,headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db/schema";
 import { getSetting, decryptSecret } from "@/lib/repair";
@@ -10,14 +11,14 @@ import { fmtMoney, fmtDate, fmtDateTime, toFaDigits } from "@/lib/format";
 import PrintControls from "./print-controls";
 import {repairReceiptPositions} from '@/lib/repair-receipt-position';
 import {HttpError} from '@/lib/api';
+import {DocumentBrand,DocumentFooter,DocumentPrintStyles} from '@/components/document-print';
+import {readPrintSettings} from '@/lib/print-settings-server';
+import {printPaper} from '@/lib/print-settings';
+import {currentDeviceCatalog} from '@/lib/current-device-catalog';
+import {deviceTypeLabel} from '@/lib/device-catalog';
 
 export const dynamic = "force-dynamic";
 
-const TYPE_FA: Record<string, string> = {
-  mobile: "موبایل", laptop: "لپ‌تاپ", desktop: "دسکتاپ", tablet: "تبلت",
-  console: "کنسول بازی", smartwatch: "ساعت هوشمند", printer: "پرینتر",
-  network: "تجهیزات شبکه", other: "سایر",
-};
 
 export default async function ReceiptPage({
   params,
@@ -30,12 +31,13 @@ export default async function ReceiptPage({
   const { id } = await params;
   try{requireRepairAccess(session, Number(id), (await cookies()).get("repaid_branch")?.value);}catch(error){if(error instanceof HttpError&&[403,404].includes(error.status))notFound();throw error;}
   const sp = await searchParams;
-  const paper = sp.paper === "roll" ? "roll" : "a5";
+  const db = getDb(),documentSettings=readPrintSettings(db),catalog=await currentDeviceCatalog();
+  const trackingBase=(getSetting('public_base_url')||process.env.APP_ORIGIN||'http://'+((await headers()).get('host')??'localhost')).replace(/\/$/,'');
+  const paper = printPaper(sp.paper,documentSettings.print_receipt_paper);
   const showPrice = sp.price !== "0";
-  const db = getDb();
   const t = db
     .prepare(
-      `SELECT t.*, s.name status_name, c.first_name, c.last_name, c.mobile, c.phone, c.address,
+      `SELECT t.*, s.name status_name, c.first_name, c.last_name, c.salutation, c.mobile, c.phone, c.address,
               d.brand, d.model, d.type, d.serial, d.imei, d.color, u.name tech_name, b.name branch_name, b.phone branch_phone, b.address branch_address
        FROM repair_tickets t
        JOIN customers c ON c.id = t.customer_id
@@ -53,7 +55,7 @@ export default async function ReceiptPage({
   const deposit = position.review?null:position.net;
 
   const rows: Array<[string, string]> = [
-    ["نوع دستگاه", TYPE_FA[t.type] ?? t.type],
+    ["نوع دستگاه", deviceTypeLabel(catalog,t.type)],
     ["برند و مدل", `${t.brand ?? "—"} ${t.model ?? ""}`.trim()],
     ...(t.imei ? [["IMEI", t.imei] as [string, string]] : []),
     ...(t.serial ? [["سریال", t.serial] as [string, string]] : []),
@@ -69,12 +71,13 @@ export default async function ReceiptPage({
 
   return (
     <div className="overflow-x-auto print:overflow-visible">
+    <DocumentPrintStyles settings={documentSettings} paper={paper}/>
     <div className={`receipt mx-auto w-full p-4 ${paper === "roll" ? "max-w-[8cm]" : "max-w-[21cm]"} bg-white text-black`}>
       <PrintControls paper={paper} priceHidden={!showPrice} />
 
-      <div className="receipt-sheet">
+      <div className="receipt-sheet document-sheet" data-document="receipt">
         <header className="text-center border-b-2 border-black pb-2">
-          <h1 className="text-xl font-bold">{shop}</h1>
+          <DocumentBrand name={shop} settings={documentSettings}/>
           {t.branch_name && <p className="text-xs">{t.branch_name}{t.branch_phone ? ` — ${t.branch_phone}` : ""}</p>}
           <p className="text-sm font-bold mt-1">رسید پذیرش دستگاه</p>
         </header>
@@ -83,13 +86,13 @@ export default async function ReceiptPage({
           <div className="space-y-0.5">
             <p><b>شماره پذیرش:</b> <span className="font-mono text-base">{t.number}</span></p>
             <p><b>تاریخ:</b> {fmtDate(t.created_at)}</p>
-            <p><b>مشتری:</b> {t.first_name} {t.last_name}</p>
+            <p><b>مشتری:</b> {customerDisplayName(t)}</p>
             <p dir="ltr" className="text-right"><b>تلفن:</b> {toFaDigits(t.mobile ?? t.phone ?? "—")}</p>
             {t.address && <p className="text-xs"><b>نشانی:</b> {t.address}</p>}
           </div>
           <div className="text-center shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/api/qr?text=/track/${t.number}`} alt="QR پیگیری" className="h-20 w-20" />
+            <img src={`/api/qr?text=${encodeURIComponent(trackingBase+'/track?ticket='+encodeURIComponent(t.number))}`} alt="QR پیگیری" className="h-20 w-20" />
             <p className="text-[11px] mt-0.5">اسکن برای پیگیری</p>
           </div>
         </div>
@@ -132,7 +135,7 @@ export default async function ReceiptPage({
 
         {/* رسید تحویل حضوری با امضا — فقط وقتی تحویل با امضا ثبت شده باشد چاپ می‌شود */}
         {t.delivery_signature && (
-          <div className="mt-3 border-2 border-black p-2">
+          <div className="document-signed-evidence print-avoid-break mt-3 border-2 border-black p-2">
             <p className="font-bold text-sm">رسید تحویل دستگاه — امضای تحویل‌گیرنده</p>
             <div className="flex flex-col items-start gap-3 mt-2 sm:flex-row print:flex-row">
               <SignatureView dataUrl={t.delivery_signature} alt="امضای تحویل‌گیرنده" className="w-full sm:max-w-md" compact />
@@ -148,7 +151,7 @@ export default async function ReceiptPage({
           </div>
         )}
 
-        <div className="flex justify-between mt-6 text-sm">
+        <div className="document-signature-lines flex justify-between mt-6 text-sm">
           {t.delivery_signature ? (
             <div className="text-xs">امضای مشتری در کادر بالا ثبت شده است.</div>
           ) : (
@@ -160,17 +163,8 @@ export default async function ReceiptPage({
             <p className="border-t border-black pt-1 px-6">مهر و امضای تعمیرگاه</p>
           </div>
         </div>
+        <DocumentFooter settings={documentSettings}/>
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .receipt-sheet { font-family: Vazirmatn, sans-serif; }
-        @media print {
-          body { background: white !important; }
-          .receipt { max-width: none !important; padding: 0 !important; }
-          .no-print { display: none !important; }
-          @page { size: ${paper === "roll" ? "80mm auto" : "A5"}; margin: ${paper === "roll" ? "3mm" : "8mm"}; }
-        }
-      ` }} />
     </div>
     </div>
   );

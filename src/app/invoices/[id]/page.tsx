@@ -2,7 +2,7 @@ import { requirePageAccess } from "@/lib/page-access";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db/schema";
-import { fmtMoney, fmtDate, fmtDateTime, toFaDigits } from "@/lib/format";
+import { fmtMoney,fmtMoneyNumber,currencyUnitLabel, fmtDate, fmtDateTime, toFaDigits } from "@/lib/format";
 import { InvStatusBadge } from "@/app/repairs/[id]/workspace-client";
 import { PrintButton } from "./print-button";
 import { InstallmentsPanel } from "./installments-panel";
@@ -16,12 +16,16 @@ import { AutoPrint, InvoiceActions } from "./invoice-actions";
 import { activeBranch, BRANCH_COOKIE } from "@/lib/branch";
 import { invoiceObligation } from '@/lib/invoice-obligation';
 import { netInvoicePaid } from '@/lib/payment-state';
+import {DocumentBrand,DocumentFooter} from '@/components/document-print';
+import {readPrintSettings} from '@/lib/print-settings-server';
+import {chargeKindLabel} from '@/lib/charge-category';
+import {customerDisplayName} from '@/lib/customer-identity';
+import {multiplyRial} from '@/lib/money';
 
 export const dynamic = "force-dynamic";
 
 const METHOD_FA: Record<string, string> = { cash: "نقد", card: "کارتخوان", transfer: "حواله", cheque: "چک", check: "چک", credit: "نسیه", online: "آنلاین" };
 const TYPE_FA: Record<string, string> = { purchase: "فاکتور خرید", sale: "فاکتور فروش", repair: "فاکتور تعمیر دستگاه" };
-const KIND_FA: Record<string, string> = { part: "کالا", service: "خدمت", labor: "اجرت", fee: "هزینه", product: "محصول", device: "دستگاه", other: "سایر" };
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requirePageAccess("/invoices/[id]");
@@ -33,10 +37,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const canEdit = canUser(session, "invoices.edit");
   const canPay = canUser(session, "payments.create");
   const db = getDb();
+  const documentSettings=readPrintSettings(db);
   const invId = Number(id);
   const inv = db
     .prepare(
-      `SELECT i.*, c.first_name, c.last_name, c.company, c.mobile, c.address, c.city,
+      `SELECT i.*, c.first_name, c.last_name, c.salutation, c.company, c.mobile, c.address, c.city,
               sup.name supplier_name, sup.phone supplier_phone, sup.address supplier_address,
               t.number ticket_number, t.delivered_at, d.brand device_brand, d.model device_model,
               e.name employee_name, b.name branch_name
@@ -71,7 +76,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const balance = obligation.effective_total - inv.paid;
   const lineDiscTotal = items.reduce((s: number, i: any) => s + Number(i.line_discount ?? 0), 0);
   const endDisc = Math.max(0, Number(inv.discount ?? 0) - lineDiscTotal);
-  const partyName = isPurchase ? inv.supplier_name ?? "—" : inv.company ?? `${inv.first_name ?? ""} ${inv.last_name ?? ""}`.trim();
+  const partyName = isPurchase ? inv.supplier_name ?? "—" : inv.company || customerDisplayName(inv);
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -97,13 +102,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <PrintButton />
       </div>
 
-      <div className="card card-pad print-area">
+      <div className="card card-pad print-area document-sheet" data-document="invoice">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 font-bold text-white">R</span>
-              <span className="text-lg font-bold">{shop}</span>
-            </div>
+          <div className="min-w-0 flex-1">
+            <DocumentBrand name={shop} settings={documentSettings}/>
             {inv.branch_name && <div className="mt-2 text-xs text-zinc-500">{inv.branch_name}</div>}
           </div>
           <div className="text-left">
@@ -117,7 +119,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               {inv.ticket_number && (
                 <div>
                   پذیرش <span className="font-mono">{inv.ticket_number}</span>
-                  {inv.device_brand ? <span> — {inv.device_brand} {inv.device_model}</span> : null}
+                  {(inv.device_brand||inv.device_model) ? <span> — {inv.device_brand} {inv.device_model}</span> : null}
                 </div>
               )}
               {isPurchase && inv.external_number && <div>شماره فاکتور تأمین‌کننده: <span className="ltr-num" dir="ltr">{inv.external_number}</span></div>}
@@ -136,6 +138,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
+        {inv.status==='draft'&&<p className="mt-4 border border-zinc-400 p-2 text-sm font-semibold">پیش‌نویس — این سند هنوز نهایی نشده است.</p>}
         <div className="mt-5 grid gap-4 border-t border-zinc-200 pt-4 sm:grid-cols-2 dark:border-zinc-800">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">{isPurchase ? "تأمین‌کننده" : "صورتحساب برای"}</div>
@@ -153,13 +156,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
         <table className="mt-5 w-full border-t border-zinc-200 dark:border-zinc-800">
           <thead className="print-repeat">
+            <tr className="hidden print:table-row"><th colSpan={lineDiscTotal>0?5:4} className="text-right text-xs">{TYPE_FA[type]??type} · <bdi dir="ltr">{inv.number}</bdi></th></tr>
             <tr className="border-b border-zinc-200 dark:border-zinc-800">
               <th className="th text-right">شرح</th>
-              <th className="th">نوع</th>
+              <th className="th document-kind">نوع</th>
               <th className="th">تعداد</th>
-              <th className="th">قیمت واحد</th>
-              {lineDiscTotal > 0 && <th className="th">تخفیف</th>}
-              <th className="th">جمع</th>
+              <th className="th">قیمت واحد <span className="block text-xs">({currencyUnitLabel()})</span></th>
+              {lineDiscTotal > 0 && <th className="th">تخفیف <span className="block text-xs">({currencyUnitLabel()})</span></th>}
+              <th className="th">جمع <span className="block text-xs">({currencyUnitLabel()})</span></th>
             </tr>
           </thead>
           <tbody>
@@ -169,17 +173,17 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   {i.name}
                   {i.sku && <span className="mr-1 text-[10px] text-zinc-400 ltr-num" dir="ltr">{i.sku}</span>}
                 </td>
-                <td className="td text-xs text-zinc-500">{KIND_FA[i.kind] ?? i.kind}</td>
+                <td className="td document-kind text-xs text-zinc-500">{chargeKindLabel(i.kind,type)}</td>
                 <td className="td">{toFaDigits(i.qty)}</td>
-                <td className="td">{fmtMoney(i.unit_price)}</td>
-                {lineDiscTotal > 0 && <td className="td">{Number(i.line_discount ?? 0) > 0 ? `−${fmtMoney(i.line_discount)}` : "—"}</td>}
-                <td className="td font-medium">{fmtMoney((i.total ?? 0) > 0 ? i.total : Math.round(i.qty * i.unit_price) - Number(i.line_discount ?? 0))}</td>
+                <td className="td document-money">{fmtMoneyNumber(i.unit_price)}</td>
+                {lineDiscTotal > 0 && <td className="td document-money">{Number(i.line_discount ?? 0) > 0 ? `−${fmtMoneyNumber(i.line_discount)}` : "—"}</td>}
+                <td className="td document-money font-medium">{fmtMoneyNumber(i.total ?? Math.max(0,multiplyRial(i.unit_price,i.qty)-Number(i.line_discount??0)))}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="print-avoid-break mt-4 mr-auto max-w-56 space-y-1 text-sm">
+        <div className="document-totals print-avoid-break mt-4 mr-auto max-w-56 space-y-1 text-sm">
           <div className="flex justify-between"><span className="text-zinc-500">جمع اقلام</span><span>{fmtMoney(inv.subtotal)}</span></div>
           {lineDiscTotal > 0 && <div className="flex justify-between"><span className="text-zinc-500">تخفیف اقلام</span><span>−{fmtMoney(lineDiscTotal)}</span></div>}
           {endDisc > 0 && <div className="flex justify-between"><span className="text-zinc-500">تخفیف فاکتور</span><span>−{fmtMoney(endDisc)}</span></div>}
@@ -250,13 +254,13 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         {inv.notes && <p className="mt-4 text-xs text-zinc-500">یادداشت: {inv.notes}</p>}
 
         {(type === "repair" || type === "sale") && (
-          <div className="print-signatures mt-10 grid grid-cols-2 gap-8 text-xs text-zinc-400">
+          <div className="document-signature-lines print-signatures mt-10 grid grid-cols-2 gap-8 text-xs text-zinc-400">
             <div className="border-t border-dashed border-zinc-300 pt-2 dark:border-zinc-700">امضای مشتری / تحویل‌گیرنده</div>
             <div className="border-t border-dashed border-zinc-300 pt-2 dark:border-zinc-700">مهر و امضای فروشنده</div>
           </div>
         )}
         {isPurchase && (
-          <div className="print-signatures mt-10 grid grid-cols-2 gap-8 text-xs text-zinc-400">
+          <div className="document-signature-lines print-signatures mt-10 grid grid-cols-2 gap-8 text-xs text-zinc-400">
             <div className="border-t border-dashed border-zinc-300 pt-2 dark:border-zinc-700">تحویل‌گیرندهٔ انبار</div>
             <div className="border-t border-dashed border-zinc-300 pt-2 dark:border-zinc-700">مهر و امضای تأمین‌کننده</div>
           </div>
@@ -269,6 +273,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               ? `با تشکر از خرید شما از ${shop}. کالاهای دارای گارانتی با ارائهٔ همین فاکتور پیگیری می‌شوند.`
               : `سند خرید از تأمین‌کننده — مبنای تسویهٔ مالی و ورود کالا به انبار ${shop}.`}
         </p>
+        <DocumentFooter settings={documentSettings}/>
       </div>
 
       {!isPurchase && (

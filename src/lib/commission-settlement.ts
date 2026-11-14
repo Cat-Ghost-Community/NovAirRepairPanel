@@ -8,6 +8,7 @@ import { atomic } from "@/lib/db/transaction";
 import { rial,sumRial } from "@/lib/money";
 import { PAYROLL_SOURCE_JOINS,PAYROLL_BRANCH_SQL } from "@/lib/payroll-scope";
 import {commissionPosition,correctedCommissionApproval} from '@/lib/commission-position';
+import {requirePayrollManager} from '@/lib/payroll-permissions';
 
 export function commissionEvidence(db:DatabaseSync,id:number) {
   const run=db.prepare(`SELECT r.id,r.user_id,r.base_salary,r.earned_commission,r.deductions,r.net_payable,r.source_ticket_id,
@@ -44,6 +45,26 @@ export function approveCommission(db:DatabaseSync,session:Session,id:number,cook
     audit(session,"approve","commission",id,{status:run.status},{status:"approved",amount:run.net_payable,branch_id:run.branch_id});
     return {id,approved:true,duplicate:false};
   });
+}
+/** Unrecognized drafts can be cancelled; recognized liabilities require a reviewed compensating document. */
+export function cancelPendingCommission(db:DatabaseSync,session:Session,id:number,input:{reason:unknown;reference:unknown},cookie?:string|null){
+ requirePayrollManager(session);
+ return atomic(db,()=>{
+  requirePayrollManager(session);
+  const {run}=commissionEvidence(db,id);ledgerScope(session,Number(run.branch_id),cookie,'finance.view');
+  if(typeof input.reason!=='string'||input.reason.trim().length<5||input.reason.length>1000||typeof input.reference!=='string'||input.reference.trim().length<5||input.reference.length>200)throw new HttpError(400,'دلیل لغو و مرجع تصمیم را مستند وارد کنید.');
+  if(run.user_id===session.user.id)throw new HttpError(403,'تغییر دستمزد خودتان به تصمیم مستقل نیاز دارد.');
+  if(run.status==='cancelled')return {ok:true,id,cancelled:true,duplicate:true};
+  const guarded=db.prepare(`SELECT 1 WHERE EXISTS(SELECT 1 FROM commission_approvals WHERE run_id=?)
+   OR EXISTS(SELECT 1 FROM commission_payments WHERE run_id=?)
+   OR EXISTS(SELECT 1 FROM commission_corrections WHERE run_id=? AND state!='rejected')
+   OR EXISTS(SELECT 1 FROM accounting_events e JOIN accounting_event_reviews review ON review.event_id=e.id WHERE e.source_type='commission' AND e.source_id=?)`).get(id,id,id,String(id));
+  if(run.status!=='pending'||run.paid_at||guarded)throw new HttpError(409,'این پورسانت تأیید یا ثبت مالی شده است؛ ابطال باید از مسیر اصلاح مصوب انجام شود.');
+  db.prepare("UPDATE payroll_runs SET status='cancelled' WHERE id=? AND status='pending'").run(id);
+  captureFinancialDocument(db,'commission',id,'cancellation',session.user.id,Number(run.branch_id));
+  audit(session,'cancel','commission',id,{status:run.status},{status:'cancelled',reason:input.reason.trim(),reference:input.reference.trim(),branch_id:run.branch_id});
+  return {ok:true,id,cancelled:true,duplicate:false};
+ });
 }
 export function recordCommissionPayment(db:DatabaseSync,session:Session,id:number,input:{amount:unknown;method:string;payment_date:string;document_reference:string;confirmed:boolean},cookie?:string|null) {
   requirePerm(session,"team.manage");requirePerm(session,"finance.manage");requirePerm(session,"payments.create");
